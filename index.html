@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- three.jsのcanvas要素を配置するための場所 -->
+  <div id="canvas-container"></div>
+  <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/",
+          "webxr-polyfill": "https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.module.js"
+        }
+      }
+    </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+  <script src="https://unpkg.com/shpjs@3.5.0/dist/shp.min.js"></script>
+  <script type="module">
+    // three.jsの読み込み
+    import * as THREE from "three";
+    // WebVRの判定、遷移ボタンのスクリプト
+    import { VRButton } from "three/addons/webxr/VRButton.js";
+
+    // WebXRのポリフィルを読み込み
+    import WebXRPolyfill from "webxr-polyfill";
+    //コントローラ
+    import { XRControllerModelFactory } from 'https://unpkg.com/three@0.150.1/examples/jsm/webxr/XRControllerModelFactory.js';
+    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+    import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+
+    //import { TextureLoader } from 'three/addons/loaders/TextureLoader.js';
+    // import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    // import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
+    // import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
+    //スコア変数
+    let scores = 0;
+    //time
+    let times = 0;
+    let time2 = 0;
+    let check = false;
+    let stop = false;
+    //コントローラー
+    let controller1, controller2;
+    let controllerGrip1, controllerGrip2;
+
+    // WebXRのポリフィルを有効にする
+    const polyfill = new WebXRPolyfill();
+
+    // サイズを指定
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+
+    // レンダラーを作成
+    let renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // レンダラーのWebVR設定を有効にする
+    console.log(renderer);
+    renderer.xr.enabled = true;
+
+    document.body.appendChild(renderer.domElement);
+
+    // WebVRの開始ボタンをDOMに追加
+    document.body.appendChild(VRButton.createButton(renderer));
+
+    // シーンを作成
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xe0ffff);
+
+    // カメラを作成
+    const camera = new THREE.PerspectiveCamera(90, width / height);
+
+
+    // カメラ用コンテナを作成
+    const cameraContainer = new THREE.Object3D();
+    cameraContainer.position.set(0, 0, 0);
+    //右にX60前にZ-150
+    cameraContainer.add(camera);
+    scene.add(cameraContainer);
+    // //バックグラウンド背景
+    // const loader = new THREE.TextureLoader();
+    // const bgTexture = loader.load('background.jpg');
+    // const sphereGeometry = new THREE.SphereGeometry(1000, 1000, 1000);
+    // const material = new THREE.MeshBasicMaterial({ map: bgTexture, side: THREE.BackSide });
+    // const sphere = new THREE.Mesh(sphereGeometry, material);
+    // scene.add(sphere);
+
+
+
+    //   光源を作成
+    {
+      const spotLight = new THREE.SpotLight(
+        0xffffff,
+        4,
+        2000,
+        Math.PI / 5,
+        0.2,
+        1.5
+      );
+      spotLight.position.set(500, 900, 500);
+      scene.add(spotLight);
+
+      const ambientLight = new THREE.AmbientLight(0x333333);
+      scene.add(ambientLight);
+    }
+    //       // GLTF形式のモデルデータを読み込む
+    //       const loader2 = new GLTFLoader();
+    //       // GLTFファイルのパスを指定
+    //       const objects = await loader2.loadAsync("東京23区地図.glb");
+    //       // 読み込み後に3D空間に追加
+    //       const model = objects.scene;
+    //       scene.add(model);
+    //     // MTLLoaderでMTLファイルを読み込み
+    // const mtlLoader = new MTLLoader();
+    // mtlLoader.load("Scene1.mtl", function (materials) {
+    //     materials.preload();
+
+    //     // OBJLoaderでOBJファイルを読み込み
+    //     const objLoader = new OBJLoader();
+    //     objLoader.setMaterials(materials);
+    //     objLoader.load("Scene1.obj", function (object) {
+    //         scene.add(object);
+    //     });
+    // });
+
+    // シェープファイルのデータを読み込み、GeoJSONとして表示
+    // function loadShapefile(url) {
+    //   shp(url).then(function (geojson) {
+    //     geojson.features.forEach(feature => {
+    //       const coordinates = feature.geometry.coordinates;
+    //       coordinates.forEach(coord => {
+    //         const [lon, lat] = coord;
+
+    //         // ピンとして表示するためのジオメトリとマテリアルを作成
+    //         const pinGeometry = new THREE.ConeGeometry(0.01, 0.05, 32);
+    //         const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    //         const pin = new THREE.Mesh(pinGeometry, pinMaterial);
+
+    //         // 座標をThree.jsの位置に変換（仮にそのまま使用）
+    //         pin.position.set(lon, 0.025, -lat);
+    //         scene.add(pin);
+    //       });
+    //     });
+    //   });
+    // }
+
+    // // シェープファイルを指定したURLからロード
+    // loadShapefile('A40-20_14.GML.zip');
+
+
+    let time = 0;
+    let zoom = 15;
+    let centerLon = 139.37411; // 東京都心の経度
+    let centerLat = 35.44666;   // 東京都心の緯度
+    // 神奈川35.481666902138336, 139.35879951675716
+    //東京35.689,139.6917
+    // タイルメッシュを保持する配列
+    let tiles = [];
+    let pins = []; // すべてのピンを管理する配列
+
+    function map() {
+      const loader = new THREE.TextureLoader();
+      const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+      const centerTile = lonLatToTileXY(centerLon, centerLat, zoom);
+      const tileOriginX = Math.floor(centerTile.x) - 2;
+      const tileOriginY = Math.floor(centerTile.y) - 2;
+
+      // タイルをロードする関数
+      function loadOSMTile(x, y, z) {
+        const subdomain = ['a', 'b', 'c'][Math.floor(Math.random() * 3)];
+        const url = osmUrl.replace('{s}', subdomain).replace('{z}', z).replace('{x}', x).replace('{y}', y);
+
+        loader.load(url, function (texture) {
+          const geometry = new THREE.PlaneGeometry(0.5, 0.5);
+          const material = new THREE.MeshBasicMaterial({ map: texture });
+          const tile = new THREE.Mesh(geometry, material);
+          tile.rotation.x = -Math.PI / 2;
+          tile.position.set((x - 2 - tileOriginX) * 0.5, 0, (y - 5 - tileOriginY) * 0.5);
+
+          // タイルを配列に追加
+          tiles.push(tile);
+          scene.add(tile);
+        }, undefined, function (err) {
+          console.error('タイルの読み込みに失敗しました:', err);
+        });
+      }
+
+      // タイルを複数ロード
+      for (let x = tileOriginX; x < tileOriginX + 5; x++) {
+        for (let y = tileOriginY; y < tileOriginY + 5; y++) {
+          loadOSMTile(x, y, zoom);
+        }
+      }
+
+      // 緯度経度をタイル座標に変換する関数
+      function lonLatToTileXY(lon, lat, zoom) {
+        const tileCount = Math.pow(2, zoom);
+        const x = ((lon + 180) / 360) * tileCount;
+        const y = (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * tileCount;
+        return { x, y };
+      }
+
+      // 緯度経度をThree.jsのシーン座標に変換する関数
+      function convertCoordinates(lon, lat) {
+        const tile = lonLatToTileXY(lon, lat, zoom);
+
+        // マップの中心となるタイルを基準にオフセットを計算
+        const xOffset = tile.x - tileOriginX;
+        const yOffset = tile.y - tileOriginY;
+
+        // Three.js の空間でのタイルの大きさに合わせたスケールファクター (タイル幅の0.5単位)
+        const tileScale = 0.7;
+
+        // スケールを適用して座標を計算
+        const x = (tile.x - 2.5 - tileOriginX) * 0.5;
+        const z = (tile.y - 5.5 - tileOriginY) * 0.5;
+
+        console.log('Tile X: ' + tile.x + ', Tile Y: ' + tile.y + ', Converted X: ' + x + ', Z: ' + z);
+        return { x, z };
+      }
+
+      function calculatePinSize(zoom) {
+        let size;
+        if (zoom > 12) {
+          size = 0.002;
+        } else size = 0.002
+        return size;
+      }
+
+      function loadShapefile(url) {
+
+        // シェープファイルをロードしてピンを再表示
+        shp(url).then(function (geojson) {
+          geojson.features.forEach(feature => {
+            console.log(JSON.stringify(feature, null, 2));
+            if (feature.geometry.type === 'Point') {
+              const [lon, lat] = feature.geometry.coordinates;
+              if (isWithinTileBounds(lon, lat)) {
+                const pos = convertCoordinates(lon, lat);
+                const pinsize = calculatePinSize(zoom);
+                const pinGeometry = new THREE.CylinderGeometry(pinsize, pinsize, 0.5);
+                const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                const pin = new THREE.Mesh(pinGeometry, pinMaterial);
+
+                pin.position.set(pos.x, 0.025, pos.z);
+
+                scene.add(pin); // シーンにピンを追加
+                pins.push(pin); // 配列にピンを追加して追跡
+              }
+            }
+            // ポリゴンやラインの処理も必要に応じて追加
+          });
+
+          console.log("シェープファイルのデータをロードしました");
+        }).catch(function (error) {
+          console.error("シェープファイルの読み込みに失敗しました:", error);
+        });
+      }
+      // タイルの範囲内に座標があるかを確認する関数
+      function isWithinTileBounds(lon, lat) {
+        const tileNW = tileToLonLat(tileOriginX, tileOriginY, zoom); // タイルの左上
+        const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 5, zoom); // タイルの右下
+
+        return (
+          lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
+          lat <= tileNW.lat && lat >= tileSE.lat    // 緯度が範囲内
+        );
+      }
+
+      // タイル座標から緯度経度に変換する関数
+      function tileToLonLat(x, y, zoom) {
+        const n = Math.pow(2, zoom);
+        const lon = ((x / n) * 360 - 180);
+        const lat = Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / n))) * (180 / Math.PI);
+        return { lon, lat };
+      }
+      // シェープファイルのパスを指定（.zip形式）
+      loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
+
+    }
+    map();
+
+
+    // タイルを削除する関数
+    function clearTiles() {
+      tiles.forEach(tile => {
+        scene.remove(tile); // シーンからタイルを削除
+      });
+      tiles = []; // 配列をクリア
+    }
+    function clearPins() {
+      pins.forEach(pin => {
+        scene.remove(pin);  // シーンからピンを削除
+        pins = [];
+      });
+      pins = []; // 配列をクリア
+    }
+    // 毎フレーム時に実行されるループイベント
+    function tick() {
+      // // レンダリング
+      renderer.render(scene, camera);
+    }
+
+
+    // リサイズ処理
+    window.addEventListener("resize", onResize);
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    /* ----コントローラー設定----- */
+
+    // コントローラーイベントの設定
+    function onSelectStart() {
+      this.userData.isSelecting = true;
+    }
+    function onSelectEnd() {
+      this.userData.isSelecting = false;
+    }
+
+    //コントローラー取得
+    controller1 = renderer.xr.getController(0);
+    controller1.addEventListener('selectstart', onSelectStart);
+    controller1.addEventListener('selectend', onSelectEnd);
+    cameraContainer.add(controller1);
+    controller2 = renderer.xr.getController(1);
+    controller2.addEventListener('selectstart', onSelectStart);
+    controller2.addEventListener('selectend', onSelectEnd);
+    cameraContainer.add(controller2);
+
+    //コントローラーモデルを取得
+    const controllerModelFactory = new XRControllerModelFactory();
+    controllerGrip1 = renderer.xr.getControllerGrip(0);
+    controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+    cameraContainer.add(controllerGrip1);
+    controllerGrip2 = renderer.xr.getControllerGrip(1);
+    controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
+    cameraContainer.add(controllerGrip2);
+
+    // Set positions for controllers
+    controller1.position.set(0.5, 200, 0.5); // Example position for controller1
+    controller2.position.set(-0.5, 200, 0.5); // Example position for controller2
+    // コントローラーに userData プロパティを追加して id を設定する
+    controller1.userData.id = 0;
+    controller2.userData.id = 1;
+    //コントローラーから出る光線の作成				
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -0.6)]);
+    const line1 = new THREE.Line(geo);
+    const line2 = new THREE.Line(geo);
+    line1.name = 'line';
+    line1.scale.z = 5;
+    line2.name = 'line';
+    line2.scale.z = 5;
+    controller1.add(line1.clone());
+    controller2.add(line2.clone());
+
+    //機能
+
+    // レイキャスターを作成
+    const raycaster = new THREE.Raycaster();
+
+    // 光線の方向ベクトルを格納するVector3
+    const rayDirection = new THREE.Vector3();
+    let hasZoomed1 = true; // ボタンを押した状態を追跡するフラグ
+    let hasZoomed2 = true; // ボタンを押した状態を追跡するフラグ
+    // レイキャスターの原点（コントローラーの位置）を格納するVector3
+    const rayOrigin = new THREE.Vector3();
+    function handleController(controller) {
+      const userData = controller.userData;
+
+      if (userData.isSelecting === true) {
+        if (userData.id == 0) {
+          line1.material.color.set(0xff0000); // 赤色に設定
+          if (hasZoomed1 && zoom < 19) {
+            zoom++;
+            clearTiles();
+            clearPins();
+            map();
+            hasZoomed1 = false;
+          }
+        } else {
+          line2.material.color.set(0xff0000);
+          if (hasZoomed2 && zoom > 5) {
+            zoom--;
+            clearTiles();
+            clearPins();
+            map();
+            hasZoomed2 = false;
+          }
+        }
+
+        // コントローラーの位置をrayOriginにセット
+        rayOrigin.setFromMatrixPosition(controller.matrixWorld);
+
+        // コントローラーの前方に向けて光線を伸ばす
+        controller.getWorldDirection(rayDirection);
+        rayDirection.normalize().multiplyScalar(1);
+        rayDirection.negate(); // 光線の方向を反転する
+        raycaster.set(rayOrigin, rayDirection);
+
+      } else if (userData.id == 0) {
+        line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
+      } else { line2.material.color.set(0xffffff); hasZoomed2 = true }
+    }
+    /* ----コントローラー設定----- */
+
+
+
+    // レンダラーにループ関数を登録
+    //renderer.setAnimationLoop(tick);
+
+
+    function render() {
+      tick();
+      handleController(controller1);
+      handleController(controller2);
+
+    }
+
+    // 初回のレンダリングループの開始
+    renderer.setAnimationLoop(render);
+  </script>
+</body>
+
+</html>
