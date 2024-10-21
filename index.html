@@ -387,8 +387,8 @@ scene.add(cameraContainer2);
       renderer.render(scene, camera);
 
     //    // 後方カメラを右上に小さく描画
-    const insetWidth = window.innerWidth / 4;
-    const insetHeight = window.innerHeight / 4;
+    const insetWidth = window.innerWidth / 2;
+    const insetHeight = window.innerHeight / 2;
     renderer.setViewport(window.innerWidth - insetWidth - 10, 10, insetWidth, insetHeight);
     renderer.setScissor(window.innerWidth - insetWidth - 10, 10, insetWidth, insetHeight);
     renderer.setScissorTest(true);
