@@ -82,7 +82,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(90, width / height);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
 
 
     // カメラ用コンテナを作成
@@ -91,6 +91,13 @@
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
+// カメラ2 (後方を映す)
+const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+const cameraContainer2 = new THREE.Object3D();
+cameraContainer2.position.set(0, 0, 0);
+cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
+cameraContainer2.add(camera2);
+scene.add(cameraContainer2);
     // //バックグラウンド背景
     // const loader = new THREE.TextureLoader();
     // const bgTexture = loader.load('background.jpg');
@@ -162,15 +169,24 @@
     // loadShapefile('A40-20_14.GML.zip');
 
 
+
+
+
+
+
+
+
+
     let time = 0;
-    let zoom = 15;
-    let centerLon = 139.37411; // 東京都心の経度
-    let centerLat = 35.44666;   // 東京都心の緯度
+    let zoom = 14;
+    let centerLon = 139.7454; // 東京都心の経度
+    let centerLat = 35.6586;   // 東京都心の緯度
     // 神奈川35.481666902138336, 139.35879951675716
     //東京35.689,139.6917
     // タイルメッシュを保持する配列
-    let tiles = [];
+    let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
+    let lines = [];//すべての経路を管理する配列
 
     function map() {
       const loader = new THREE.TextureLoader();
@@ -186,11 +202,11 @@
         const url = osmUrl.replace('{s}', subdomain).replace('{z}', z).replace('{x}', x).replace('{y}', y);
 
         loader.load(url, function (texture) {
-          const geometry = new THREE.PlaneGeometry(0.5, 0.5);
+          const geometry = new THREE.PlaneGeometry(1, 1);
           const material = new THREE.MeshBasicMaterial({ map: texture });
           const tile = new THREE.Mesh(geometry, material);
           tile.rotation.x = -Math.PI / 2;
-          tile.position.set((x - 2 - tileOriginX) * 0.5, 0, (y - 5 - tileOriginY) * 0.5);
+          tile.position.set((x - 2 - tileOriginX), 0, (y - 5 - tileOriginY));
 
           // タイルを配列に追加
           tiles.push(tile);
@@ -201,9 +217,17 @@
       }
 
       // タイルを複数ロード
-      for (let x = tileOriginX; x < tileOriginX + 5; x++) {
-        for (let y = tileOriginY; y < tileOriginY + 5; y++) {
-          loadOSMTile(x, y, zoom);
+      const maxRequests = 10; // 一度にリクエストする最大数
+      let currentRequests = 0;
+      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+        for (let y = tileOriginY - (10 - Math.floor(zoom / 2)); y < tileOriginY + 19; y++) {
+          if (currentRequests < maxRequests) {
+            loadOSMTile(x, y, zoom);
+            currentRequests++;
+          } else {
+            // 残りは次のフレームで処理する
+            requestAnimationFrame(() => loadOSMTile(x, y, zoom));
+          }
         }
       }
 
@@ -227,10 +251,10 @@
         const tileScale = 0.7;
 
         // スケールを適用して座標を計算
-        const x = (tile.x - 2.5 - tileOriginX) * 0.5;
-        const z = (tile.y - 5.5 - tileOriginY) * 0.5;
+        const x = (tile.x - 2.5 - tileOriginX);
+        const z = (tile.y - 5.5 - tileOriginY);
 
-        console.log('Tile X: ' + tile.x + ', Tile Y: ' + tile.y + ', Converted X: ' + x + ', Z: ' + z);
+
         return { x, z };
       }
 
@@ -247,7 +271,7 @@
         // シェープファイルをロードしてピンを再表示
         shp(url).then(function (geojson) {
           geojson.features.forEach(feature => {
-            console.log(JSON.stringify(feature, null, 2));
+            //console.log(JSON.stringify(feature, null, 2));
             if (feature.geometry.type === 'Point') {
               const [lon, lat] = feature.geometry.coordinates;
               if (isWithinTileBounds(lon, lat)) {
@@ -292,28 +316,83 @@
       // シェープファイルのパスを指定（.zip形式）
       loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
 
+      //経路探索
+      // 出発地点と目的地点の緯度経度を定義
+      const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
+      const startLon = 139.6917; // 出発地点の経度 (例: 東京)
+      const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
+      const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
+      // OSRM APIのURLを構築
+      const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
+
+      // 経路データを取得
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          // 経路情報を取得
+          const route = data.routes[0].geometry.coordinates;
+
+          // 取得した経路を表示する (地図表示の関数)
+          displayRouteOnMap(route);
+        })
+        .catch(error => console.error('Error fetching route:', error));
+
+
+      function displayRouteOnMap(route) {
+        console.log("経路を表示:", route);
+        
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // 経路を青色で表示
+        const points = [];
+
+        // 経路データをThree.jsの座標に変換
+        route.forEach(coord => {
+          const lon = coord[0];
+          const lat = coord[1];
+          const { x, z } = convertCoordinates(lon, lat);  // 緯度経度をThree.jsの座標系に変換
+          points.push(new THREE.Vector3(x, 0.01, z));  // Y軸を0.01に設定して地面から少し浮かせる
+        });
+
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+
+        // 経路をシーンに追加
+        scene.add(line);
+        lines.push(line);
+      }
     }
     map();
 
 
-    // タイルを削除する関数
-    function clearTiles() {
+    // タイル、ピン、経路を削除する関数
+    function clear() {
       tiles.forEach(tile => {
         scene.remove(tile); // シーンからタイルを削除
       });
       tiles = []; // 配列をクリア
-    }
-    function clearPins() {
       pins.forEach(pin => {
         scene.remove(pin);  // シーンからピンを削除
         pins = [];
       });
       pins = []; // 配列をクリア
+      lines.forEach(line => {
+        scene.remove(line); // シーンからタイルを削除
+      });
+      lines = []; // 配列をクリア
     }
+
+
     // 毎フレーム時に実行されるループイベント
     function tick() {
       // // レンダリング
       renderer.render(scene, camera);
+
+    //    // 後方カメラを右上に小さく描画
+    const insetWidth = window.innerWidth / 4;
+    const insetHeight = window.innerHeight / 4;
+    renderer.setViewport(window.innerWidth - insetWidth - 10, 10, insetWidth, insetHeight);
+    renderer.setScissor(window.innerWidth - insetWidth - 10, 10, insetWidth, insetHeight);
+    renderer.setScissorTest(true);
+    renderer.render(scene, camera2);
     }
 
 
@@ -391,8 +470,7 @@
           line1.material.color.set(0xff0000); // 赤色に設定
           if (hasZoomed1 && zoom < 19) {
             zoom++;
-            clearTiles();
-            clearPins();
+            clear();
             map();
             hasZoomed1 = false;
           }
@@ -400,8 +478,7 @@
           line2.material.color.set(0xff0000);
           if (hasZoomed2 && zoom > 5) {
             zoom--;
-            clearTiles();
-            clearPins();
+            clear();
             map();
             hasZoomed2 = false;
           }
@@ -426,10 +503,38 @@
 
     // レンダラーにループ関数を登録
     //renderer.setAnimationLoop(tick);
+    // フラストムを生成
+    const frustum = new THREE.Frustum();
+    const cameraViewProjectionMatrix = new THREE.Matrix4();
 
+    function updateVisibleTiles() {
+      // カメラのビュー投影行列を更新
+      camera.updateMatrixWorld(); // ワールドマトリクスを更新
+      cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+      frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
+
+      tiles.forEach(tile => {
+        // タイルのボックスを生成
+        const box = new THREE.Box3().setFromCenterAndSize(tile.position, new THREE.Vector3(1, 1, 1));
+
+        // タイルがフラストム内にあるかを確認
+        if (frustum.intersectsBox(box)) {
+          // フラストム内の場合はシーンに追加
+          if (!scene.children.includes(tile)) {
+            scene.add(tile);
+          }
+        } else {
+          // フラストム外の場合はシーンから削除
+          if (scene.children.includes(tile)) {
+            scene.remove(tile);
+          }
+        }
+      });
+    }
 
     function render() {
       tick();
+     // updateVisibleTiles();
       handleController(controller1);
       handleController(controller2);
 
