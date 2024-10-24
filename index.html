@@ -403,11 +403,11 @@ function updateHUDPosition() {
     // 毎フレーム時に実行されるループイベント
     function tick() {
         // 後方カメラの映像をテクスチャにレンダリング
-         // renderer.setRenderTarget(renderTarget);
-       
+          renderer.setRenderTarget(renderTarget);
+       renderer.clear(); // クリアを追加
         renderer.render(scene, camera2);
         renderer.setRenderTarget(null);
-      
+      renderer.clear(); // クリアを追加
         
 
     // 通常のVRレンダリング
