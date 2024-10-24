@@ -97,7 +97,7 @@ const cameraContainer2 = new THREE.Object3D();
 cameraContainer2.position.set(0, 0, 0);
 cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
 //cameraContainer2.add(camera2);
-    scene.add(cameraContainer2);
+//scene.add(cameraContainer2);
 // ミラーとして使用する後方カメラの映像を保存するためのターゲット
 const renderTarget = new THREE.WebGLRenderTarget(512, 512);
 
@@ -408,7 +408,7 @@ function updateHUDPosition() {
     
           // 後方カメラの映像をテクスチャにレンダリング
     renderer.setRenderTarget(renderTarget);
-    renderer.render(scene, camera2);
+    //renderer.render(scene, camera2);
 
     // 通常のVRレンダリング
     renderer.setRenderTarget(null);
