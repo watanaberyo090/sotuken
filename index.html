@@ -404,9 +404,10 @@ function updateHUDPosition() {
     function tick() {
         // 後方カメラの映像をテクスチャにレンダリング
         renderer.setRenderTarget(renderTarget);
-       renderer.clear();  // 描画ターゲットをクリア
+       
         renderer.render(scene, camera2);
         renderer.setRenderTarget(null);
+      renderer.clear();  // 描画ターゲットをクリア
         
 
     // 通常のVRレンダリング
