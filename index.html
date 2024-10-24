@@ -82,7 +82,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
 
 
     // カメラ用コンテナを作成
@@ -92,12 +92,33 @@
     cameraContainer.add(camera);
     scene.add(cameraContainer);
 // カメラ2 (後方を映す)
-const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
 const cameraContainer2 = new THREE.Object3D();
 cameraContainer2.position.set(0, 0, 0);
 cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
 cameraContainer2.add(camera2);
 scene.add(cameraContainer2);
+// ミラーとして使用する後方カメラの映像を保存するためのターゲット
+const renderTarget = new THREE.WebGLRenderTarget(512, 512);
+
+// VR GUIとして表示するHUDの作成 (右上に配置)
+const hudGeometry = new THREE.PlaneGeometry(1, 0.6);  // 1x0.6の平面
+const hudMaterial = new THREE.MeshBasicMaterial({ map: renderTarget.texture });
+const hudScreen = new THREE.Mesh(hudGeometry, hudMaterial);
+// HUDをユーザーの視界の右上に配置
+hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
+scene.add(hudScreen);
+
+// HUDが常にカメラに追従するようにする
+function updateHUDPosition() {
+    // カメラの位置を基準にHUDの位置を計算
+    const offset = new THREE.Vector3(0.8, 1.2, -1.5); // HUDのオフセット
+    offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
+    hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
+    
+    // カメラの向きに合わせる
+    hudScreen.quaternion.copy(camera.quaternion);  
+}
     // //バックグラウンド背景
     // const loader = new THREE.TextureLoader();
     // const bgTexture = loader.load('background.jpg');
@@ -178,7 +199,7 @@ scene.add(cameraContainer2);
 
 
     let time = 0;
-    let zoom = 14;
+    let zoom = 13;
     let centerLon = 139.7454; // 東京都心の経度
     let centerLat = 35.6586;   // 東京都心の緯度
     // 神奈川35.481666902138336, 139.35879951675716
@@ -187,6 +208,13 @@ scene.add(cameraContainer2);
     let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
     let lines = [];//すべての経路を管理する配列
+     // 出発地点と目的地点の緯度経度を定義
+     const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
+      const startLon = 139.6917; // 出発地点の経度 (例: 東京)
+      const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
+      const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
+      // OSRM APIのURLを構築
+      const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
 
     function map() {
       const loader = new THREE.TextureLoader();
@@ -315,28 +343,21 @@ scene.add(cameraContainer2);
       }
       // シェープファイルのパスを指定（.zip形式）
       loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
-
       //経路探索
-      // 出発地点と目的地点の緯度経度を定義
-      const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
-      const startLon = 139.6917; // 出発地点の経度 (例: 東京)
-      const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
-      const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
-      // OSRM APIのURLを構築
-      const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
-
+            //経路探索
+     
       // 経路データを取得
       fetch(url)
         .then(response => response.json())
         .then(data => {
           // 経路情報を取得
           const route = data.routes[0].geometry.coordinates;
-
-          // 取得した経路を表示する (地図表示の関数)
           displayRouteOnMap(route);
+          
         })
         .catch(error => console.error('Error fetching route:', error));
-
+        // 取得した経路を表示する (地図表示の関数)
+        
 
       function displayRouteOnMap(route) {
         console.log("経路を表示:", route);
@@ -375,7 +396,7 @@ scene.add(cameraContainer2);
       });
       pins = []; // 配列をクリア
       lines.forEach(line => {
-        scene.remove(line); // シーンからタイルを削除
+        scene.remove(line); // シーンから経路を削除
       });
       lines = []; // 配列をクリア
     }
@@ -384,25 +405,30 @@ scene.add(cameraContainer2);
     // 毎フレーム時に実行されるループイベント
     function tick() {
       // // レンダリング
-      renderer.render(scene, camera);
-
-    //    // 後方カメラを右上に小さく描画
-    const insetWidth = window.innerWidth / 2;
-    const insetHeight = window.innerHeight / 2;
-    renderer.setViewport(window.innerWidth - insetWidth - 10, 10, insetWidth, insetHeight);
-    renderer.setScissor(window.innerWidth - insetWidth - 10, 10, insetWidth, insetHeight);
-    renderer.setScissorTest(true);
+    
+          // 後方カメラの映像をテクスチャにレンダリング
+    renderer.setRenderTarget(renderTarget);
     renderer.render(scene, camera2);
+
+    // 通常のVRレンダリング
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+    //renderer.render(scene, camera);
+    updateHUDPosition();
+    
+    //renderer.render(scene, camera2);
     }
 
 
     // リサイズ処理
     window.addEventListener("resize", onResize);
     function onResize() {
+      if (!renderer.xr.getSession()) { // Only resize if not in VR
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
       renderer.setSize(window.innerWidth, window.innerHeight);
+      }
     }
 
     /* ----コントローラー設定----- */
@@ -469,15 +495,15 @@ scene.add(cameraContainer2);
         if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
           if (hasZoomed1 && zoom < 19) {
-            zoom++;
+            zoom+=3;
             clear();
             map();
             hasZoomed1 = false;
           }
         } else {
           line2.material.color.set(0xff0000);
-          if (hasZoomed2 && zoom > 5) {
-            zoom--;
+          if (hasZoomed2 && zoom > 7) {
+            zoom-=3;
             clear();
             map();
             hasZoomed2 = false;
@@ -534,7 +560,7 @@ scene.add(cameraContainer2);
 
     function render() {
       tick();
-     // updateVisibleTiles();
+      //updateVisibleTiles();
       handleController(controller1);
       handleController(controller2);
 
