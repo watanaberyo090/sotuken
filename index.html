@@ -249,13 +249,9 @@
       let currentRequests = 0;
       for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
         for (let y = tileOriginY - (10 - Math.floor(zoom / 2)); y < tileOriginY + 19; y++) {
-          if (currentRequests < maxRequests) {
+          
             loadOSMTile(x, y, zoom);
-            currentRequests++;
-          } else {
-            // 残りは次のフレームで処理する
-            requestAnimationFrame(() => loadOSMTile(x, y, zoom));
-          }
+            
         }
       }
 
