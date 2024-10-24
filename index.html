@@ -91,34 +91,34 @@
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
-// カメラ2 (後方を映す)
-const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
-const cameraContainer2 = new THREE.Object3D();
-cameraContainer2.position.set(0, 0, 0);
-cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
-//cameraContainer2.add(camera2);
-//scene.add(cameraContainer2);
-// ミラーとして使用する後方カメラの映像を保存するためのターゲット
-const renderTarget = new THREE.WebGLRenderTarget(512, 512);
+// // カメラ2 (後方を映す)
+// const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
+// const cameraContainer2 = new THREE.Object3D();
+// cameraContainer2.position.set(0, 0, 0);
+// cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
+// cameraContainer2.add(camera2);
+// scene.add(cameraContainer2);
+// // ミラーとして使用する後方カメラの映像を保存するためのターゲット
+// const renderTarget = new THREE.WebGLRenderTarget(512, 512);
 
-// VR GUIとして表示するHUDの作成 (右上に配置)
-const hudGeometry = new THREE.PlaneGeometry(1, 0.6);  // 1x0.6の平面
-const hudMaterial = new THREE.MeshBasicMaterial({ map: renderTarget.texture });
-const hudScreen = new THREE.Mesh(hudGeometry, hudMaterial);
-// HUDをユーザーの視界の右上に配置
-hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
-scene.add(hudScreen);
+// // VR GUIとして表示するHUDの作成 (右上に配置)
+// const hudGeometry = new THREE.PlaneGeometry(1, 0.6);  // 1x0.6の平面
+// const hudMaterial = new THREE.MeshBasicMaterial({ map: renderTarget.texture });
+// const hudScreen = new THREE.Mesh(hudGeometry, hudMaterial);
+// // HUDをユーザーの視界の右上に配置
+// hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
+// scene.add(hudScreen);
 
-// HUDが常にカメラに追従するようにする
-function updateHUDPosition() {
-    // カメラの位置を基準にHUDの位置を計算
-    const offset = new THREE.Vector3(0.8, 1.2, -1.5); // HUDのオフセット
-    offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
-    hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
+// // HUDが常にカメラに追従するようにする
+// function updateHUDPosition() {
+//     // カメラの位置を基準にHUDの位置を計算
+//     const offset = new THREE.Vector3(0.8, 1.2, -1.5); // HUDのオフセット
+//     offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
+//     hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
     
-    // カメラの向きに合わせる
-    hudScreen.quaternion.copy(camera.quaternion);  
-}
+//     // カメラの向きに合わせる
+//     hudScreen.quaternion.copy(camera.quaternion);  
+// }
     // //バックグラウンド背景
     // const loader = new THREE.TextureLoader();
     // const bgTexture = loader.load('background.jpg');
@@ -407,14 +407,14 @@ function updateHUDPosition() {
       // // レンダリング
     
           // 後方カメラの映像をテクスチャにレンダリング
-    renderer.setRenderTarget(renderTarget);
+    //renderer.setRenderTarget(renderTarget);
     //renderer.render(scene, camera2);
 
     // 通常のVRレンダリング
-    renderer.setRenderTarget(null);
+    //renderer.setRenderTarget(null);
     renderer.render(scene, camera);
     //renderer.render(scene, camera);
-    updateHUDPosition();
+    //updateHUDPosition();
     
     //renderer.render(scene, camera2);
     }
