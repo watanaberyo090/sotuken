@@ -403,7 +403,7 @@ function updateHUDPosition() {
        // レンダリング
     
           // 後方カメラの映像をテクスチャにレンダリング
-    //renderer.setRenderTarget(renderTarget);
+    renderer.setRenderTarget(renderTarget);
     renderer.render(scene, camera2);
 
     // 通常のVRレンダリング
