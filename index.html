@@ -407,7 +407,7 @@ function updateHUDPosition() {
     renderer.render(scene, camera2);
 
     // 通常のVRレンダリング
-    //renderer.setRenderTarget(null);
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
     //renderer.render(scene, camera);
     updateHUDPosition();
