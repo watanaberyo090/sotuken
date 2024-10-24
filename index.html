@@ -110,15 +110,15 @@
  scene.add(hudScreen);
 
 // // HUDが常にカメラに追従するようにする
-// function updateHUDPosition() {
-//     // カメラの位置を基準にHUDの位置を計算
-//     const offset = new THREE.Vector3(0.8, 1.2, -1.5); // HUDのオフセット
-//     offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
-//     hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
+function updateHUDPosition() {
+    // カメラの位置を基準にHUDの位置を計算
+    const offset = new THREE.Vector3(0.8, 1.2, -1.5); // HUDのオフセット
+    offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
+    hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
     
-//     // カメラの向きに合わせる
-//     hudScreen.quaternion.copy(camera.quaternion);  
-// }
+    // カメラの向きに合わせる
+    hudScreen.quaternion.copy(camera.quaternion);  
+}
     // //バックグラウンド背景
     // const loader = new THREE.TextureLoader();
     // const bgTexture = loader.load('background.jpg');
@@ -400,14 +400,14 @@
 
     // 毎フレーム時に実行されるループイベント
     function tick() {
-      // // レンダリング
+       // レンダリング
     
           // 後方カメラの映像をテクスチャにレンダリング
-    //renderer.setRenderTarget(renderTarget);
-    //renderer.render(scene, camera2);
+    renderer.setRenderTarget(renderTarget);
+    renderer.render(scene, camera2);
 
     // 通常のVRレンダリング
-    //renderer.setRenderTarget(null);
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
     //renderer.render(scene, camera);
     //updateHUDPosition();
