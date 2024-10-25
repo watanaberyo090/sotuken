@@ -403,13 +403,14 @@ function updateHUDPosition() {
     // 毎フレーム時に実行されるループイベント
     function tick() {
        // 通常のVRレンダリング
-    renderer.setRenderTarget(null);
-    renderer.clear(); 
+    //renderer.setRenderTarget(null);
+    //renderer.clear(); 
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
 
     // 後方カメラの映像をVR内HUDに表示
     renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-    renderer.render(scene, camera2);  // 後方カメラの映像を描画
+    //renderer.render(scene, camera2);  // 後方カメラの映像を描画
+    renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     renderer.setRenderTarget(null);  // ターゲットを元に戻す
 
     updateHUDPosition();  // HUDの位置を更新
