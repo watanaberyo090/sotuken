@@ -91,14 +91,6 @@
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
-// カメラ2 (後方を映す)
-const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
-
-const cameraContainer2 = new THREE.Object3D();
-cameraContainer2.position.set(0, 0, 0);
-cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
-cameraContainer2.add(camera2);
-scene.add(cameraContainer2);
 // ミラーとして使用する後方カメラの映像を保存するためのターゲット
 const renderTarget = new THREE.WebGLRenderTarget(512, 512);
 
@@ -113,7 +105,7 @@ scene.add(hudScreen);
 // HUDが常にカメラに追従するようにする
 function updateHUDPosition() {
     // カメラの位置を基準にHUDの位置を計算
-    const offset = new THREE.Vector3(0.4, 1.0, -1.5); // HUDのオフセット
+    const offset = new THREE.Vector3(0.4, 0.5, -1.5); // HUDのオフセット
     offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
     hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
     
@@ -403,13 +395,11 @@ function updateHUDPosition() {
     // 毎フレーム時に実行されるループイベント
     function tick() {
        // 通常のVRレンダリング
-    //renderer.setRenderTarget(null);
-    //renderer.clear(); 
+    cameraContainer.rotation.y = 0;  // 前方を向くように回転
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-
     // 後方カメラの映像をVR内HUDに表示
     renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-    //renderer.render(scene, camera2);  // 後方カメラの映像を描画
+    cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     renderer.setRenderTarget(null);  // ターゲットを元に戻す
 
