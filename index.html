@@ -82,15 +82,15 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
+    const camera1 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
 
 
     // カメラ用コンテナを作成
-    const cameraContainer = new THREE.Object3D();
-    cameraContainer.position.set(0, 0, 0);
+    const cameraContainer1 = new THREE.Object3D();
+    cameraContainer1.position.set(0, 0, 0);
     //右にX60前にZ-150
-    cameraContainer.add(camera);
-    scene.add(cameraContainer);
+    cameraContainer1.add(camera1);
+    scene.add(cameraContainer1);
 // カメラ2 (後方を映す)
 const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
 
@@ -99,6 +99,11 @@ cameraContainer2.position.set(0, 0, 0);
 cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
 cameraContainer2.add(camera2);
 scene.add(cameraContainer2);
+// ArrayCamera に両方のカメラを追加
+const cameras = [camera1, camera2];
+const arrayCamera = new THREE.ArrayCamera(cameras);
+
+
 // ミラーとして使用する後方カメラの映像を保存するためのターゲット
 const renderTarget = new THREE.WebGLRenderTarget(512, 512);
 
@@ -114,11 +119,11 @@ scene.add(hudScreen);
 function updateHUDPosition() {
     // カメラの位置を基準にHUDの位置を計算
     const offset = new THREE.Vector3(0.8, 1.2, -1.5); // HUDのオフセット
-    offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
-    hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
+    offset.applyQuaternion(camera1.quaternion); // カメラの回転を適用
+    hudScreen.position.copy(camera1.position).add(offset); // 新しい位置を設定
     
     // カメラの向きに合わせる
-    hudScreen.quaternion.copy(camera.quaternion);  
+    hudScreen.quaternion.copy(camera1.quaternion);  
 }
     // //バックグラウンド背景
     // const loader = new THREE.TextureLoader();
@@ -399,19 +404,18 @@ function updateHUDPosition() {
       lines = []; // 配列をクリア
     }
 
-
+   
     // 毎フレーム時に実行されるループイベント
     function tick() {
         // 後方カメラの映像をテクスチャにレンダリング
-          renderer.setRenderTarget(renderTarget);
-       renderer.clear(); // クリアを追加
-        renderer.render(scene, camera2);
-        renderer.setRenderTarget(null);
-      renderer.clear(); // クリアを追加
+        renderer.setRenderTarget(renderTarget);
+        renderer.clear(); // クリアを追加
+        renderer.render(scene, arrayCamera.cameras[1]);
         
-
+        renderer.setRenderTarget(null);
     // 通常のVRレンダリング
-    renderer.render(scene, camera);
+    renderer.clear(); // クリアを追加
+    renderer.render(scene, arrayCamera.cameras[0]);
     updateHUDPosition();
     }
 
@@ -420,8 +424,8 @@ function updateHUDPosition() {
     window.addEventListener("resize", onResize);
     function onResize() {
       if (!renderer.xr.getSession()) { // Only resize if not in VR
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      camera1.aspect = window.innerWidth / window.innerHeight;
+      camera1.updateProjectionMatrix();
 
       renderer.setSize(window.innerWidth, window.innerHeight);
       }
@@ -441,20 +445,20 @@ function updateHUDPosition() {
     controller1 = renderer.xr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
-    cameraContainer.add(controller1);
+    cameraContainer1.add(controller1);
     controller2 = renderer.xr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
-    cameraContainer.add(controller2);
+    cameraContainer1.add(controller2);
 
     //コントローラーモデルを取得
     const controllerModelFactory = new XRControllerModelFactory();
     controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-    cameraContainer.add(controllerGrip1);
+    cameraContainer1.add(controllerGrip1);
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-    cameraContainer.add(controllerGrip2);
+    cameraContainer1.add(controllerGrip2);
 
     // Set positions for controllers
     controller1.position.set(0.5, 200, 0.5); // Example position for controller1
@@ -531,8 +535,8 @@ function updateHUDPosition() {
 
     function updateVisibleTiles() {
       // カメラのビュー投影行列を更新
-      camera.updateMatrixWorld(); // ワールドマトリクスを更新
-      cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+      camera1.updateMatrixWorld(); // ワールドマトリクスを更新
+      cameraViewProjectionMatrix.multiplyMatrices(camera1.projectionMatrix, camera1.matrixWorldInverse);
       frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
 
       tiles.forEach(tile => {
