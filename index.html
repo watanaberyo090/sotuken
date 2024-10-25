@@ -105,7 +105,7 @@ scene.add(hudScreen);
 // HUDが常にカメラに追従するようにする
 function updateHUDPosition() {
     // カメラの位置を基準にHUDの位置を計算
-    const offset = new THREE.Vector3(0.4, 0.5, -1.5); // HUDのオフセット
+    const offset = new THREE.Vector3(0.4, 0.5, -2.5); // HUDのオフセット
     offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
     hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
     
