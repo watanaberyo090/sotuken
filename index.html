@@ -92,7 +92,7 @@
     cameraContainer.add(camera);
     scene.add(cameraContainer);
 // ミラーとして使用する後方カメラの映像を保存するためのターゲット
-const renderTarget = new THREE.WebGLRenderTarget(512, 512);
+const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
 
 // VR GUIとして表示するHUDの作成 (右上に配置)
 const hudGeometry = new THREE.PlaneGeometry(1, 0.6);  // 1x0.6の平面
