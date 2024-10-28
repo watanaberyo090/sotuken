@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html>
-
 <head>
   <meta charset="utf-8" />
   <style>
@@ -49,6 +46,8 @@
     let time2 = 0;
     let check = false;
     let stop = false;
+    // カメラの向きを反転するフラグ
+    let isRearView = false;
     //コントローラー
     let controller1, controller2;
     let controllerGrip1, controllerGrip2;
@@ -91,27 +90,68 @@
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
-// ミラーとして使用する後方カメラの映像を保存するためのターゲット
-const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+    // ミラーとして使用する後方カメラの映像を保存するためのターゲット
+    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
 
-// VR GUIとして表示するHUDの作成 (右上に配置)
-const hudGeometry = new THREE.PlaneGeometry(1, 0.6);  // 1x0.6の平面
-const hudMaterial = new THREE.MeshBasicMaterial({ map: renderTarget.texture });
-const hudScreen = new THREE.Mesh(hudGeometry, hudMaterial);
-// HUDをユーザーの視界の右上に配置
-hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
-scene.add(hudScreen);
+    // VR GUIとして表示するHUDの作成 (右上に配置)
+    const hudGeometry = new THREE.PlaneGeometry(1, 0.6);  // 1x0.6の平面
+    const hudMaterial = new THREE.MeshBasicMaterial({ map: renderTarget.texture });
+    const hudScreen = new THREE.Mesh(hudGeometry, hudMaterial);
+    // HUDをユーザーの視界の右上に配置
+    hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
+    scene.add(hudScreen);
 
-// HUDが常にカメラに追従するようにする
-function updateHUDPosition() {
+    var groupsToIntersect = [hudScreen];
+    // HUDが常にカメラに追従するようにする
+    function updateHUDPosition() { 
     // カメラの位置を基準にHUDの位置を計算
-    const offset = new THREE.Vector3(0.4, 0.5, -2.5); // HUDのオフセット
-    offset.applyQuaternion(camera.quaternion); // カメラの回転を適用
-    hudScreen.position.copy(camera.position).add(offset); // 新しい位置を設定
+    const offset = new THREE.Vector3(0.4, isRearView ? 1 : 0.5, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+        // カメラのクォータニオンをコピー
+        const cameraRotation = camera.quaternion.clone();
     
-    // カメラの向きに合わせる
-    hudScreen.quaternion.copy(camera.quaternion);  
+    // // カメラのクォータニオンをEuler角に変換（YXZ順序で回転）
+    // const euler = new THREE.Euler().setFromQuaternion(cameraRotation, 'YXZ');
+    // // 上下方向を反転させるためにX軸を180度反転
+    // euler.x = -euler.x; // X軸（ピッチ）を反転させる
+    // //euler.y = -euler.y; // X軸（ピッチ）を反転させる
+    // //euler.z = -euler.z; // X軸（ピッチ）を反転させる
+    
+    // // 反転したEuler角から新しいクォータニオンを作成
+    // cameraRotation.setFromEuler(euler);
+    if (isRearView) {
+       // オフセットに反転したカメラの回転を適用
+      // camera.quaternion.x=-camera.quaternion.x;
+      cameraRotation.x=-cameraRotation.x
+      //cameraRotation.z=-cameraRotation.z
+      camera.position.x=-camera.position.x;
+      camera.position.z=-camera.position.z;
+    offset.applyQuaternion(cameraRotation);
+        hudScreen.position.copy(camera.position).add(offset);
+
+     
+
+        // カメラのクォータニオンに180度の回転を加算
+        const rotation180 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI); // Y軸を中心に180度回転
+        const hudRotation = camera.quaternion.clone().multiply(rotation180); // カメラのクォータニオンに180度回転を適用
+        
+        // HUDの回転を更新
+        hudScreen.quaternion.copy(hudRotation);
+    } else {
+        // カメラの回転を適用してHUDの位置を計算
+        offset.applyQuaternion(camera.quaternion);
+        
+        // HUDの位置をカメラの位置からオフセットを加えたものに設定
+        hudScreen.position.copy(camera.position).add(offset);
+        hudScreen.quaternion.copy(camera.quaternion);
+    }
+
+    // デバッグ用ログ
+    console.log("HUD Position:", hudScreen.position);
+    console.log("HUD Rotation:", hudScreen.quaternion);
 }
+
+
+
     // //バックグラウンド背景
     // const loader = new THREE.TextureLoader();
     // const bgTexture = loader.load('background.jpg');
@@ -201,13 +241,13 @@ function updateHUDPosition() {
     let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
     let lines = [];//すべての経路を管理する配列
-     // 出発地点と目的地点の緯度経度を定義
-     const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
-      const startLon = 139.6917; // 出発地点の経度 (例: 東京)
-      const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
-      const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
-      // OSRM APIのURLを構築
-      const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
+    // 出発地点と目的地点の緯度経度を定義
+    const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
+    const startLon = 139.6917; // 出発地点の経度 (例: 東京)
+    const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
+    const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
+    // OSRM APIのURLを構築
+    const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
 
     function map() {
       const loader = new THREE.TextureLoader();
@@ -242,10 +282,10 @@ function updateHUDPosition() {
       let currentRequests = 0;
       for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
         for (let y = tileOriginY - (10 - Math.floor(zoom / 2)); y < tileOriginY + 19; y++) {
-          
-            loadOSMTile(x, y, zoom);
-           
-           
+
+          loadOSMTile(x, y, zoom);
+
+
         }
       }
 
@@ -334,8 +374,8 @@ function updateHUDPosition() {
       // シェープファイルのパスを指定（.zip形式）
       loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
       //経路探索
-            //経路探索
-     
+      //経路探索
+
       // 経路データを取得
       fetch(url)
         .then(response => response.json())
@@ -343,15 +383,15 @@ function updateHUDPosition() {
           // 経路情報を取得
           const route = data.routes[0].geometry.coordinates;
           displayRouteOnMap(route);
-          
+
         })
         .catch(error => console.error('Error fetching route:', error));
-        // 取得した経路を表示する (地図表示の関数)
-        
+      // 取得した経路を表示する (地図表示の関数)
+
 
       function displayRouteOnMap(route) {
         console.log("経路を表示:", route);
-        
+
         const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // 経路を青色で表示
         const points = [];
 
@@ -391,22 +431,38 @@ function updateHUDPosition() {
       lines = []; // 配列をクリア
     }
 
-   
+
     // 毎フレーム時に実行されるループイベント
     function tick() {
-       // 通常のVRレンダリング
-    cameraContainer.rotation.y = 0;  // 前方を向くように回転
-    cameraContainer.rotation.x = 0; // 上方向に30度回転
-    cameraContainer.position.set(0, 0, 0);
-    renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    // 後方カメラの映像をVR内HUDに表示
-    renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-    cameraContainer.position.set(0, 0, 0);
-    cameraContainer.rotation.x = -Math.PI / 6; // 上方向に30度回転
-    cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
-    renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    renderer.setRenderTarget(null);  // ターゲットを元に戻す
-    updateHUDPosition();  // HUDの位置を更新
+      updateHUDPosition();  // HUDの位置を更新
+      if (isRearView) {
+        // 後方カメラの映像をVR内HUDに表示
+        renderer.setRenderTarget(renderTarget);  // 前方カメラ用のレンダリングターゲットをセット
+        cameraContainer.rotation.x = 0; // 調整上方向に30度回転
+        cameraContainer.rotation.y = 0;  // 前方を向くように回転
+        renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+        renderer.setRenderTarget(null);  // ターゲットを元に戻す
+        // 通常のVRレンダリング前方
+        camera.rotation.x = -Math.PI / 6;// 調整上方向に30度回転
+        camera.rotation.y = Math.PI;  // 後方を向くように回転
+        cameraContainer.rotation.y = Math.PI;  //後方を向くように回転
+        cameraContainer.rotation.x = -Math.PI / 6; // 元に戻す
+        renderer.render(scene, camera);  // 後方カメラでVRシーンを描画
+      } else {
+
+
+        // 後方カメラの映像をVR内HUDに表示
+        renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+        cameraContainer.rotation.x = -Math.PI / 6; // 調整上方向に30度回転
+        cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
+        renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+        renderer.setRenderTarget(null);  // ターゲットを元に戻す
+        // 通常のVRレンダリング前方
+        cameraContainer.rotation.y = 0;  // 前方を向くように回転
+        cameraContainer.rotation.x = 0; // 元に戻す
+        renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+      }
+
     }
 
 
@@ -414,10 +470,10 @@ function updateHUDPosition() {
     window.addEventListener("resize", onResize);
     function onResize() {
       if (!renderer.xr.getSession()) { // Only resize if not in VR
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
 
-      renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
       }
     }
 
@@ -457,23 +513,31 @@ function updateHUDPosition() {
     controller1.userData.id = 0;
     controller2.userData.id = 1;
     //コントローラーから出る光線の作成				
-    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -0.6)]);
+    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     const line1 = new THREE.Line(geo);
     const line2 = new THREE.Line(geo);
     line1.name = 'line';
     line1.scale.z = 5;
     line2.name = 'line';
-    line2.scale.z = 5;
+    line2.scale.z = 200;
     controller1.add(line1.clone());
     controller2.add(line2.clone());
 
     //機能
 
-    // レイキャスターを作成
-    const raycaster = new THREE.Raycaster();
 
-    // 光線の方向ベクトルを格納するVector3
-    const rayDirection = new THREE.Vector3();
+    // Raycasterを作成
+    const raycaster = new THREE.Raycaster();
+    const tempMatrix = new THREE.Matrix4(); // コントローラーの位置と向きを取得するための一時行列
+
+
+    // レイと交差しているシェイプの取得
+    function getIntersections(controller) {
+      tempMatrix.identity().extractRotation(controller.matrixWorld);
+      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+      return raycaster.intersectObjects(groupsToIntersect, true);
+    }
     let hasZoomed1 = true; // ボタンを押した状態を追跡するフラグ
     let hasZoomed2 = true; // ボタンを押した状態を追跡するフラグ
     // レイキャスターの原点（コントローラーの位置）を格納するVector3
@@ -481,33 +545,40 @@ function updateHUDPosition() {
     function handleController(controller) {
       const userData = controller.userData;
 
+      const intersections = getIntersections(controller);
       if (userData.isSelecting === true) {
         if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
           if (hasZoomed1 && zoom < 19) {
-            zoom+=3;
+            zoom += 3;
             clear();
             map();
             hasZoomed1 = false;
+
+            console.log(intersections);
+            if (intersections.length > 0) {//一つ以上交差している時処理する
+              isRearView = true;
+              console.log("isrear");
+            }
           }
         } else {
           line2.material.color.set(0xff0000);
           if (hasZoomed2 && zoom > 7) {
-            zoom-=3;
+            zoom -= 3;
             clear();
             map();
             hasZoomed2 = false;
           }
         }
 
-        // コントローラーの位置をrayOriginにセット
-        rayOrigin.setFromMatrixPosition(controller.matrixWorld);
+        // // コントローラーの位置をrayOriginにセット
+        // rayOrigin.setFromMatrixPosition(controller.matrixWorld);
 
-        // コントローラーの前方に向けて光線を伸ばす
-        controller.getWorldDirection(rayDirection);
-        rayDirection.normalize().multiplyScalar(1);
-        rayDirection.negate(); // 光線の方向を反転する
-        raycaster.set(rayOrigin, rayDirection);
+        // // コントローラーの前方に向けて光線を伸ばす
+        // controller.getWorldDirection(rayDirection);
+        // rayDirection.normalize().multiplyScalar(1);
+        // rayDirection.negate(); // 光線の方向を反転する
+        // raycaster.set(rayOrigin, rayDirection);
 
       } else if (userData.id == 0) {
         line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
