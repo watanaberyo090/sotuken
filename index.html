@@ -440,6 +440,7 @@
       updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         // 後方カメラの映像をVR内HUDに表示
+        renderer.clear();
         renderer.setRenderTarget(renderTarget);  // 前方カメラ用のレンダリングターゲットをセット
         cameraContainer.rotation.x = 0; // 調整上方向に30度回転
         cameraContainer.rotation.y = 0;  // 前方を向くように回転
