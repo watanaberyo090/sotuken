@@ -566,11 +566,11 @@
         if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
           if (hasZoomed1 && zoom < 19) {
-            //zoom += 3;
+            zoom += 3;
             clear();
             map();
             hasZoomed1 = false;
-            isRearView = true;
+            //isRearView = true;
             console.log(intersections);
             if (intersections.length > 0) {//一つ以上交差している時処理する
               isRearView = true;
@@ -580,7 +580,7 @@
         } else {
           line2.material.color.set(0xff0000);
           if (hasZoomed2 && zoom > 7) {
-            //zoom -= 3;
+            zoom -= 3;
             clear();
             map();
             hasZoomed2 = false;
