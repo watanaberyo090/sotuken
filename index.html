@@ -457,16 +457,17 @@
 
 
         // 後方カメラの映像をVR内HUDに表示
-        renderer.clear();
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
         cameraContainer.rotation.x = -Math.PI / 6; // 調整上方向に30度回転
         cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
+        renderer.clear(); // クリアを追加
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         // 通常のVRレンダリング前方
-        renderer.clear();
+        
         cameraContainer.rotation.y = 0;  // 前方を向くように回転
         cameraContainer.rotation.x = 0; // 元に戻す
+        renderer.clear(); // クリアを追加
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
       }
 
