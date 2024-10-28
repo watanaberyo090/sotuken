@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<html>
-
 <head>
   <meta charset="utf-8" />
   <style>
@@ -461,8 +459,6 @@
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         // 通常のVRレンダリング前方
-        camera.rotation.x = 0;// 調整上方向に30度回転
-        camera.rotation.y = 0;  // 後方を向くように回転
         cameraContainer.rotation.y = 0;  // 前方を向くように回転
         cameraContainer.rotation.x = 0; // 元に戻す
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
