@@ -446,6 +446,7 @@
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         // 通常のVRレンダリング前方
+          renderer.clear();
         camera.rotation.x = -Math.PI / 6;// 調整上方向に30度回転
         camera.rotation.y = Math.PI;  // 後方を向くように回転
         cameraContainer.rotation.y = Math.PI;  //後方を向くように回転
