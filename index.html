@@ -437,7 +437,7 @@
 
     // 毎フレーム時に実行されるループイベント
     function tick() {
-      //updateHUDPosition();  // HUDの位置を更新
+      updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         // 後方カメラの映像をVR内HUDに表示
         renderer.setRenderTarget(renderTarget);  // 前方カメラ用のレンダリングターゲットをセット
@@ -548,7 +548,7 @@
     function handleController(controller) {
       const userData = controller.userData;
 
-     // const intersections = getIntersections(controller);
+      const intersections = getIntersections(controller);
       if (userData.isSelecting === true) {
         if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
@@ -558,11 +558,11 @@
             map();
             hasZoomed1 = false;
 
-            // console.log(intersections);
-            // if (intersections.length > 0) {//一つ以上交差している時処理する
-            //   isRearView = true;
-            //   console.log("isrear");
-            // }
+            console.log(intersections);
+            if (intersections.length > 0) {//一つ以上交差している時処理する
+              isRearView = true;
+              console.log("isrear");
+            }
           }
         } else {
           line2.material.color.set(0xff0000);
