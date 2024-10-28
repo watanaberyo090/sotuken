@@ -441,7 +441,7 @@
       if (isRearView) {
         // 後方カメラの映像をVR内HUDに表示
         cameraContainer.rotation.y = Math.PI;  // 前方を向くように回転
-        cameraContainer.rotation.x = Math.PI/6;  // 後方を向くように回転
+        cameraContainer.rotation.x = -Math.PI/6;  // 後方を向くように回転
         cameraContainer.position.set(0, 0, 0);
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     // 後方カメラの映像をVR内HUDに表示
@@ -462,7 +462,7 @@
     renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
     cameraContainer.position.set(0, 0, 0);
     cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
-    cameraContainer.rotation.x = Math.PI/6;  // 後方を向くように回転
+    cameraContainer.rotation.x = -Math.PI/6;  // 後方を向くように回転
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     renderer.setRenderTarget(null);  // ターゲットを元に戻す
     updateHUDPosition();  // HUDの位置を更新
