@@ -437,7 +437,7 @@
 
     // 毎フレーム時に実行されるループイベント
     function tick() {
-            updateHUDPosition();  // HUDの位置を更新
+      updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         // 後方カメラの映像をVR内HUDに表示
       
@@ -449,6 +449,7 @@
     renderer.setRenderTarget(null);  // ターゲットを元に戻す
      // 通常のVRレンダリング
      cameraContainer.rotation.y = Math.PI;  // 前方を向くように回転
+     //cameraContainer.rotation.x = Math.PI/6;
     cameraContainer.position.set(0, 0, 0);
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
       } else {
@@ -459,6 +460,7 @@
     renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
     cameraContainer.position.set(0, 0, 0);
     cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
+    //cameraContainer.rotation.x = Math.PI/6;
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     renderer.setRenderTarget(null);  // ターゲットを元に戻す
     // 通常のVRレンダリング
@@ -466,6 +468,7 @@
     cameraContainer.position.set(0, 0, 0);
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
       }
+
     }
 
 
