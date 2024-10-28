@@ -553,7 +553,7 @@
         if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
           if (hasZoomed1 && zoom < 19) {
-            
+             zoom += 3;
             clear();
             map();
             hasZoomed1 = false;
@@ -562,7 +562,7 @@
             if (intersections.length > 0) {//一つ以上交差している時処理する
               isRearView = true;
               console.log("isrear");
-              zoom += 3;
+             
             }
           }
         } else {
