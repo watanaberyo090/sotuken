@@ -93,11 +93,12 @@
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
-     // 後方カメラを作成
-     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
+    // 後方カメラを作成
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 0, 0);
+    cameraContainer2.rotation.y = Math.PI;  // 前方を向くように回転
     //右にX60前にZ-150
     cameraContainer2.add(camera2);
     scene.add(cameraContainer2);
@@ -114,52 +115,52 @@
 
     var groupsToIntersect = [hudScreen];
     // HUDが常にカメラに追従するようにする
-    function updateHUDPosition() { 
-    // カメラの位置を基準にHUDの位置を計算
-    const offset = new THREE.Vector3(0.4, isRearView ? 0.5 : 0.5, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
-        // カメラのクォータニオンをコピー
-        const cameraRotation = camera.quaternion.clone();
-        
-    // // カメラのクォータニオンをEuler角に変換（YXZ順序で回転）
-    // const euler = new THREE.Euler().setFromQuaternion(cameraRotation, 'YXZ');
-    // // 上下方向を反転させるためにX軸を180度反転
-    // euler.x = -euler.x; // X軸（ピッチ）を反転させる
-    // //euler.y = -euler.y; // X軸（ピッチ）を反転させる
-    // //euler.z = -euler.z; // X軸（ピッチ）を反転させる
-    
-    // // 反転したEuler角から新しいクォータニオンを作成
-    // cameraRotation.setFromEuler(euler);
-    if (isRearView) {
-       // オフセットに反転したカメラの回転を適用
-      // camera.quaternion.x=-camera.quaternion.x;
-      cameraRotation.x=-cameraRotation.x
-      //cameraRotation.z=-cameraRotation.z
-      camera.position.x=-camera.position.x;
-      camera.position.z=-camera.position.z;
-    offset.applyQuaternion(cameraRotation);
+    function updateHUDPosition() {
+      // カメラの位置を基準にHUDの位置を計算
+      const offset = new THREE.Vector3(0.4, isRearView ? 0.5 : 0.5, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+      // カメラのクォータニオンをコピー
+      const cameraRotation = camera.quaternion.clone();
+
+      // // カメラのクォータニオンをEuler角に変換（YXZ順序で回転）
+      // const euler = new THREE.Euler().setFromQuaternion(cameraRotation, 'YXZ');
+      // // 上下方向を反転させるためにX軸を180度反転
+      // euler.x = -euler.x; // X軸（ピッチ）を反転させる
+      // //euler.y = -euler.y; // X軸（ピッチ）を反転させる
+      // //euler.z = -euler.z; // X軸（ピッチ）を反転させる
+
+      // // 反転したEuler角から新しいクォータニオンを作成
+      // cameraRotation.setFromEuler(euler);
+      if (isRearView) {
+        // オフセットに反転したカメラの回転を適用
+        // camera.quaternion.x=-camera.quaternion.x;
+        cameraRotation.x = -cameraRotation.x
+        //cameraRotation.z=-cameraRotation.z
+        camera.position.x = -camera.position.x;
+        camera.position.z = -camera.position.z;
+        offset.applyQuaternion(cameraRotation);
         hudScreen.position.copy(camera.position).add(offset);
 
-     
+
 
         // カメラのクォータニオンに180度の回転を加算
         const rotation180 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI); // Y軸を中心に180度回転
         const hudRotation = camera.quaternion.clone().multiply(rotation180); // カメラのクォータニオンに180度回転を適用
-        
+
         // HUDの回転を更新
         hudScreen.quaternion.copy(hudRotation);
-    } else {
+      } else {
         // カメラの回転を適用してHUDの位置を計算
         offset.applyQuaternion(camera.quaternion);
-        
+
         // HUDの位置をカメラの位置からオフセットを加えたものに設定
         hudScreen.position.copy(camera.position).add(offset);
         hudScreen.quaternion.copy(camera.quaternion);
-    }
+      }
 
-    // // デバッグ用ログ
-    // console.log("HUD Position:", hudScreen.position);
-    // console.log("HUD Rotation:", hudScreen.quaternion);
-}
+      // // デバッグ用ログ
+      // console.log("HUD Position:", hudScreen.position);
+      // console.log("HUD Rotation:", hudScreen.quaternion);
+    }
 
 
 
@@ -448,41 +449,36 @@
       //updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         // 後方カメラの映像をVR内HUDに表示
-        cameraContainer.rotation.y = Math.PI;  // 前方を向くように回転
-        cameraContainer.rotation.x = 0;
-        cameraContainer.position.set(0, 0, 0);
-        renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    // 後方カメラの映像をVR内HUDに表示
-    renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-    cameraContainer.position.set(0, 0, 0);
-    cameraContainer.rotation.y = 0;  // 後方を向くように回転
-    cameraContainer.rotation.x = Math.PI/6;  // 少し上を向くように回転
-    renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    renderer.setRenderTarget(null);  // ターゲットを元に戻す
-    updateHUDPosition();  // HUDの位置を更新
-   
+        cameraContainer2.rotation.x = 0;//元に戻す回転
+        renderer.render(scene, camera2);  // メインカメラでVRシーンを描画
+        // 後方カメラの映像をVR内HUDに表示
+        renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+        cameraContainer.rotation.x = Math.PI / 6;  // 少し上を向くように回転
+        renderer.render(scene, camera);  // 後方カメラでVRシーンを描画
+        renderer.setRenderTarget(null);  // ターゲットを元に戻す
+        updateHUDPosition();  // HUDの位置を更新
+
       } else {
-        
+        cameraContainer.rotation.x = 0;  // 元に戻す回転
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    // 後方カメラの映像をVR内HUDに表示
-    renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-    cameraContainer2.rotation.y = Math.PI;  // 後方を向くように回転
-    cameraContainer2.rotation.x = -Math.PI/6;  //  少し上を向くように回転
-    renderer.render(scene, camera2);  // メインカメラでVRシーンを描画
-    renderer.setRenderTarget(null);  // ターゲットを元に戻す
-    updateHUDPosition();  // HUDの位置を更新
-   
+        // 後方カメラの映像をVR内HUDに表示
+        renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+        cameraContainer2.rotation.x = -Math.PI / 6;  //  少し上を向くように回転
+        renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
+        renderer.setRenderTarget(null);  // ターゲットを元に戻す
+        updateHUDPosition();  // HUDの位置を更新
+
       }
-    // renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    // // 後方カメラの映像をVR内HUDに表示
-    // renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-    // cameraContainer.position.set(0, 0, 0);
-    // cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
-    // renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-    // renderer.setRenderTarget(null);  // ターゲットを元に戻す
-    // updateHUDPosition();  // HUDの位置を更新
-    // cameraContainer.rotation.y = 0;  // 前方を向くように回転
-    // cameraContainer.position.set(0, 0, 0);
+      // renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+      // // 後方カメラの映像をVR内HUDに表示
+      // renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+      // cameraContainer.position.set(0, 0, 0);
+      // cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
+      // renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+      // renderer.setRenderTarget(null);  // ターゲットを元に戻す
+      // updateHUDPosition();  // HUDの位置を更新
+      // cameraContainer.rotation.y = 0;  // 前方を向くように回転
+      // cameraContainer.position.set(0, 0, 0);
 
     }
 
@@ -507,25 +503,39 @@
     function onSelectEnd() {
       this.userData.isSelecting = false;
     }
-
+       // コントローラーイベントの設定
+       function onButtonDown() {
+        this.userData.isPressed = true;
+    }
+    function onButtonUp() {
+      this.userData.isPressed = false;
+    }
     //コントローラー取得
+     //前方コントローラ
     controller1 = renderer.xr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
-    cameraContainer.add(controller1);
+    // 例: Aボタンを使用する場合
+controller1.addEventListener('buttondown', onButtonDown); // ボタンが押されたとき
+controller1.addEventListener('buttonup', onButtonUp);     // ボタンが離されたとき
     controller2 = renderer.xr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
-    cameraContainer.add(controller2);
+        // 例: Aボタンを使用する場合
+controller2.addEventListener('buttondown', onButtonDown); // ボタンが押されたとき
+controller2.addEventListener('buttonup', onButtonUp);     // ボタンが離されたとき
+    
+    
+
 
     //コントローラーモデルを取得
     const controllerModelFactory = new XRControllerModelFactory();
     controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-    cameraContainer.add(controllerGrip1);
+   
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-    cameraContainer.add(controllerGrip2);
+   
 
     // Set positions for controllers
     controller1.position.set(0.5, 200, 0.5); // Example position for controller1
@@ -574,13 +584,7 @@
             zoom += 3;
             clear();
             map();
-            hasZoomed1 = false;
-           // isRearView = true;
-            console.log(intersections);
-            if (intersections.length > 0) {//一つ以上交差している時処理する
-              isRearView = true;
-              console.log("isrear");
-            }
+            hasZoomed1 = false;  
           }
         } else {
           line2.material.color.set(0xff0000);
@@ -601,9 +605,34 @@
         // rayDirection.negate(); // 光線の方向を反転する
         // raycaster.set(rayOrigin, rayDirection);
 
-      } else if (userData.id == 0) {
+      }  else if(userData.isPressed === true){
+        //YXボタンが押されたとき
+        if (userData.id == 0) {
+          line1.material.color.set(0xff0000); // 赤色に設定
+          if (intersections.length > 0&&!isRearView) {//一つ以上交差している時処理する
+              isRearView = true;
+              console.log("isrear");
+            } else if (intersections.length > 0&&isRearView) {//一つ以上交差している時処理する
+              isRearView = false;
+              console.log("isrear");
+            }
+        }else {
+          line2.material.color.set(0xff0000); // 赤色に設定
+          if (intersections.length > 0&&!isRearView) {//一つ以上交差している時処理する
+              isRearView = true;
+              console.log("isrear");
+            } else if (intersections.length > 0&&isRearView) {//一つ以上交差している時処理する
+              isRearView = false;
+              console.log("isrear");
+            }
+        }
+      }else if (userData.id == 0) {
+        //右ボタンが離されたときの処理
         line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
-      } else { line2.material.color.set(0xffffff); hasZoomed2 = true }
+      }else{ 
+        //左ボタンが離されたときの処理
+        line2.material.color.set(0xffffff); hasZoomed2 = true 
+      }
     }
     /* ----コントローラー設定----- */
 
@@ -614,19 +643,24 @@
     // フラストムを生成
     const frustum = new THREE.Frustum();
     const cameraViewProjectionMatrix = new THREE.Matrix4();
+    const frustum2 = new THREE.Frustum();
+    const cameraViewProjectionMatrix2 = new THREE.Matrix4();
 
     function updateVisibleTiles() {
       // カメラのビュー投影行列を更新
       camera.updateMatrixWorld(); // ワールドマトリクスを更新
       cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
       frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
+      camera2.updateMatrixWorld(); // ワールドマトリクスを更新
+      cameraViewProjectionMatrix2.multiplyMatrices(camera2.projectionMatrix, camera2.matrixWorldInverse);
+      frustum2.setFromProjectionMatrix(cameraViewProjectionMatrix2);
 
       tiles.forEach(tile => {
         // タイルのボックスを生成
         const box = new THREE.Box3().setFromCenterAndSize(tile.position, new THREE.Vector3(1, 1, 1));
 
         // タイルがフラストム内にあるかを確認
-        if (frustum.intersectsBox(box)) {
+        if (frustum.intersectsBox(box)||frustum2.intersectsBox(box)) {
           // フラストム内の場合はシーンに追加
           if (!scene.children.includes(tile)) {
             scene.add(tile);
@@ -642,7 +676,28 @@
 
     function render() {
       tick();
-      //updateVisibleTiles();
+      //カメラに写っている範囲のみ地図を表示
+      updateVisibleTiles();
+      //前方後方コントローラ切り替え
+      if(isRearView){
+        cameraContainer.remove(controller1);
+        cameraContainer.remove(controller2);
+        cameraContainer.remove(controllerGrip1);
+        cameraContainer.remove(controllerGrip2);
+        cameraContainer2.add(controller1);
+        cameraContainer2.add(controller2);
+        cameraContainer2.add(controllerGrip1);
+        cameraContainer2.add(controllerGrip2);
+      }else{
+        cameraContainer2.remove(controller1);
+        cameraContainer2.remove(controller2);
+        cameraContainer2.remove(controllerGrip1);
+        cameraContainer2.remove(controllerGrip2);
+        cameraContainer.add(controller1);
+        cameraContainer.add(controller2);
+        cameraContainer.add(controllerGrip1);
+        cameraContainer.add(controllerGrip2);
+      }
       handleController(controller1);
       handleController(controller2);
 
