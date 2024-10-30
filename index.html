@@ -590,7 +590,7 @@ controller1.addEventListener( 'connected', ( event )=> {
       //console.log(controllerData);
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
-      console.log(intersections);
+      //console.log(intersections);
       if (userData.isSelecting === true) {
         if(controllerData.buttons[0].pressed == true){//トリガーボタン
           if (userData.id == 0) {
@@ -648,24 +648,25 @@ controller1.addEventListener( 'connected', ( event )=> {
 
     // スティック入力に基づく移動
 function updateMovement(controller) {
-     // コントローラの入力を取得
-     const inputSource = controller.inputSource;
-    
-    if (inputSource) {
-        const joystickInput = inputSource.axes; // axesに直接アクセス
-        const movementSpeed = 0.1; // 移動速度
+  // コントローラのゲームパッドデータを取得
+  const controllerData = controller.gamepad;
 
-        if (joystickInput && joystickInput.length >= 2) {
-            const direction = new THREE.Vector3();
-            // スティックの入力を使って移動方向を計算
-            direction.set(joystickInput[0], 0, joystickInput[1]); // 配列のインデックスを使用
-            direction.normalize();
+if (controllerData && controllerData.axes) {
+    const joystickInput = controllerData.axes; // スティックの入力
+    const movementSpeed = 0.1; // 移動速度
 
-            // cameraContainerの位置を更新
-            cameraContainer.position.addScaledVector(direction, movementSpeed);
-            cameraContainer2.position.addScaledVector(direction, movementSpeed);
-        }
+    if (joystickInput.length >= 2) {
+        const direction = new THREE.Vector3();
+        // スティックの入力を使って移動方向を計算
+        direction.set(joystickInput[0], 0, joystickInput[1]);
+        direction.normalize();
+
+        // cameraContainerの位置を更新
+        cameraContainer.position.addScaledVector(direction, movementSpeed);
     }
+}
+        
+    
 }
 
     /* ----コントローラー設定----- */
