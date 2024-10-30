@@ -521,8 +521,8 @@
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
     // 例: Aボタンを使用する場合
-controller1.addEventListener('abuttondown', onButtonDown); // ボタン
-controller1.addEventListener('abuttonup', onButtonUp);     
+controller1.addEventListener('xbuttondown', onButtonDown); // ボタン
+controller1.addEventListener('xbuttonup', onButtonUp);     
 controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
 controller1.addEventListener('squeezeend', onSqueezeEnd);
 controller1.addEventListener( 'connected', ( event )=> {
@@ -536,6 +536,8 @@ controller1.addEventListener( 'connected', ( event )=> {
     controller2 = renderer.xr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
+    controller2.addEventListener('abuttondown', onButtonDown); // ボタン
+controller2.addEventListener('abuttonup', onButtonUp);    
         // 例: Aボタンを使用する場合
 controller2.addEventListener('buttondown', onButtonDown); // ボタンが押されたとき
 controller2.addEventListener('buttonup', onButtonUp);     // ボタンが離されたとき
