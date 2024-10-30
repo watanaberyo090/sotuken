@@ -521,8 +521,18 @@
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
     // 例: Aボタンを使用する場合
+    controller1.addEventListener('buttondown', onButtonDown); // ボタン
+controller1.addEventListener('buttonup', onButtonUp);  
 controller1.addEventListener('xbuttondown', onButtonDown); // ボタン
-controller1.addEventListener('xbuttonup', onButtonUp);     
+controller1.addEventListener('xbuttonup', onButtonUp);  
+controller1.addEventListener('xbuttondown', onButtonDown); // ボタン
+controller1.addEventListener('xbuttonup', onButtonUp);  
+controller1.addEventListener('Xbuttondown', onButtonDown); // ボタン
+controller1.addEventListener('Xbuttonup', onButtonUp);      
+controller1.addEventListener('x-buttondown', onButtonDown); // ボタン
+controller1.addEventListener('x-buttonup', onButtonUp);    
+controller1.addEventListener('X-buttondown', onButtonDown); // ボタン
+controller1.addEventListener('X-buttonup', onButtonUp);    
 controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
 controller1.addEventListener('squeezeend', onSqueezeEnd);
 controller1.addEventListener( 'connected', ( event )=> {
