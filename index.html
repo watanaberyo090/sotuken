@@ -645,6 +645,29 @@ controller1.addEventListener( 'connected', ( event )=> {
         line2.material.color.set(0xffffff); hasZoomed2 = true 
       }
     }
+
+    // スティック入力に基づく移動
+function updateMovement(controller) {
+     // コントローラの入力を取得
+     const inputSource = controller.inputSource;
+    
+    if (inputSource) {
+        const joystickInput = inputSource.axes; // axesに直接アクセス
+        const movementSpeed = 0.1; // 移動速度
+
+        if (joystickInput && joystickInput.length >= 2) {
+            const direction = new THREE.Vector3();
+            // スティックの入力を使って移動方向を計算
+            direction.set(joystickInput[0], 0, joystickInput[1]); // 配列のインデックスを使用
+            direction.normalize();
+
+            // cameraContainerの位置を更新
+            cameraContainer.position.addScaledVector(direction, movementSpeed);
+            cameraContainer2.position.addScaledVector(direction, movementSpeed);
+        }
+    }
+}
+
     /* ----コントローラー設定----- */
 
 
@@ -687,6 +710,8 @@ controller1.addEventListener( 'connected', ( event )=> {
 
     function render() {
       tick();
+      //移動
+      updateMovement(controller1);
       //カメラに写っている範囲のみ地図を表示
       //updateVisibleTiles();
       //前方後方コントローラ切り替え
