@@ -653,17 +653,10 @@ function updateMovement(controller) {
 
 if (controllerData && controllerData.axes) {
     const joystickInput = controllerData.axes; // スティックの入力
-    const movementSpeed = 0.1; // 移動速度
-
-    if (joystickInput.length >= 2) {
-        const direction = new THREE.Vector3();
-        // スティックの入力を使って移動方向を計算
-        direction.set(joystickInput[0], 0, joystickInput[1]);
-        direction.normalize();
-
-        // cameraContainerの位置を更新
-        cameraContainer.position.addScaledVector(direction, movementSpeed);
-    }
+    cameraContainer.position.x+=joystickInput[0];
+    cameraContainer.position.x+=joystickInput[1];
+    cameraContainer.position.z+=joystickInput[2];
+    cameraContainer.position.z+=joystickInput[3];
 }
         
     
