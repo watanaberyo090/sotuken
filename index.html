@@ -138,7 +138,7 @@
         camera.position.x = -camera.position.x;
         camera.position.z = -camera.position.z;
         offset.applyQuaternion(cameraRotation);
-        hudScreen.position.copy(camera.position).add(offset);
+        hudScreen.position.copy(cameraContainer.position).add(offset);
 
 
 
