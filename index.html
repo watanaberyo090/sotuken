@@ -153,7 +153,7 @@
         offset.applyQuaternion(camera.quaternion);
 
         // HUDの位置をカメラの位置からオフセットを加えたものに設定
-        hudScreen.position.copy(camera.position).add(offset);
+        hudScreen.position.copy(cameraContainer.position).add(offset);
         hudScreen.quaternion.copy(camera.quaternion);
       }
 
@@ -653,14 +653,19 @@ function updateMovement(controller) {
 
 if (controllerData && controllerData.axes) {
     const joystickInput = controllerData.axes; // スティックの入力
-    cameraContainer.position.x+=joystickInput[2];
-    cameraContainer.position.x+=joystickInput[3];
-    cameraContainer.position.z+=joystickInput[0];
-    cameraContainer.position.z+=joystickInput[1];
+    cameraContainer.position.x+=controllerData.axes[2];
+    cameraContainer.position.x+=controllerData.axes[3];
+    cameraContainer.position.z+=controllerData.axes[0];
+    cameraContainer.position.z+=controllerData.axes[1];
+    // console.log(cameraContainer.position.x);
+    // console.log(cameraContainer.position.z);
+    console.log(joystickInput[0]);
+    
 }
         
     
 }
+
 
     /* ----コントローラー設定----- */
 
