@@ -108,10 +108,10 @@
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() { 
     // カメラの位置を基準にHUDの位置を計算
-    const offset = new THREE.Vector3(0.4, isRearView ? 1 : 0.5, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+    const offset = new THREE.Vector3(0.4, isRearView ? 0.5 : 0.5, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
         // カメラのクォータニオンをコピー
         const cameraRotation = camera.quaternion.clone();
-    
+        
     // // カメラのクォータニオンをEuler角に変換（YXZ順序で回転）
     // const euler = new THREE.Euler().setFromQuaternion(cameraRotation, 'YXZ');
     // // 上下方向を反転させるためにX軸を180度反転
@@ -441,31 +441,30 @@
       if (isRearView) {
         // 後方カメラの映像をVR内HUDに表示
         cameraContainer.rotation.y = Math.PI;  // 前方を向くように回転
-        cameraContainer.rotation.x = 0;  // 後方を向くように回転
+        cameraContainer.rotation.x = 0;
         cameraContainer.position.set(0, 0, 0);
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     // 後方カメラの映像をVR内HUDに表示
     renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
     cameraContainer.position.set(0, 0, 0);
     cameraContainer.rotation.y = 0;  // 後方を向くように回転
-    cameraContainer.rotation.x = Math.PI/6;  // 後方を向くように回転
+    cameraContainer.rotation.x = Math.PI/6;  // 少し上を向くように回転
     renderer.render(scene, camera);  // メインカメラでVRシーンを描画
     renderer.setRenderTarget(null);  // ターゲットを元に戻す
     updateHUDPosition();  // HUDの位置を更新
    
       } else {
-       // 後方カメラの描画あ
-cameraContainer.rotation.set(-Math.PI/6, Math.PI, 0);  // 後方カメラの回転を設定
-cameraContainer.position.set(0, 0, 0);  // カメラ位置をリセット
-renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-renderer.render(scene, camera);  // 後方カメラでシーンを描画
-renderer.setRenderTarget(null);  // メインレンダリングターゲットに戻す
-
-// 前方カメラの描画
-cameraContainer.rotation.set(0, 0, 0);  // 前方カメラの回転をリセット
-cameraContainer.position.set(0, 0, 0);  // カメラ位置をリセット
-renderer.render(scene, camera);  // 前方カメラでシーンを描画
-
+        cameraContainer.rotation.y = 0;  // 前方を向くように回転
+        cameraContainer.rotation.x = 0;  
+        cameraContainer.position.set(0, 0, 0);
+        renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+    // 後方カメラの映像をVR内HUDに表示
+    renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+    cameraContainer.position.set(0, 0, 0);
+    cameraContainer.rotation.y = Math.PI;  // 後方を向くように回転
+    cameraContainer.rotation.x = -Math.PI/6;  //  少し上を向くように回転
+    renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+    renderer.setRenderTarget(null);  // ターゲットを元に戻す
     updateHUDPosition();  // HUDの位置を更新
    
       }
@@ -571,7 +570,7 @@ renderer.render(scene, camera);  // 前方カメラでシーンを描画
             clear();
             map();
             hasZoomed1 = false;
-            //isRearView = true;
+           // isRearView = true;
             console.log(intersections);
             if (intersections.length > 0) {//一つ以上交差している時処理する
               isRearView = true;
