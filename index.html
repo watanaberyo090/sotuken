@@ -645,38 +645,45 @@ controller1.addEventListener( 'connected', ( event )=> {
         line2.material.color.set(0xffffff); hasZoomed2 = true 
       }
     }
-    const speed=0.0001;
+    const speed=0.1;
     // スティック入力に基づくx移動
-function updateMovement1(controller) {
-  // コントローラのゲームパッドデータを取得
-  const controllerData = controller.gamepad;
+    function updateMovement1(controller) { 
+    // コントローラのゲームパッドデータを取得
+    const controllerData = controller.gamepad;
   
-if (controllerData && controllerData.axes) {
-    const joystickInput = controllerData.axes; // スティックの入力
-    cameraContainer.position.x+=joystickInput[2]*speed;
+    if (controllerData && controllerData.axes) {
+        const joystickInput = controllerData.axes; // スティックの入力
+
+        // スティックの入力がゼロでないかを確認
+        if (Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) {
+          cameraContainer.position.x+=joystickInput[2]*speed;
     cameraContainer.position.x+=joystickInput[3]*speed;
     cameraContainer2.position.x+=joystickInput[2]*speed;
     cameraContainer2.position.x+=joystickInput[3]*speed;
+        }
+    }
 }
-        
-    
-}
-    // スティック入力に基づくZ移動
-    function updateMovement2(controller) {
-  // コントローラのゲームパッドデータを取得
-  const controllerData = controller.gamepad;
 
-if (controllerData && controllerData.axes) {
-    const joystickInput = controllerData.axes; // スティックの入力
-     cameraContainer.position.z+=joystickInput[2]*speed;
+// スティック入力に基づくZ移動
+function updateMovement2(controller) {
+    // コントローラのゲームパッドデータを取得
+    const controllerData = controller.gamepad;
+
+    if (controllerData && controllerData.axes) {
+        const joystickInput = controllerData.axes; // スティックの入力
+
+        // スティックの入力がゼロでないかを確認
+        if (Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) {
+          cameraContainer.position.z+=joystickInput[2]*speed;
      cameraContainer.position.z+=joystickInput[3]*speed;
      cameraContainer2.position.z+=joystickInput[2]*speed;
      cameraContainer2.position.z+=joystickInput[3]*speed;
-}
-        
-    
+        }
+    }
 }
 
+
+   
 
     /* ----コントローラー設定----- */
 
