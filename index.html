@@ -521,8 +521,8 @@
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
     // 例: Aボタンを使用する場合
-controller1.addEventListener('buttondown', onButtonDown); // ボタン
-controller1.addEventListener('buttonup', onButtonUp);     
+controller1.addEventListener('buttonstart', onButtonDown); // ボタン
+controller1.addEventListener('buttonend', onButtonUp);     
 controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
 controller1.addEventListener('squeezeend', onSqueezeEnd);
 controller1.addEventListener( 'connected', ( event )=> {
@@ -639,7 +639,7 @@ controller2.addEventListener('buttonup', onButtonUp);     // ボタンが離さ�
       }else if(controllerData.buttons[2].pressed == true){//
         line1.material.color.set("#0000ff"); // 青色に設定
         //cameraContainer.position.x -= controllerData.buttons[2].value;
-      }else if(controllerData.buttons[3].pressed == true){//トリガーボタン
+      }else if(controllerData.buttons[3].pressed == true){//
         line1.material.color.set("#ffff00"); // 黄色に設定
         //cameraContainer.position.x += controllerData.buttons[3].value;
       }else if(controllerData.buttons[4].pressed == true){//
