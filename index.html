@@ -503,51 +503,51 @@
     function onSelectEnd() {
       this.userData.isSelecting = false;
     }
-       function onButtonDown() {
-        this.userData.isSelecting = true;
+    function onButtonDown() {
+      this.userData.isSelecting = true;
     }
     function onButtonUp() {
       this.userData.isSelecting = false;
     }
-           function onSqueezeStart() {
-        this.userData.isSelecting = true;
+    function onSqueezeStart() {
+      this.userData.isSelecting = true;
     }
     function onSqueezeEnd() {
       this.userData.isSelecting = false;
     }
     //コントローラー取得
-     //前方コントローラ
+    //前方コントローラ
     controller1 = renderer.xr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
-controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
-controller1.addEventListener('squeezeend', onSqueezeEnd);
-controller1.addEventListener( 'connected', ( event )=> {
-    if('gamepad' in event.data){//接続した際にコントローラの情報を渡していたはず
-        if('axes' in event.data.gamepad){
+    controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
+    controller1.addEventListener('squeezeend', onSqueezeEnd);
+    controller1.addEventListener('connected', (event) => {
+      if ('gamepad' in event.data) {//接続した際にコントローラの情報を渡していたはず
+        if ('axes' in event.data.gamepad) {
           controller1.gamepad = event.data.gamepad;
         }
-    }
-  });
-  console.log(controller1);
+      }
+    });
+    console.log(controller1);
     controller2 = renderer.xr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
     controller2.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
     controller2.addEventListener('squeezeend', onSqueezeEnd);
-  controller2.addEventListener( 'connected', ( event )=> {
-    if('gamepad' in event.data){
-        if('axes' in event.data.gamepad){
+    controller2.addEventListener('connected', (event) => {
+      if ('gamepad' in event.data) {
+        if ('axes' in event.data.gamepad) {
           controller2.gamepad = event.data.gamepad;
         }
-    }
-  });
+      }
+    });
 
     //コントローラーモデルを取得
     const controllerModelFactory = new XRControllerModelFactory();
     controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-   
+
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
     // Set positions for controllers
@@ -592,108 +592,110 @@ controller1.addEventListener( 'connected', ( event )=> {
       const intersections = getIntersections(controller);//当たり判定
       //console.log(intersections);
       if (userData.isSelecting === true) {
-        if(controllerData.buttons[0].pressed == true){//トリガーボタン
+        if (controllerData.buttons[0].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
-          line1.material.color.set(0xff0000); // 赤色に設定
-        
-        } else {
-          line2.material.color.set(0xff0000);
-        
-        }
-      }else if(controllerData.buttons[1].pressed == true){//スクイーズボタン
-               //YXボタンが押されたとき
-               if (userData.id == 0) {
-          line1.material.color.set(0xff0000); // 赤色に設定
-          if (intersections.length > 0&&!isRearView&&hasZoomed1) {//カメラ切り替え
-              isRearView = true;
-              hasZoomed1 = false;  
-              console.log("isrear");
-            } else if (intersections.length > 0&&isRearView&&hasZoomed1) {//カメラ切り替え
-              isRearView = false;
-              hasZoomed1 = false;  
-              console.log("isrear");
-            }else if(hasZoomed1 && zoom < 19) {//地図拡大
-            zoom += 3;
-            clear();
-            map();
-            hasZoomed1 = false;  
-          }
-        }else {
-          line2.material.color.set(0xff0000); // 赤色に設定
-          if (intersections.length > 0&&!isRearView&&hasZoomed2) {//カメラ切り替え
-              isRearView = true;
-              hasZoomed2 = false;  
-              console.log("isrear");
-            } else if (intersections.length > 0&&isRearView&&hasZoomed2) {//カメラ切り替え
-              isRearView = false;
-              hasZoomed2 = false;  
-              console.log("isrear");
-            }else  if(hasZoomed2 && zoom > 7) {//地図縮小
-            zoom -= 3;
-            clear();
-            map();
-            hasZoomed2 = false;
-          }
-        }
-      }
+            line1.material.color.set(0xff0000); // 赤色に設定
 
-      }  else if (userData.id == 0) {
+          } else {
+            line2.material.color.set(0xff0000);
+
+          }
+        } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
+          //YXボタンが押されたとき
+          if (userData.id == 0) {
+            line1.material.color.set(0xff0000); // 赤色に設定
+            if (intersections.length > 0 && !isRearView && hasZoomed1) {//カメラ切り替え
+              isRearView = true;
+              hasZoomed1 = false;
+              console.log("isrear");
+            } else if (intersections.length > 0 && isRearView && hasZoomed1) {//カメラ切り替え
+              isRearView = false;
+              hasZoomed1 = false;
+              console.log("isrear");
+            } else if (hasZoomed1 && zoom < 19) {//地図拡大
+              zoom += 3;
+              clear();
+              map();
+              hasZoomed1 = false;
+            }
+          } else {
+            line2.material.color.set(0xff0000); // 赤色に設定
+            if (intersections.length > 0 && !isRearView && hasZoomed2) {//カメラ切り替え
+              isRearView = true;
+              hasZoomed2 = false;
+              console.log("isrear");
+            } else if (intersections.length > 0 && isRearView && hasZoomed2) {//カメラ切り替え
+              isRearView = false;
+              hasZoomed2 = false;
+              console.log("isrear");
+            } else if (hasZoomed2 && zoom > 7) {//地図縮小
+              zoom -= 3;
+              clear();
+              map();
+              hasZoomed2 = false;
+            }
+          }
+        }
+
+      } else if (userData.id == 0) {
         //右ボタンが離されたときの処理
         line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
-      }else{ 
+      } else {
         //左ボタンが離されたときの処理
-        line2.material.color.set(0xffffff); hasZoomed2 = true 
+        line2.material.color.set(0xffffff); hasZoomed2 = true
       }
     }
-    const speed=0.1;
+    const speed = 0.1;
     // スティック入力に基づくx移動
-    function updateMovement1(controller) { 
-    // コントローラのゲームパッドデータを取得
-    const controllerData = controller.gamepad;
-  
-    if (controllerData && controllerData.axes) {
+    function updateMovement1(controller) {
+      // コントローラのゲームパッドデータを取得
+      const controllerData = controller.gamepad;
+
+      if (controllerData && controllerData.axes) {
         const joystickInput = controllerData.axes; // スティックの入力
 
         // スティックの入力がゼロでないかを確認
-        if (Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1&&!isRearView) {
-          cameraContainer.position.x+=joystickInput[2]*speed;
-    cameraContainer.position.x+=joystickInput[3]*speed;
-    cameraContainer2.position.x+=joystickInput[2]*speed;
-    cameraContainer2.position.x+=joystickInput[3]*speed;
-        }else if((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1)&&isRearView){
-          cameraContainer.position.x-=joystickInput[2]*speed;
-    cameraContainer.position.x-=joystickInput[3]*speed;
-    cameraContainer2.position.x-=joystickInput[2]*speed;
-    cameraContainer2.position.x-=joystickInput[3]*speed;
+        if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
+          cameraContainer.position.x += joystickInput[2] * speed;
+          cameraContainer.position.x += joystickInput[3] * speed;
+          cameraContainer2.position.x += joystickInput[2] * speed;
+          cameraContainer2.position.x += joystickInput[3] * speed;
+        } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
+          cameraContainer.position.x -= joystickInput[2] * speed;
+          cameraContainer.position.x -= joystickInput[3] * speed;
+          cameraContainer2.position.x -= joystickInput[2] * speed;
+          cameraContainer2.position.x -= joystickInput[3] * speed;
+          console.log("aaa");
         }
+      }
     }
-}
 
-// スティック入力に基づくZ移動
-function updateMovement2(controller) {
-    // コントローラのゲームパッドデータを取得
-    const controllerData = controller.gamepad;
+    // スティック入力に基づくZ移動
+    function updateMovement2(controller) {
+      // コントローラのゲームパッドデータを取得
+      const controllerData = controller.gamepad;
 
-    if (controllerData && controllerData.axes) {
+      if (controllerData && controllerData.axes) {
         const joystickInput = controllerData.axes; // スティックの入力
 
         // スティックの入力がゼロでないかを確認
-        if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1)&&!isRearView) {
-          cameraContainer.position.z+=joystickInput[2]*speed;
-     cameraContainer.position.z+=joystickInput[3]*speed;
-     cameraContainer2.position.z+=joystickInput[2]*speed;
-     cameraContainer2.position.z+=joystickInput[3]*speed;
-        }else if((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1)&&isRearView){
-          cameraContainer.position.z-=joystickInput[2]*speed;
-     cameraContainer.position.z-=joystickInput[3]*speed;
-     cameraContainer2.position.z-=joystickInput[2]*speed;
-     cameraContainer2.position.z-=joystickInput[3]*speed;
+        if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
+          cameraContainer.position.z += joystickInput[2] * speed;
+          cameraContainer.position.z += joystickInput[3] * speed;
+          cameraContainer2.position.z += joystickInput[2] * speed;
+          cameraContainer2.position.z += joystickInput[3] * speed;
+        } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
+          cameraContainer.position.z -= joystickInput[2] * speed;
+          cameraContainer.position.z -= joystickInput[3] * speed;
+          cameraContainer2.position.z -= joystickInput[2] * speed;
+          cameraContainer2.position.z -= joystickInput[3] * speed;
+          console.log("aaa");
         }
+      }
     }
-}
 
 
-   
+
 
     /* ----コントローラー設定----- */
 
@@ -721,7 +723,7 @@ function updateMovement2(controller) {
         const box = new THREE.Box3().setFromCenterAndSize(tile.position, new THREE.Vector3(1, 1, 1));
 
         // タイルがフラストム内にあるかを確認
-        if (frustum.intersectsBox(box)||frustum2.intersectsBox(box)) {
+        if (frustum.intersectsBox(box) || frustum2.intersectsBox(box)) {
           // フラストム内の場合はシーンに追加
           if (!scene.children.includes(tile)) {
             scene.add(tile);
@@ -743,7 +745,7 @@ function updateMovement2(controller) {
       //カメラに写っている範囲のみ地図を表示
       //updateVisibleTiles();
       //前方後方コントローラ切り替え
-      if(isRearView){
+      if (isRearView) {
         cameraContainer.remove(controller1);
         cameraContainer.remove(controller2);
         cameraContainer.remove(controllerGrip1);
@@ -752,7 +754,7 @@ function updateMovement2(controller) {
         cameraContainer2.add(controller2);
         cameraContainer2.add(controllerGrip1);
         cameraContainer2.add(controllerGrip2);
-      }else{
+      } else {
         cameraContainer2.remove(controller1);
         cameraContainer2.remove(controller2);
         cameraContainer2.remove(controllerGrip1);
