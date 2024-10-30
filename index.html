@@ -117,7 +117,7 @@
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
-      const offset = new THREE.Vector3(0.4, isRearView ? 0.5 : 0.5, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+      const offset = new THREE.Vector3(0.4, isRearView ? 2 : 2, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
 
@@ -645,22 +645,33 @@ controller1.addEventListener( 'connected', ( event )=> {
         line2.material.color.set(0xffffff); hasZoomed2 = true 
       }
     }
-
-    // スティック入力に基づく移動
-function updateMovement(controller) {
+    const speed=0.1;
+    // スティック入力に基づくx移動
+function updateMovement1(controller) {
+  // コントローラのゲームパッドデータを取得
+  const controllerData = controller.gamepad;
+  
+if (controllerData && controllerData.axes) {
+    const joystickInput = controllerData.axes; // スティックの入力
+    cameraContainer.position.x+=joystickInput[2]*speed;
+    cameraContainer.position.x+=joystickInput[3]*speed;
+    cameraContainer2.position.x+=joystickInput[2]*speed;
+    cameraContainer2.position.x+=joystickInput[3]*speed;
+}
+        
+    
+}
+    // スティック入力に基づくZ移動
+    function updateMovement2(controller) {
   // コントローラのゲームパッドデータを取得
   const controllerData = controller.gamepad;
 
 if (controllerData && controllerData.axes) {
     const joystickInput = controllerData.axes; // スティックの入力
-    cameraContainer.position.x+=joystickInput.axes[2];
-    cameraContainer.position.x+=joystickInput.axes[3];
-    cameraContainer.position.z+=joystickInput.axes[0];
-    cameraContainer.position.z+=joystickInput.axes[1];
-    // console.log(cameraContainer.position.x);
-    // console.log(cameraContainer.position.z);
-    console.log(controller.gamepad.axes.slice(0));
-   
+    cameraContainer.position.z+=joystickInput[2]*speed;
+    cameraContainer.position.z+=joystickInput[3]*speed;
+    cameraContainer2.position.z+=joystickInput[2]*speed;
+    cameraContainer2.position.z+=joystickInput[3]*speed;
 }
         
     
@@ -710,7 +721,8 @@ if (controllerData && controllerData.axes) {
     function render() {
       tick();
       //移動
-      updateMovement(controller1);
+      updateMovement1(controller1);
+      updateMovement2(controller2);
       //カメラに写っている範囲のみ地図を表示
       //updateVisibleTiles();
       //前方後方コントローラ切り替え
