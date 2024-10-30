@@ -581,8 +581,7 @@ controller1.addEventListener( 'connected', ( event )=> {
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
       return raycaster.intersectObjects(groupsToIntersect, true);
     }
-    let hasZoomed1 = true; // ボタンを押した状態を追跡するフラグ
-    let hasZoomed2 = true; // ボタンを押した状態を追跡するフラグ
+    let hasZoomed = true; // ボタンを押した状態を追跡するフラグ
     // レイキャスターの原点（コントローラーの位置）を格納するVector3
     const rayOrigin = new THREE.Vector3();
     function handleController(controller) {
@@ -594,39 +593,43 @@ controller1.addEventListener( 'connected', ( event )=> {
         if(controllerData.buttons[0].pressed == true){//トリガーボタン
           if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
-          if (hasZoomed1 && zoom < 19) {
+          if (hasZoomed && zoom < 19) {
             zoom += 3;
             clear();
             map();
-            hasZoomed1 = false;  
+            hasZoomed = false;  
           }
         } else {
           line2.material.color.set(0xff0000);
-          if (hasZoomed2 && zoom > 7) {
+          if (hasZoomed && zoom > 7) {
             zoom -= 3;
             clear();
             map();
-            hasZoomed2 = false;
+            hasZoomed = false;
           }
         }
       }else if(controllerData.buttons[1].pressed == true){//スクイーズボタン
                //YXボタンが押されたとき
                if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
-          if (intersections.length > 0&&!isRearView) {//一つ以上交差している時処理する
+          if (intersections.length > 0&&!isRearView&&hasZoomed) {//一つ以上交差している時処理する
               isRearView = true;
+              hasZoomed = false;  
               console.log("isrear");
-            } else if (intersections.length > 0&&isRearView) {//一つ以上交差している時処理する
+            } else if (intersections.length > 0&&isRearView&&hasZoomed) {//一つ以上交差している時処理する
               isRearView = false;
+              hasZoomed = false;  
               console.log("isrear");
             }
         }else {
           line2.material.color.set(0xff0000); // 赤色に設定
-          if (intersections.length > 0&&!isRearView) {//一つ以上交差している時処理する
+          if (intersections.length > 0&&!isRearView&&hasZoomed) {//一つ以上交差している時処理する
               isRearView = true;
+              hasZoomed = false;  
               console.log("isrear");
-            } else if (intersections.length > 0&&isRearView) {//一つ以上交差している時処理する
+            } else if (intersections.length > 0&&isRearView&&hasZoomed) {//一つ以上交差している時処理する
               isRearView = false;
+              hasZoomed = false;  
               console.log("isrear");
             }
         }
@@ -634,10 +637,10 @@ controller1.addEventListener( 'connected', ( event )=> {
 
       }  else if (userData.id == 0) {
         //右ボタンが離されたときの処理
-        line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
+        line1.material.color.set(0xffffff); hasZoomed = true; //白色に設定
       }else{ 
         //左ボタンが離されたときの処理
-        line2.material.color.set(0xffffff); hasZoomed2 = true 
+        line2.material.color.set(0xffffff); hasZoomed = true 
       }
     }
     /* ----コントローラー設定----- */
