@@ -590,49 +590,50 @@ controller1.addEventListener( 'connected', ( event )=> {
       //console.log(controllerData);
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
+      console.log(intersections);
       if (userData.isSelecting === true) {
         if(controllerData.buttons[0].pressed == true){//トリガーボタン
           if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
-          if (hasZoomed1 && zoom < 19) {
-            zoom += 3;
-            clear();
-            map();
-            hasZoomed1 = false;  
-          }
+        
         } else {
           line2.material.color.set(0xff0000);
-          if (hasZoomed2 && zoom > 7) {
-            zoom -= 3;
-            clear();
-            map();
-            hasZoomed2 = false;
-          }
+        
         }
       }else if(controllerData.buttons[1].pressed == true){//スクイーズボタン
                //YXボタンが押されたとき
                if (userData.id == 0) {
           line1.material.color.set(0xff0000); // 赤色に設定
-          if (intersections.length > 0&&!isRearView&&hasZoomed1) {//一つ以上交差している時処理する
+          if (intersections.length > 0&&!isRearView&&hasZoomed1) {//カメラ切り替え
               isRearView = true;
               hasZoomed1 = false;  
               console.log("isrear");
-            } else if (intersections.length > 0&&isRearView&&hasZoomed1) {//一つ以上交差している時処理する
+            } else if (intersections.length > 0&&isRearView&&hasZoomed1) {//カメラ切り替え
               isRearView = false;
               hasZoomed1 = false;  
               console.log("isrear");
-            }
+            }else if(hasZoomed1 && zoom < 19) {//地図拡大
+            zoom += 3;
+            clear();
+            map();
+            hasZoomed1 = false;  
+          }
         }else {
           line2.material.color.set(0xff0000); // 赤色に設定
-          if (intersections.length > 0&&!isRearView&&hasZoomed2) {//一つ以上交差している時処理する
+          if (intersections.length > 0&&!isRearView&&hasZoomed2) {//カメラ切り替え
               isRearView = true;
               hasZoomed2 = false;  
               console.log("isrear");
-            } else if (intersections.length > 0&&isRearView&&hasZoomed2) {//一つ以上交差している時処理する
+            } else if (intersections.length > 0&&isRearView&&hasZoomed2) {//カメラ切り替え
               isRearView = false;
               hasZoomed2 = false;  
               console.log("isrear");
-            }
+            }else  if(hasZoomed2 && zoom > 7) {//地図縮小
+            zoom -= 3;
+            clear();
+            map();
+            hasZoomed2 = false;
+          }
         }
       }
 
@@ -687,7 +688,7 @@ controller1.addEventListener( 'connected', ( event )=> {
     function render() {
       tick();
       //カメラに写っている範囲のみ地図を表示
-      updateVisibleTiles();
+      //updateVisibleTiles();
       //前方後方コントローラ切り替え
       if(isRearView){
         cameraContainer.remove(controller1);
