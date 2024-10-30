@@ -653,14 +653,14 @@ function updateMovement(controller) {
 
 if (controllerData && controllerData.axes) {
     const joystickInput = controllerData.axes; // スティックの入力
-    cameraContainer.position.x+=controllerData.axes[2];
-    cameraContainer.position.x+=controllerData.axes[3];
-    cameraContainer.position.z+=controllerData.axes[0];
-    cameraContainer.position.z+=controllerData.axes[1];
+    cameraContainer.position.x+=joystickInput.axes[2];
+    cameraContainer.position.x+=joystickInput.axes[3];
+    cameraContainer.position.z+=joystickInput.axes[0];
+    cameraContainer.position.z+=joystickInput.axes[1];
     // console.log(cameraContainer.position.x);
     // console.log(cameraContainer.position.z);
-    console.log(joystickInput[0]);
-    
+    console.log(controller.gamepad.axes.slice(0));
+   
 }
         
     
