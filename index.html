@@ -521,8 +521,8 @@
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
     // 例: Aボタンを使用する場合
-controller1.addEventListener('buttonstart', onButtonDown); // ボタン
-controller1.addEventListener('buttonend', onButtonUp);     
+controller1.addEventListener('abuttondown', onButtonDown); // ボタン
+controller1.addEventListener('abuttonup', onButtonUp);     
 controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
 controller1.addEventListener('squeezeend', onSqueezeEnd);
 controller1.addEventListener( 'connected', ( event )=> {
