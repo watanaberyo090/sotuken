@@ -503,21 +503,28 @@
     function onSelectEnd() {
       this.userData.isSelecting = false;
     }
-       // コントローラーイベントの設定
        function onButtonDown() {
-        this.userData.isPressed = true;
+        this.userData.isSelecting = true;
     }
     function onButtonUp() {
-      this.userData.isPressed = false;
+      this.userData.isSelecting = false;
+    }
+           function onSqueezeStart() {
+        this.userData.isSelecting = true;
+    }
+    function onSqueezeEnd() {
+      this.userData.isSelecting = false;
     }
     //コントローラー取得
      //前方コントローラ
     controller1 = renderer.xr.getController(0);
-    controller1.addEventListener('selectstart', onSelectStart);
+    controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
     // 例: Aボタンを使用する場合
-controller1.addEventListener('buttondown', onButtonDown); // ボタンが押されたとき
-controller1.addEventListener('buttonup', onButtonUp);     // ボタンが離されたとき
+controller1.addEventListener('buttondown', onButtonDown); // ボタン
+controller1.addEventListener('buttonup', onButtonUp);     
+controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
+controller1.addEventListener('squeezeend', onSqueezeEnd);
 controller1.addEventListener( 'connected', ( event )=> {
     if('gamepad' in event.data){//接続した際にコントローラの情報を渡していたはず
         if('axes' in event.data.gamepad){
@@ -525,6 +532,7 @@ controller1.addEventListener( 'connected', ( event )=> {
         }
     }
   });
+  console.log(controller1);
     controller2 = renderer.xr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
@@ -583,6 +591,7 @@ controller2.addEventListener('buttonup', onButtonUp);     // ボタンが離さ�
     const rayOrigin = new THREE.Vector3();
     function handleController(controller) {
       const controllerData = controller.gamepad;
+      //console.log(controllerData);
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       if (userData.isSelecting === true) {
