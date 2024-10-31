@@ -37,18 +37,6 @@
     import { XRControllerModelFactory } from 'https://unpkg.com/three@0.150.1/examples/jsm/webxr/XRControllerModelFactory.js';
     import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
     import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-
-    //import { TextureLoader } from 'three/addons/loaders/TextureLoader.js';
-    // import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-    // import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
-    // import { MTLLoader } from "three/addons/loaders/MTLLoader.js";
-    //スコア変数
-    let scores = 0;
-    //time
-    let times = 0;
-    let time2 = 0;
-    let check = false;
-    let stop = false;
     // カメラの向きを反転するフラグ
     let isRearView = false;
     //コントローラー
@@ -133,7 +121,7 @@ scene.add(hudBorder);
       // カメラの位置を基準にHUDの位置を計算
       const offset = new THREE.Vector3(0.4, 2, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
         // カメラの位置を基準にHUDの位置を計算
-        const offset2 = new THREE.Vector3(0.4,  2, isRearView ? 2.6 : -2.6); // 後方視点用のオフセット
+        const offset2 = new THREE.Vector3(0.4,  2.05, isRearView ? 2.6 : -2.6); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
 
