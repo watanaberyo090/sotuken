@@ -112,12 +112,28 @@
     // HUDをユーザーの視界の右上に配置
     hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
     scene.add(hudScreen);
+    // 枠用のジオメトリ (HUDより少し大きい)
+const borderGeometry = new THREE.PlaneGeometry(1.1, 0.7);  // HUDより少し大きくして枠をつける
+
+// 枠用のマテリアル (色や線の幅を設定)
+const borderMaterial = new THREE.MeshBasicMaterial({ color: 0, side: THREE.DoubleSide });  // 白い枠
+
+// 枠のメッシュを作成
+const hudBorder = new THREE.Mesh(borderGeometry, borderMaterial);
+
+// 枠の位置をHUDと同じ位置に設定
+hudBorder.position.copy(hudScreen.position);  // 同じ位置
+hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
+scene.add(hudBorder);
+    
 
     var groupsToIntersect = [hudScreen];
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
-      const offset = new THREE.Vector3(0.4, isRearView ? 2 : 2, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+      const offset = new THREE.Vector3(0.4, 2, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+        // カメラの位置を基準にHUDの位置を計算
+        const offset2 = new THREE.Vector3(0.4,  2, isRearView ? 2.6 : -2.6); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
 
@@ -138,8 +154,9 @@
         camera.position.x = -camera.position.x;
         camera.position.z = -camera.position.z;
         offset.applyQuaternion(cameraRotation);
+        offset2.applyQuaternion(cameraRotation);
         hudScreen.position.copy(cameraContainer.position).add(offset);
-
+        hudBorder.position.copy(cameraContainer.position).add(offset2);
 
 
         // カメラのクォータニオンに180度の回転を加算
@@ -148,13 +165,19 @@
 
         // HUDの回転を更新
         hudScreen.quaternion.copy(hudRotation);
+        
+        hudBorder.quaternion.copy(hudRotation);
       } else {
         // カメラの回転を適用してHUDの位置を計算
         offset.applyQuaternion(camera.quaternion);
+        offset2.applyQuaternion(camera.quaternion);
 
         // HUDの位置をカメラの位置からオフセットを加えたものに設定
         hudScreen.position.copy(cameraContainer.position).add(offset);
         hudScreen.quaternion.copy(camera.quaternion);
+              // HUDの位置をカメラの位置からオフセットを加えたものに設定
+        hudBorder.position.copy(cameraContainer.position).add(offset2);
+        hudBorder.quaternion.copy(camera.quaternion);
       }
 
       // // デバッグ用ログ
@@ -386,7 +409,6 @@
       // シェープファイルのパスを指定（.zip形式）
       loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
       //経路探索
-      //経路探索
 
       // 経路データを取得
       fetch(url)
@@ -529,7 +551,6 @@
         }
       }
     });
-    console.log(controller1);
     controller2 = renderer.xr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
@@ -563,7 +584,7 @@
     line1.name = 'line';
     line1.scale.z = 5;
     line2.name = 'line';
-    line2.scale.z = 200;
+    line2.scale.z = 5;
     controller1.add(line1.clone());
     controller2.add(line2.clone());
 
@@ -653,7 +674,6 @@
 
       if (controllerData && controllerData.axes) {
         const joystickInput = controllerData.axes; // スティックの入力
-        console.log(joystickInput);
         // スティックの入力がゼロでないかを確認
         if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
           cameraContainer.position.x += joystickInput[2] * speed;
