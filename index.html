@@ -781,7 +781,6 @@
           object.matrix.premultiply(controller.matrixWorld);
           object.matrix.decompose(object.position, object.quaternion, object.scale);
           marker5= object;
-          console.log(marker5.name);
           scene.add(object);
           controller.userData.selected = undefined;
         }
@@ -792,6 +791,7 @@
           const object = controller.userData.selected;
           object.matrix.premultiply(controller.matrixWorld);
           object.matrix.decompose(object.position, object.quaternion, object.scale);
+          marker5= object;
           scene.add(object);
           controller.userData.selected = undefined;
         }
