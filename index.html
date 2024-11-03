@@ -100,6 +100,7 @@
     // HUDをユーザーの視界の右上に配置
     hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
     scene.add(hudScreen);
+    hudScreen.name="hudScreen";
     // 枠用のジオメトリ (HUDより少し大きい)
     const borderGeometry = new THREE.PlaneGeometry(1.1, 0.7);  // HUDより少し大きくして枠をつける
 
@@ -738,11 +739,11 @@
         } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
-            if (intersections.length > 0 && !isRearView && hasZoomed1) {//カメラ切り替え
+            if (intersections.length > 0 &&intersections[0].object.name=="hudScreen" &&!isRearView && hasZoomed1) {//カメラ切り替え
               isRearView = true;
               hasZoomed1 = false;
               console.log("isrear");
-            } else if (intersections.length > 0 && isRearView && hasZoomed1) {//カメラ切り替え
+            } else if (intersections.length > 0 &&intersections[0].object.name=="hudScreen"&& isRearView && hasZoomed1) {//カメラ切り替え
               isRearView = false;
               hasZoomed1 = false;
               console.log("isrear");
