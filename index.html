@@ -281,7 +281,7 @@
     marker1.name = "marker1";
     scene.add(marker1);
  
-    const marker2 = new THREE.Mesh(geometry, material);
+    let marker2 = new THREE.Mesh(geometry, material);
     marker2.position.set(0.8, 0.5, -0.5);  // VRカメラの視界内に配置
     marker2.name = "marker2";
     scene.add(marker2);
