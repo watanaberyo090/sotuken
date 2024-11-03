@@ -697,6 +697,7 @@
             }
           } else {
             line2.material.color.set(0xff0000);
+            if (intersections.length > 0) {
             const intersection = intersections[0];
             const object = intersection.object;
             if (object.name == "marker") {
@@ -709,6 +710,7 @@
               // コントローラーのユーザーデータに選択されたオブジェクトを保存
               controller.userData.selected = object;
             }
+          }
           }
         } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
           if (userData.id == 0) {
