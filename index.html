@@ -246,6 +246,8 @@
 
 
     let hasExecuted=false;
+    let marker5;
+    let marker6;
     let zoomed=0;//前のフレームのzoom値を保持する
     let x;//前のフレームのマーカー座標を保持する
     let z;//前のフレームのマーカー座標を保持する
@@ -272,14 +274,15 @@
     // ピン（Marker）オブジェクトを作成する
     const geometry = new THREE.ConeGeometry(0.1, 0.1, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0 });
-    const marker1 = new THREE.Mesh(geometry, material);
+    let marker1 = new THREE.Mesh(geometry, material);
     marker1.position.set(0.48421333333408256, 0.5, -3.0365134467951975);  // VRカメラの視界内に配置
 
-    marker1.name = "marker";
+    marker1.name = "marker1";
     scene.add(marker1);
+ 
     const marker2 = new THREE.Mesh(geometry, material);
     marker2.position.set(0.8, 0.5, -0.5);  // VRカメラの視界内に配置
-    marker2.name = "marker";
+    marker2.name = "marker2";
     scene.add(marker2);
 
     function map() {
@@ -302,7 +305,6 @@
           tileOriginX = Math.floor(centerTile.x) - 2;
           tileOriginY = Math.floor(centerTile.y) - 2;
         } else {
-          console.log("b");
           centerTile = lonLatToTileXY(x, z, zoom);
           tileOriginX = Math.floor(centerTile.x) - 2;
           tileOriginY = Math.floor(centerTile.y) - 2;
@@ -415,12 +417,19 @@
         // フラグを更新
         hasExecuted = true;
     }
+    if(marker5==undefined){}else if(marker5.name=="marker1"){
+          console.log("gs");
+          coordinates = getMarkerCoordinates(marker5, endMarker, zoom);
+        }else if(marker5.name=="marker2"){
+          coordinates = getMarkerCoordinates(startMarker, marker6, zoom);
+        }
  const marker3 =convertCoordinates(coordinates.start.lon, coordinates.start.lat);
         marker1.position.set(marker3.x, 0.5, marker3.z);  // VRカメラの視界内に配置
         const marker4 =convertCoordinates(coordinates.end.lon, coordinates.end.lat);
         
         marker2.position.set(marker4.x, 0.5, marker4.z);  // VRカメラの視界内に配置
         coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
+        marker5=undefined;
         const startLon = coordinates.start.lon;
         const startLat = coordinates.start.lat;
         const endLon = coordinates.end.lon;
@@ -698,7 +707,7 @@
             if (intersections.length > 0) {
               const intersection = intersections[0];
               const object = intersection.object;
-              if (object.name == "marker") {
+              if (object.name == "marker1"||object.name == "marker2") {
                 // 動かす前の座標を保存
                 const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
@@ -714,7 +723,7 @@
             if (intersections.length > 0) {
             const intersection = intersections[0];
             const object = intersection.object;
-            if (object.name == "marker") {
+            if (object.name == "marker"||object.name == "marker2") {
               // 動かす前の座標を保存
               const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
@@ -770,6 +779,8 @@
 
           object.matrix.premultiply(controller.matrixWorld);
           object.matrix.decompose(object.position, object.quaternion, object.scale);
+          marker5= object;
+          console.log(marker5.name);
           scene.add(object);
           controller.userData.selected = undefined;
         }
