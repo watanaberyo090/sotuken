@@ -755,11 +755,11 @@
             }
           } else {
             line2.material.color.set(0xff0000); // 赤色に設定
-            if (intersections.length > 0 && !isRearView && hasZoomed2) {//カメラ切り替え
+            if (intersections.length > 0 &&intersections[0].object.name=="hudScreen" && !isRearView && hasZoomed2) {//カメラ切り替え
               isRearView = true;
               hasZoomed2 = false;
               console.log("isrear");
-            } else if (intersections.length > 0 && isRearView && hasZoomed2) {//カメラ切り替え
+            } else if (intersections.length > 0 &&intersections[0].object.name=="hudScreen" && isRearView && hasZoomed2) {//カメラ切り替え
               isRearView = false;
               hasZoomed2 = false;
               console.log("isrear");
