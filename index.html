@@ -101,27 +101,24 @@
     hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
     scene.add(hudScreen);
     // 枠用のジオメトリ (HUDより少し大きい)
-const borderGeometry = new THREE.PlaneGeometry(1.1, 0.7);  // HUDより少し大きくして枠をつける
+    const borderGeometry = new THREE.PlaneGeometry(1.1, 0.7);  // HUDより少し大きくして枠をつける
 
-// 枠用のマテリアル (色や線の幅を設定)
-const borderMaterial = new THREE.MeshBasicMaterial({ color: 0, side: THREE.DoubleSide });  // 白い枠
+    // 枠用のマテリアル (色や線の幅を設定)
+    const borderMaterial = new THREE.MeshBasicMaterial({ color: 0, side: THREE.DoubleSide });  // 白い枠
 
-// 枠のメッシュを作成
-const hudBorder = new THREE.Mesh(borderGeometry, borderMaterial);
+    // 枠のメッシュを作成
+    const hudBorder = new THREE.Mesh(borderGeometry, borderMaterial);
 
-// 枠の位置をHUDと同じ位置に設定
-hudBorder.position.copy(hudScreen.position);  // 同じ位置
-hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
-scene.add(hudBorder);
-    
-
-    var groupsToIntersect = [hudScreen];
+    // 枠の位置をHUDと同じ位置に設定
+    hudBorder.position.copy(hudScreen.position);  // 同じ位置
+    hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
+    scene.add(hudBorder);
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
       const offset = new THREE.Vector3(0.4, 2, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
-        // カメラの位置を基準にHUDの位置を計算
-        const offset2 = new THREE.Vector3(0.4,  2.05, isRearView ? 2.6 : -2.6); // 後方視点用のオフセット
+      // カメラの位置を基準にHUDの位置を計算
+      const offset2 = new THREE.Vector3(0.4, 2.05, isRearView ? 2.6 : -2.6); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
 
@@ -153,7 +150,7 @@ scene.add(hudBorder);
 
         // HUDの回転を更新
         hudScreen.quaternion.copy(hudRotation);
-        
+
         hudBorder.quaternion.copy(hudRotation);
       } else {
         // カメラの回転を適用してHUDの位置を計算
@@ -163,7 +160,7 @@ scene.add(hudBorder);
         // HUDの位置をカメラの位置からオフセットを加えたものに設定
         hudScreen.position.copy(cameraContainer.position).add(offset);
         hudScreen.quaternion.copy(camera.quaternion);
-              // HUDの位置をカメラの位置からオフセットを加えたものに設定
+        // HUDの位置をカメラの位置からオフセットを加えたものに設定
         hudBorder.position.copy(cameraContainer.position).add(offset2);
         hudBorder.quaternion.copy(camera.quaternion);
       }
@@ -249,12 +246,13 @@ scene.add(hudBorder);
 
 
 
-
-
-
-
-
-    let time = 0;
+    let zoomed=0;//前のフレームのzoom値を保持する
+    let x;//前のフレームのマーカー座標を保持する
+    let z;//前のフレームのマーカー座標を保持する
+    let tileOriginX;
+    let tileOriginY;
+    let coordinates;//マーカーの座標を経度緯度に変換して保持する
+    let centerTile;//中心座標
     let zoom = 13;
     let centerLon = 139.7454; // 東京都心の経度
     let centerLat = 35.6586;   // 東京都心の緯度
@@ -270,16 +268,58 @@ scene.add(hudBorder);
     const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
     const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
     // OSRM APIのURLを構築
-    const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
+
+    // ピン（Marker）オブジェクトを作成する
+    const geometry = new THREE.ConeGeometry(0.1, 0.1, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0 });
+    const marker1 = new THREE.Mesh(geometry, material);
+    marker1.position.set(0.8, 0.5, -1.5);  // VRカメラの視界内に配置
+
+    marker1.name = "marker";
+    scene.add(marker1);
+    const marker2 = new THREE.Mesh(geometry, material);
+    marker2.position.set(0.8, 0.5, -0.5);  // VRカメラの視界内に配置
+    marker2.name = "marker";
+    scene.add(marker2);
 
     function map() {
       const loader = new THREE.TextureLoader();
       const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      if (coordinates == undefined) {
+        console.log("A");
 
-      const centerTile = lonLatToTileXY(centerLon, centerLat, zoom);
-      const tileOriginX = Math.floor(centerTile.x) - 2;
-      const tileOriginY = Math.floor(centerTile.y) - 2;
+        centerTile = lonLatToTileXY(centerLon, centerLat, zoom);
+        tileOriginX = Math.floor(centerTile.x) - 2;
+        tileOriginY = Math.floor(centerTile.y) - 2;
+      } else {
+        
+        if (zoomed < zoom) {
+          x = coordinates.start.lon;
+          z = coordinates.start.lat;
+          centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
+          tileOriginX = Math.floor(centerTile.x) - 2;
+          tileOriginY = Math.floor(centerTile.y) - 2;
+        } else {
+          centerTile = lonLatToTileXY(x, z, zoom);
+          tileOriginX = Math.floor(centerTile.x) - 2;
+          tileOriginY = Math.floor(centerTile.y) - 2;
+        }
+         zoomed = zoom;
 
+      }
+
+
+      // タイルを複数ロード
+      const maxRequests = 10; // 一度にリクエストする最大数
+      let currentRequests = 0;
+      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+        for (let y = tileOriginY - (10 - Math.floor(zoom / 2)); y < tileOriginY + 19; y++) {
+
+          loadOSMTile(x, y, zoom);
+
+
+        }
+      }
       // タイルをロードする関数
       function loadOSMTile(x, y, z) {
         const subdomain = ['a', 'b', 'c'][Math.floor(Math.random() * 3)];
@@ -300,17 +340,7 @@ scene.add(hudBorder);
         });
       }
 
-      // タイルを複数ロード
-      const maxRequests = 10; // 一度にリクエストする最大数
-      let currentRequests = 0;
-      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-        for (let y = tileOriginY - (10 - Math.floor(zoom / 2)); y < tileOriginY + 19; y++) {
 
-          loadOSMTile(x, y, zoom);
-
-
-        }
-      }
 
       // 緯度経度をタイル座標に変換する関数
       function lonLatToTileXY(lon, lat, zoom) {
@@ -338,7 +368,55 @@ scene.add(hudBorder);
 
         return { x, z };
       }
+      // Three.jsのシーン座標を緯度経度に戻す関数
+      function convertSceneToLatLon(x, z, zoom) {
+        // Three.jsの座標に適用されていたスケーリングを逆にする
+        const tileScale = 0.7;
 
+        // Three.jsのシーン座標をタイル座標に戻す
+        const tileX = (x + tileOriginX) + 2.5;
+        const tileY = (z + tileOriginY) + 5.5;
+
+        // タイル座標から緯度経度を計算する
+        const lonLat = tileXYToLonLat(tileX, tileY, zoom);
+
+        return { lon: lonLat.lon, lat: lonLat.lat };
+      }
+
+      // これは `lonLatToTileXY` の逆変換を行う関数です
+      function tileXYToLonLat(tileX, tileY, zoom) {
+        const n = Math.PI - 2 * Math.PI * tileY / Math.pow(2, zoom);
+        const lon = tileX / Math.pow(2, zoom) * 360 - 180;
+        const lat = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+
+        return { lon, lat };
+      }
+
+      // マーカーの座標を返す関数
+      function getMarkerCoordinates(startMarker, endMarker, zoom) {
+        const startPosition = convertSceneToLatLon(startMarker.position.x, startMarker.position.z, zoom);
+        const endPosition = convertSceneToLatLon(endMarker.position.x, endMarker.position.z, zoom);
+
+        return {
+          start: startPosition,
+          end: endPosition
+        };
+      }
+
+      // OSRM APIのURLを構築する関数
+      function createOSRMRoute(startMarker, endMarker, zoom) {
+
+        coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
+        const startLon = coordinates.start.lon;
+        const startLat = coordinates.start.lat;
+        const endLon = coordinates.end.lon;
+        const endLat = coordinates.end.lat;
+        // OSRM APIのURLを構築
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
+
+        console.log('OSRM API URL:', url);
+        return url; // 必要に応じてURLを返す
+      }
       function calculatePinSize(zoom) {
         let size;
         if (zoom > 12) {
@@ -397,9 +475,9 @@ scene.add(hudBorder);
       // シェープファイルのパスを指定（.zip形式）
       loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
       //経路探索
-
+      const routeUrl = createOSRMRoute(marker1, marker2, zoom);
       // 経路データを取得
-      fetch(url)
+      fetch(routeUrl)
         .then(response => response.json())
         .then(data => {
           // 経路情報を取得
@@ -409,8 +487,6 @@ scene.add(hudBorder);
         })
         .catch(error => console.error('Error fetching route:', error));
       // 取得した経路を表示する (地図表示の関数)
-
-
       function displayRouteOnMap(route) {
         console.log("経路を表示:", route);
 
@@ -580,9 +656,9 @@ scene.add(hudBorder);
 
 
     // Raycasterを作成
-    const raycaster = new THREE.Raycaster();
-    const tempMatrix = new THREE.Matrix4(); // コントローラーの位置と向きを取得するための一時行列
-
+    let raycaster = new THREE.Raycaster();
+    let tempMatrix = new THREE.Matrix4(); // コントローラーの位置と向きを取得するための一時行列
+    var groupsToIntersect = [hudScreen, marker1, marker2];
     // レイと交差しているシェイプの取得
     function getIntersections(controller) {
       tempMatrix.identity().extractRotation(controller.matrixWorld);
@@ -605,12 +681,36 @@ scene.add(hudBorder);
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
 
+            if (intersections.length > 0) {
+              const intersection = intersections[0];
+              const object = intersection.object;
+              if (object.name == "marker") {
+                // 動かす前の座標を保存
+                const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
+
+                // オブジェクトの座標をコントローラーにアタッチ
+                controller.attach(object);
+
+                // コントローラーのユーザーデータに選択されたオブジェクトを保存
+                controller.userData.selected = object;
+              }
+            }
           } else {
             line2.material.color.set(0xff0000);
+            const intersection = intersections[0];
+            const object = intersection.object;
+            if (object.name == "marker") {
+              // 動かす前の座標を保存
+              const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
+              // オブジェクトの座標をコントローラーにアタッチ
+              controller.attach(object);
+
+              // コントローラーのユーザーデータに選択されたオブジェクトを保存
+              controller.userData.selected = object;
+            }
           }
         } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
-          //YXボタンが押されたとき
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
             if (intersections.length > 0 && !isRearView && hasZoomed1) {//カメラ切り替え
@@ -649,13 +749,28 @@ scene.add(hudBorder);
       } else if (userData.id == 0) {
         //右ボタンが離されたときの処理
         line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
+        if (controller.userData.selected !== undefined) {
+          const object = controller.userData.selected;
+
+          object.matrix.premultiply(controller.matrixWorld);
+          object.matrix.decompose(object.position, object.quaternion, object.scale);
+          scene.add(object);
+          controller.userData.selected = undefined;
+        }
       } else {
         //左ボタンが離されたときの処理
         line2.material.color.set(0xffffff); hasZoomed2 = true
+        if (controller.userData.selected !== undefined) {
+          const object = controller.userData.selected;
+          object.matrix.premultiply(controller.matrixWorld);
+          object.matrix.decompose(object.position, object.quaternion, object.scale);
+          scene.add(object);
+          controller.userData.selected = undefined;
+        }
       }
     }
     const speed = 0.01;
-    // スティック入力に基づくx移動
+    // スティック入力に基づく移動
     function updateMovement1(controller) {
       // コントローラのゲームパッドデータを取得
       const controllerData = controller.gamepad;
@@ -668,37 +783,13 @@ scene.add(hudBorder);
           cameraContainer.position.z += joystickInput[3] * speed;
           cameraContainer2.position.x += joystickInput[2] * speed;
           cameraContainer2.position.z += joystickInput[3] * speed;
-          
+
         } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
           cameraContainer.position.x -= joystickInput[2] * speed;
           cameraContainer.position.z -= joystickInput[3] * speed;
           cameraContainer2.position.x -= joystickInput[2] * speed;
           cameraContainer2.position.z -= joystickInput[3] * speed;
-          
-        }
-      }
-    }
 
-    // スティック入力に基づくZ移動
-    function updateMovement2(controller) {
-      // コントローラのゲームパッドデータを取得
-      const controllerData = controller.gamepad;
-
-      if (controllerData && controllerData.axes) {
-        const joystickInput = controllerData.axes; // スティックの入力
-
-        // スティックの入力がゼロでないかを確認
-        if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
-          cameraContainer.position.x += joystickInput[2] * speed;
-          cameraContainer.position.z += joystickInput[3] * speed;
-          cameraContainer2.position.x += joystickInput[2] * speed;
-          cameraContainer2.position.z += joystickInput[3] * speed;
-        } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
-          cameraContainer.position.x -= joystickInput[2] * speed;
-          cameraContainer.position.z -= joystickInput[3] * speed;
-          cameraContainer2.position.x -= joystickInput[2] * speed;
-          cameraContainer2.position.z -= joystickInput[3] * speed;
-          console.log("aaa");
         }
       }
     }
@@ -750,7 +841,7 @@ scene.add(hudBorder);
       tick();
       //移動
       updateMovement1(controller1);
-      updateMovement2(controller2);
+      updateMovement1(controller2);
       //カメラに写っている範囲のみ地図を表示
       //updateVisibleTiles();
       //前方後方コントローラ切り替え
@@ -775,7 +866,6 @@ scene.add(hudBorder);
       }
       handleController(controller1);
       handleController(controller2);
-
     }
 
     // 初回のレンダリングループの開始
