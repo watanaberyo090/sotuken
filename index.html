@@ -298,19 +298,13 @@
         console.log(convertCoordinates(endLon, endLat));
       } else {
         
-        if (zoomed < zoom) {
           console.log("a");
           x = coordinates.start.lon;
           z = coordinates.start.lat;
           centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
           tileOriginX = Math.floor(centerTile.x) - 2;
           tileOriginY = Math.floor(centerTile.y) - 2;
-        } else {
-          centerTile = lonLatToTileXY(x, z, zoom);
-          tileOriginX = Math.floor(centerTile.x) - 2;
-          tileOriginY = Math.floor(centerTile.y) - 2;
-        }
-         zoomed = zoom;
+      
 
       }
 
@@ -783,6 +777,8 @@
           marker5= object;
           scene.add(object);
           controller.userData.selected = undefined;
+          clear();
+          map();
         }
       } else {
         //左ボタンが離されたときの処理
@@ -794,6 +790,8 @@
           marker5= object;
           scene.add(object);
           controller.userData.selected = undefined;
+          clear();
+          map();
         }
       }
     }
