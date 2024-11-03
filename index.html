@@ -245,7 +245,7 @@
 
 
 
-
+    let hasExecuted=false;
     let zoomed=0;//前のフレームのzoom値を保持する
     let x;//前のフレームのマーカー座標を保持する
     let z;//前のフレームのマーカー座標を保持する
@@ -273,7 +273,7 @@
     const geometry = new THREE.ConeGeometry(0.1, 0.1, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0 });
     const marker1 = new THREE.Mesh(geometry, material);
-    marker1.position.set(0.8, 0.5, -1.5);  // VRカメラの視界内に配置
+    marker1.position.set(0.48421333333408256, 0.5, -3.0365134467951975);  // VRカメラの視界内に配置
 
     marker1.name = "marker";
     scene.add(marker1);
@@ -287,19 +287,22 @@
       const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
       if (coordinates == undefined) {
         console.log("A");
-
-        centerTile = lonLatToTileXY(centerLon, centerLat, zoom);
+        centerTile = lonLatToTileXY(endLon, endLat, zoom);
         tileOriginX = Math.floor(centerTile.x) - 2;
         tileOriginY = Math.floor(centerTile.y) - 2;
+        
+        console.log(convertCoordinates(endLon, endLat));
       } else {
         
         if (zoomed < zoom) {
+          console.log("a");
           x = coordinates.start.lon;
           z = coordinates.start.lat;
           centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
           tileOriginX = Math.floor(centerTile.x) - 2;
           tileOriginY = Math.floor(centerTile.y) - 2;
         } else {
+          console.log("b");
           centerTile = lonLatToTileXY(x, z, zoom);
           tileOriginX = Math.floor(centerTile.x) - 2;
           tileOriginY = Math.floor(centerTile.y) - 2;
@@ -405,7 +408,18 @@
 
       // OSRM APIのURLを構築する関数
       function createOSRMRoute(startMarker, endMarker, zoom) {
-
+        if (!hasExecuted) {
+        console.log("このコードは一度だけ実行されます。");
+        // ここに実行したいコードを書く
+        coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
+        // フラグを更新
+        hasExecuted = true;
+    }
+ const marker3 =convertCoordinates(coordinates.start.lon, coordinates.start.lat);
+        marker1.position.set(marker3.x, 0.5, marker3.z);  // VRカメラの視界内に配置
+        const marker4 =convertCoordinates(coordinates.end.lon, coordinates.end.lat);
+        
+        marker2.position.set(marker4.x, 0.5, marker4.z);  // VRカメラの視界内に配置
         coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
         const startLon = coordinates.start.lon;
         const startLat = coordinates.start.lat;
