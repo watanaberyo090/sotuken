@@ -416,7 +416,7 @@
           console.log("gs");
           coordinates = getMarkerCoordinates(marker5, endMarker, zoom);
         }else if(marker5.name=="marker2"){
-          coordinates = getMarkerCoordinates(startMarker, marker6, zoom);
+          coordinates = getMarkerCoordinates(startMarker, marker5, zoom);
         }
  const marker3 =convertCoordinates(coordinates.start.lon, coordinates.start.lat);
         marker1.position.set(marker3.x, 0.5, marker3.z);  // VRカメラの視界内に配置
