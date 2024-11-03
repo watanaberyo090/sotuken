@@ -289,24 +289,24 @@
     function map() {
       const loader = new THREE.TextureLoader();
       const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-      if (coordinates == undefined) {
+      // if (coordinates == undefined) {
         console.log("A");
         centerTile = lonLatToTileXY(endLon, endLat, zoom);
         tileOriginX = Math.floor(centerTile.x) - 2;
         tileOriginY = Math.floor(centerTile.y) - 2;
         
-        console.log(convertCoordinates(endLon, endLat));
-      } else {
+      //   console.log(convertCoordinates(endLon, endLat));
+      // } else {
         
-          console.log("a");
-          x = coordinates.start.lon;
-          z = coordinates.start.lat;
-          centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
-          tileOriginX = Math.floor(centerTile.x) - 2;
-          tileOriginY = Math.floor(centerTile.y) - 2;
+      //     console.log("a");
+      //     x = coordinates.start.lon;
+      //     z = coordinates.start.lat;
+      //     centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
+      //     tileOriginX = Math.floor(centerTile.x) - 2;
+      //     tileOriginY = Math.floor(centerTile.y) - 2;
       
 
-      }
+      // }
 
 
       // タイルを複数ロード
