@@ -10,7 +10,6 @@
     }
   </style>
 </head>
-
 <body>
   <!-- three.jsのcanvas要素を配置するための場所 -->
   <div id="canvas-container"></div>
@@ -34,6 +33,7 @@
     import WebXRPolyfill from "webxr-polyfill";
     //コントローラ
     import { XRControllerModelFactory } from 'https://unpkg.com/three@0.150.1/examples/jsm/webxr/XRControllerModelFactory.js';
+    import { OrbitControls } from'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
     // カメラの向きを反転するフラグ
     let isRearView = false;
     //コントローラー
@@ -67,7 +67,7 @@
     // シーンを作成
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xe0ffff);
-
+    
     // カメラを作成
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
 
@@ -75,6 +75,11 @@
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
     cameraContainer.position.set(0, 0, 0);
+    camera.matrixWorldAutoUpdate = false;  // 自動更新を無効化
+    camera.matrixAutoUpdate = false;  // 自動更新を無効化
+    cameraContainer.matrixWorldAutoUpdate = false;  // 自動更新を無効化
+    
+    cameraContainer.matrixAutoUpdate = false;  // 自動更新を無効化
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
@@ -82,10 +87,20 @@
     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
-    cameraContainer2.position.set(0, 0, 0);
-    cameraContainer2.rotation.y = Math.PI;  // 前方を向くように回転
-    //右にX60前にZ-150
+    
+
+    camera2.matrixWorldAutoUpdate = false;  // 自動更新を無効化
+    camera2.matrixAutoUpdate = false;  // 自動更新を無効化
+    cameraContainer2.matrixWorldAutoUpdate = false;  // 自動更新を無効化
+    
+    cameraContainer2.matrixAutoUpdate = false;  // 自動更新を無効化
+
+    cameraContainer2.position.set(0, 10, 0);
+    cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
+    cameraContainer2.updateMatrix();  // ローカル行列を更新
+cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
     cameraContainer2.add(camera2);
+   
     scene.add(cameraContainer2);
     // ミラーとして使用する後方カメラの映像を保存するためのターゲット
     const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
@@ -114,33 +129,24 @@
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
-      const offset = new THREE.Vector3(0.4, 2, isRearView ? 2.5 : -2.5); // 後方視点用のオフセット
+      const offset = new THREE.Vector3(0.4, 2,  -2.5); // 後方視点用のオフセット
       // カメラの位置を基準にHUDの位置を計算
-      const offset2 = new THREE.Vector3(0.4, 2.05, isRearView ? 2.6 : -2.6); // 後方視点用のオフセット
+      const offset2 = new THREE.Vector3(0.4, 2.05,  -2.6); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
 
       if (isRearView) {
-        // オフセットに反転したカメラの回転を適用
-        // camera.quaternion.x=-camera.quaternion.x;
-        cameraRotation.x = -cameraRotation.x
-        //cameraRotation.z=-cameraRotation.z
-        camera.position.x = -camera.position.x;
-        camera.position.z = -camera.position.z;
+        
         offset.applyQuaternion(cameraRotation);
         offset2.applyQuaternion(cameraRotation);
-        hudScreen.position.copy(cameraContainer.position).add(offset);
-        hudBorder.position.copy(cameraContainer.position).add(offset2);
+        hudScreen.position.copy(cameraContainer2.position).add(offset);
+        hudBorder.position.copy(cameraContainer2.position).add(offset2);
 
-
-        // カメラのクォータニオンに180度の回転を加算
-        const rotation180 = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI); // Y軸を中心に180度回転
-        const hudRotation = camera.quaternion.clone().multiply(rotation180); // カメラのクォータニオンに180度回転を適用
 
         // HUDの回転を更新
-        hudScreen.quaternion.copy(hudRotation);
+        hudScreen.quaternion.copy(camera2.quaternion);
         //HUDの枠の回転を更新
-        hudBorder.quaternion.copy(hudRotation);
+        hudBorder.quaternion.copy(camera2.quaternion);
       } else {
         // カメラの回転を適用してHUDの位置を計算
         offset.applyQuaternion(camera.quaternion);
@@ -220,7 +226,6 @@
 
     // // シェープファイルを指定したURLからロード
     // loadShapefile('A40-20_14.GML.zip');
-
 
 
 
@@ -526,7 +531,11 @@
       });
       lines = []; // 配列をクリア
     }
-
+// アニメーションループでカメラの位置と回転をリセット
+function lockCameraPosition() {
+  cameraContainer.position.set(0, 1.6, 0);  // 親オブジェクトの位置を固定
+  cameraContainer.rotation.set(0, 0, 0);  // 親オブジェクトの回転をリセット
+}
 
     // 毎フレーム時に実行されるループイベント
     function tick() {
@@ -537,19 +546,37 @@
         renderer.render(scene, camera2);  // メインカメラでVRシーンを描画
         // 後方カメラの映像をVR内HUDに表示
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-        cameraContainer.rotation.x = Math.PI / 6;  // 少し上を向くように回転
+        //cameraContainer.rotation.x = Math.PI / 6;  // 少し上を向くように回転
         renderer.render(scene, camera);  // 後方カメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         updateHUDPosition();  // HUDの位置を更新
 
       } else {
+        //lockCameraPosition();
+        
         cameraContainer.rotation.x = 0;  // 元に戻す回転
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-        // 後方カメラの映像をVR内HUDに表示
-        renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-        cameraContainer2.rotation.x = -Math.PI / 6;  //  少し上を向くように回転
-        renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
-        renderer.setRenderTarget(null);  // ターゲットを元に戻す
+      
+        
+        
+    cameraContainer2.position.set(-2, 10, 0);
+    cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
+    cameraContainer2.updateMatrix();  // ローカル行列を更新
+cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
+    
+camera2.position.set(-2, 10, 0);
+    camera2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
+    camera2.updateMatrix();  // ローカル行列を更新
+camera2.updateMatrixWorld();  // ワールド行列を更新
+          renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+         // camera2.quaternion.set(-0.7071067811865475, 0, 0, 0.7071067811865476);  // 回転を固定
+         // VRカメラやプレイヤーの首振りの影響を無効化
+  //camera2.rotation.set(0, Math.PI, 0);  // 回転を固定（首振りに影響されない）
+          renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
+        //  //camera2.quaternion.set(0, 0, 0, 1);  // クォータニオンを初期状態に設定（回転なしの状態）
+        console.log(camera2);
+       console.log(cameraContainer2);
+          renderer.setRenderTarget(null);  // ターゲットを元に戻す
         updateHUDPosition();  // HUDの位置を更新
 
       }
