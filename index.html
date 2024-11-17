@@ -519,6 +519,7 @@
         renderer.xr.enabled = true;//カメラの回転を有効
         cameraContainer.position.y=10;
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+        cameraContainer2.position.set(-6+(-13/2+zoom/2), 26-zoom, 0);
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
         console.log(cameraContainer2);
