@@ -769,13 +769,14 @@
 
       if (controllerData && controllerData.axes) {
         const joystickInput = controllerData.axes; // スティックの入力
-        
+        // スティックの入力がゼロでないかを確認
+        if (Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) {
           cameraContainer.position.x += joystickInput[2] * speed;
           cameraContainer.position.z += joystickInput[3] * speed;
           cameraContainer2.position.x += joystickInput[2] * speed;
           cameraContainer2.position.z += joystickInput[3] * speed;
 
-    
+        }
       }
     }
 
