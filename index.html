@@ -396,64 +396,65 @@
 
         console.log('OSRM API URL:', url);
         return url; // 必要に応じてURLを返す
-      }
-      function calculatePinSize(zoom) {
-        let size;
-        if (zoom > 12) {
-          size = 0.002;
-        } else size = 0.002
-        return size;
-      }
+       }
 
-      function loadShapefile(url) {
+      // function calculatePinSize(zoom) {
+      //   let size;
+      //   if (zoom > 12) {
+      //     size = 0.002;
+      //   } else size = 0.002
+      //   return size;
+      // }
 
-        // シェープファイルをロードしてピンを再表示
-        shp(url).then(function (geojson) {
-          geojson.features.forEach(feature => {
-            //console.log(JSON.stringify(feature, null, 2));
-            if (feature.geometry.type === 'Point') {
-              const [lon, lat] = feature.geometry.coordinates;
-              if (isWithinTileBounds(lon, lat)) {
-                const pos = convertCoordinates(lon, lat);
-                const pinsize = calculatePinSize(zoom);
-                const pinGeometry = new THREE.CylinderGeometry(pinsize, pinsize, 0.5);
-                const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-                const pin = new THREE.Mesh(pinGeometry, pinMaterial);
+      // function loadShapefile(url) {
 
-                pin.position.set(pos.x, 0.025, pos.z);
+      //   // シェープファイルをロードしてピンを再表示
+      //   shp(url).then(function (geojson) {
+      //     geojson.features.forEach(feature => {
+      //       //console.log(JSON.stringify(feature, null, 2));
+      //       if (feature.geometry.type === 'Point') {
+      //         const [lon, lat] = feature.geometry.coordinates;
+      //         if (isWithinTileBounds(lon, lat)) {
+      //           const pos = convertCoordinates(lon, lat);
+      //           const pinsize = calculatePinSize(zoom);
+      //           const pinGeometry = new THREE.CylinderGeometry(pinsize, pinsize, 0.5);
+      //           const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      //           const pin = new THREE.Mesh(pinGeometry, pinMaterial);
 
-                scene.add(pin); // シーンにピンを追加
-                pins.push(pin); // 配列にピンを追加して追跡
-              }
-            }
-            // ポリゴンやラインの処理も必要に応じて追加
-          });
+      //           pin.position.set(pos.x, 0.025, pos.z);
 
-          console.log("シェープファイルのデータをロードしました");
-        }).catch(function (error) {
-          console.error("シェープファイルの読み込みに失敗しました:", error);
-        });
-      }
-      // タイルの範囲内に座標があるかを確認する関数
-      function isWithinTileBounds(lon, lat) {
-        const tileNW = tileToLonLat(tileOriginX, tileOriginY, zoom); // タイルの左上
-        const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 5, zoom); // タイルの右下
+      //           scene.add(pin); // シーンにピンを追加
+      //           pins.push(pin); // 配列にピンを追加して追跡
+      //         }
+      //       }
+      //       // ポリゴンやラインの処理も必要に応じて追加
+      //     });
 
-        return (
-          lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
-          lat <= tileNW.lat && lat >= tileSE.lat    // 緯度が範囲内
-        );
-      }
+      //     console.log("シェープファイルのデータをロードしました");
+      //   }).catch(function (error) {
+      //     console.error("シェープファイルの読み込みに失敗しました:", error);
+      //   });
+      // }
+      // // タイルの範囲内に座標があるかを確認する関数
+      // function isWithinTileBounds(lon, lat) {
+      //   const tileNW = tileToLonLat(tileOriginX, tileOriginY, zoom); // タイルの左上
+      //   const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 5, zoom); // タイルの右下
 
-      // タイル座標から緯度経度に変換する関数
-      function tileToLonLat(x, y, zoom) {
-        const n = Math.pow(2, zoom);
-        const lon = ((x / n) * 360 - 180);
-        const lat = Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / n))) * (180 / Math.PI);
-        return { lon, lat };
-      }
-      // シェープファイルのパスを指定（.zip形式）
-      loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
+      //   return (
+      //     lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
+      //     lat <= tileNW.lat && lat >= tileSE.lat    // 緯度が範囲内
+      //   );
+      // }
+
+      // // タイル座標から緯度経度に変換する関数
+      // function tileToLonLat(x, y, zoom) {
+      //   const n = Math.pow(2, zoom);
+      //   const lon = ((x / n) * 360 - 180);
+      //   const lat = Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / n))) * (180 / Math.PI);
+      //   return { lon, lat };
+      // }
+      // // シェープファイルのパスを指定（.zip形式）
+      // loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
       //経路探索
       const routeUrl = createOSRMRoute(marker1, marker2, zoom);
       // 経路データを取得
@@ -506,23 +507,14 @@
       });
       lines = []; // 配列をクリア
     }
-    // アニメーションループでカメラの位置と回転をリセット
-    function lockCameraPosition() {
-      cameraContainer.position.set(0, 1.6, 0);  // 親オブジェクトの位置を固定
-      cameraContainer.rotation.set(0, 0, 0);  // 親オブジェクトの回転をリセット
-    }
-    // 初期値を格納する変数
     // 毎フレーム時に実行されるループイベント
     function tick() {
       //updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         renderer.xr.enabled = true;//カメラの回転を有効
-        cameraContainer.rotation.x = 0;  // 元に戻す回転
         cameraContainer.position.y=10;
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
         cameraContainer2.position.set(-6+(-13/2+zoom/2), 26-zoom, 0);
-       
-        cameraContainer2.quaternion.identity(); // クォータニオンをリセット
         
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
@@ -536,11 +528,8 @@
         renderer.xr.enabled = true;//カメラの回転を有効
         
         cameraContainer.position.y=0;
-        cameraContainer.rotation.x = 0;  // 元に戻す回転
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
         cameraContainer2.position.set(-6+(-13/2+zoom/2), 26-zoom, 0);
-       
-        cameraContainer2.quaternion.identity(); // クォータニオンをリセット
         
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
