@@ -89,7 +89,6 @@
     cameraContainer2.updateMatrix();  // ローカル行列を更新
     cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
     cameraContainer2.add(camera2);
-
     scene.add(cameraContainer2);
     // ミラーとして使用する後方カメラの映像を保存するためのターゲット
     const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
@@ -124,18 +123,6 @@
       // カメラのクォータニオンをコピー
       const cameraRotation = camera2.quaternion.clone();
 
-      if (isRearView) {
-
-        offset.applyQuaternion(cameraRotation);
-        offset2.applyQuaternion(cameraRotation);
-        hudScreen.position.copy(cameraContainer2.position).add(offset);
-        hudBorder.position.copy(cameraContainer2.position).add(offset2);
-
-        // HUDの回転を更新
-        hudScreen.quaternion.copy(camera2.quaternion);
-        //HUDの枠の回転を更新
-        hudBorder.quaternion.copy(camera2.quaternion);
-      } else {
         // カメラの回転を適用してHUDの位置を計算
         offset.applyQuaternion(camera.quaternion);
         offset2.applyQuaternion(camera.quaternion);
@@ -146,7 +133,7 @@
         // HUDの位置をHUDの枠の位置に設定
         hudBorder.position.copy(cameraContainer.position).add(offset2);
         hudBorder.quaternion.copy(camera.quaternion);
-      }
+      
 
       // // デバッグ用ログ
       // console.log("HUD Position:", hudScreen.position);
@@ -217,7 +204,7 @@
 
 
 
-    let hasExecuted = false;//一度の未処理するための変数
+    let hasExecuted = false;//一度のみ処理するための変数
     let marker5;//前のフレームのマーカーの座標を保持
     let zoomed = 0;//前のフレームのzoom値を保持する
     let x;//前のフレームのマーカーx座標を保持する
@@ -293,7 +280,7 @@
 
       // タイルを複数ロード
       for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-        for (let y = tileOriginY - (10 - Math.floor(zoom / 2)); y < tileOriginY + 19; y++) {
+        for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
 
           loadOSMTile(x, y, zoom);
 
@@ -524,35 +511,28 @@
       cameraContainer.position.set(0, 1.6, 0);  // 親オブジェクトの位置を固定
       cameraContainer.rotation.set(0, 0, 0);  // 親オブジェクトの回転をリセット
     }
-
+    // 初期値を格納する変数
     // 毎フレーム時に実行されるループイベント
     function tick() {
       //updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
-        
-        renderer.xr.enabled = true;//カメラの回転を無効
-        // 後方カメラの映像をVR内HUDに表示
-        renderer.render(scene, camera2);  // メインカメラでVRシーンを描画
-        // 後方カメラの映像をVR内HUDに表示
+        renderer.xr.enabled = true;//カメラの回転を有効
+        cameraContainer.position.y=10;
+        renderer.render(scene, camera);  // メインカメラでVRシーンを描画
+        cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-        //cameraContainer.rotation.x = Math.PI / 6;  // 少し上を向くように回転
-        
-        renderer.render(scene, camera);  // 後方カメラでVRシーンを描画
-        
+        console.log(cameraContainer2);
+        renderer.xr.enabled = false;//カメラの回転を無効
+        renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         updateHUDPosition();  // HUDの位置を更新
-
+       
       } else {
         renderer.xr.enabled = true;//カメラの回転を有効
-        cameraContainer.rotation.x = 0;  // 元に戻す回転
+        cameraContainer.position.y=0;
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-        cameraContainer2.position.set(-6, 10, 0);
-        cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
-        
-        cameraContainer2.rotation.y = 0;  // -90度回転して真下を向く
-        
-        cameraContainer2.rotation.z = 0;  // -90度回転して真下を向く
-        cameraContainer2.quaternion.set(-0.7071067811865475,0,0,0.7071067811865476);
+        cameraContainer2.position.set(-6+(-13/2+zoom/2), 26-zoom, 0);
+        cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
         console.log(cameraContainer2);
         renderer.xr.enabled = false;//カメラの回転を無効
@@ -779,20 +759,13 @@
 
       if (controllerData && controllerData.axes) {
         const joystickInput = controllerData.axes; // スティックの入力
-        // スティックの入力がゼロでないかを確認
-        if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
+        
           cameraContainer.position.x += joystickInput[2] * speed;
           cameraContainer.position.z += joystickInput[3] * speed;
           cameraContainer2.position.x += joystickInput[2] * speed;
           cameraContainer2.position.z += joystickInput[3] * speed;
 
-        } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
-          cameraContainer.position.x -= joystickInput[2] * speed;
-          cameraContainer.position.z -= joystickInput[3] * speed;
-          cameraContainer2.position.x -= joystickInput[2] * speed;
-          cameraContainer2.position.z -= joystickInput[3] * speed;
-
-        }
+    
       }
     }
 
@@ -848,25 +821,12 @@
       //カメラに写っている範囲のみ地図を表示
       //updateVisibleTiles();
       //前方後方コントローラ切り替え
-      if (isRearView) {
-        cameraContainer.remove(controller1);
-        cameraContainer.remove(controller2);
-        cameraContainer.remove(controllerGrip1);
-        cameraContainer.remove(controllerGrip2);
-        cameraContainer2.add(controller1);
-        cameraContainer2.add(controller2);
-        cameraContainer2.add(controllerGrip1);
-        cameraContainer2.add(controllerGrip2);
-      } else {
-        cameraContainer2.remove(controller1);
-        cameraContainer2.remove(controller2);
-        cameraContainer2.remove(controllerGrip1);
-        cameraContainer2.remove(controllerGrip2);
+   
         cameraContainer.add(controller1);
         cameraContainer.add(controller2);
         cameraContainer.add(controllerGrip1);
         cameraContainer.add(controllerGrip2);
-      }
+      
       //コントローラ機能
       handleController(controller1);
       handleController(controller2);
