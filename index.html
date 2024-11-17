@@ -10,6 +10,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- three.jsのcanvas要素を配置するための場所 -->
   <div id="canvas-container"></div>
@@ -33,7 +34,7 @@
     import WebXRPolyfill from "webxr-polyfill";
     //コントローラ
     import { XRControllerModelFactory } from 'https://unpkg.com/three@0.150.1/examples/jsm/webxr/XRControllerModelFactory.js';
-    import { OrbitControls } from'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
     // カメラの向きを反転するフラグ
     let isRearView = false;
     //コントローラー
@@ -67,7 +68,7 @@
     // シーンを作成
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xe0ffff);
-    
+
     // カメラを作成
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
 
@@ -75,11 +76,6 @@
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
     cameraContainer.position.set(0, 0, 0);
-    camera.matrixWorldAutoUpdate = false;  // 自動更新を無効化
-    camera.matrixAutoUpdate = false;  // 自動更新を無効化
-    cameraContainer.matrixWorldAutoUpdate = false;  // 自動更新を無効化
-    
-    cameraContainer.matrixAutoUpdate = false;  // 自動更新を無効化
     //右にX60前にZ-150
     cameraContainer.add(camera);
     scene.add(cameraContainer);
@@ -87,20 +83,13 @@
     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
-    
 
-    camera2.matrixWorldAutoUpdate = false;  // 自動更新を無効化
-    camera2.matrixAutoUpdate = false;  // 自動更新を無効化
-    cameraContainer2.matrixWorldAutoUpdate = false;  // 自動更新を無効化
-    
-    cameraContainer2.matrixAutoUpdate = false;  // 自動更新を無効化
-
-    cameraContainer2.position.set(0, 10, 0);
+    cameraContainer2.position.set(-6, 10, 0);
     cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
     cameraContainer2.updateMatrix();  // ローカル行列を更新
-cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
+    cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
     cameraContainer2.add(camera2);
-   
+
     scene.add(cameraContainer2);
     // ミラーとして使用する後方カメラの映像を保存するためのターゲット
     const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
@@ -112,7 +101,7 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
     // HUDをユーザーの視界の右上に配置
     hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
     scene.add(hudScreen);
-    hudScreen.name="hudScreen";
+    hudScreen.name = "hudScreen";
     // 枠用のジオメトリ (HUDより少し大きい)
     const borderGeometry = new THREE.PlaneGeometry(1.1, 0.7);  // HUDより少し大きくして枠をつける
 
@@ -129,19 +118,18 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
-      const offset = new THREE.Vector3(0.4, 2,  -2.5); // 後方視点用のオフセット
+      const offset = new THREE.Vector3(0.4, 2, -2.5); // 後方視点用のオフセット
       // カメラの位置を基準にHUDの位置を計算
-      const offset2 = new THREE.Vector3(0.4, 2.05,  -2.6); // 後方視点用のオフセット
+      const offset2 = new THREE.Vector3(0.4, 2.05, -2.6); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
-      const cameraRotation = camera.quaternion.clone();
+      const cameraRotation = camera2.quaternion.clone();
 
       if (isRearView) {
-        
+
         offset.applyQuaternion(cameraRotation);
         offset2.applyQuaternion(cameraRotation);
         hudScreen.position.copy(cameraContainer2.position).add(offset);
         hudBorder.position.copy(cameraContainer2.position).add(offset2);
-
 
         // HUDの回転を更新
         hudScreen.quaternion.copy(camera2.quaternion);
@@ -229,9 +217,9 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
 
 
 
-    let hasExecuted=false;//一度の未処理するための変数
+    let hasExecuted = false;//一度の未処理するための変数
     let marker5;//前のフレームのマーカーの座標を保持
-    let zoomed=0;//前のフレームのzoom値を保持する
+    let zoomed = 0;//前のフレームのzoom値を保持する
     let x;//前のフレームのマーカーx座標を保持する
     let z;//前のフレームのマーカーz座標を保持する
     let tileOriginX;//地図のｘ座標
@@ -262,17 +250,17 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
 
     marker1.name = "marker1";
     scene.add(marker1);
- 
+
     let marker2 = new THREE.Mesh(geometry1, material1);
     marker2.position.set(0.8, 0.5, -0.5);  // VRカメラの視界内に配置
     marker2.name = "marker2";
     scene.add(marker2);
     //中心座標を表すobject
-  const geometry2 = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
-  const material2 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  let cylinder = new THREE.Mesh(geometry2, material2);
-  cylinder.position.set(0.48421333333408256, 0.5, -3.0365134467951975);   // 東京タワーの緯度経度をthree.js座標に変えたもの
-  //scene.add(cylinder);
+    const geometry2 = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
+    const material2 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    let cylinder = new THREE.Mesh(geometry2, material2);
+    cylinder.position.set(0.48421333333408256, 0.5, -3.0365134467951975);   // 東京タワーの緯度経度をthree.js座標に変えたもの
+    //scene.add(cylinder);
     function map() {
       const loader = new THREE.TextureLoader();
       const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -282,24 +270,24 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
         centerTile = lonLatToTileXY(endLon, endLat, zoom);
         tileOriginX = Math.floor(centerTile.x) - 2;
         tileOriginY = Math.floor(centerTile.y) - 2;
-        
+
         console.log(convertCoordinates(endLon, endLat));
       } else {
         //マーカーの座標を経度緯度に変換して保持するcoordinatesを更新
-        if(marker5==undefined){}else if(marker5.name=="marker1"){
+        if (marker5 == undefined) { } else if (marker5.name == "marker1") {
           console.log("gs");
           //マーカ1を動かした際に変更
           coordinates = getMarkerCoordinates(marker5, marker2, zoom);
-        }else if(marker5.name=="marker2"){
+        } else if (marker5.name == "marker2") {
           //マーカ2を動かした際に変更
           coordinates = getMarkerCoordinates(marker1, marker5, zoom);
         }
-          console.log("a");
-          x = coordinates.start.lon;
-          z = coordinates.start.lat;
-          centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
-          tileOriginX = Math.floor(centerTile.x) - 2;
-          tileOriginY = Math.floor(centerTile.y) - 2;
+        console.log("a");
+        x = coordinates.start.lon;
+        z = coordinates.start.lat;
+        centerTile = lonLatToTileXY(coordinates.start.lon, coordinates.start.lat, zoom);
+        tileOriginX = Math.floor(centerTile.x) - 2;
+        tileOriginY = Math.floor(centerTile.y) - 2;
       }
 
 
@@ -398,20 +386,20 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
       // マーカーの前のフレームの座標を上書きするのとOSRM APIのURLを構築する関数
       function createOSRMRoute(startMarker, endMarker, zoom) {
         if (!hasExecuted) {
-        console.log("このコードは一度だけ実行されます。");
-        // ここに実行したいコードを書く
-        coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
-        // フラグを更新
-        hasExecuted = true;
-    }
-    
- const marker3 =convertCoordinates(coordinates.start.lon, coordinates.start.lat);
+          console.log("このコードは一度だけ実行されます。");
+          // ここに実行したいコードを書く
+          coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
+          // フラグを更新
+          hasExecuted = true;
+        }
+
+        const marker3 = convertCoordinates(coordinates.start.lon, coordinates.start.lat);
         marker1.position.set(marker3.x, 0.5, marker3.z);  // VRカメラの視界内に配置
-        const marker4 =convertCoordinates(coordinates.end.lon, coordinates.end.lat);
-        
+        const marker4 = convertCoordinates(coordinates.end.lon, coordinates.end.lat);
+
         marker2.position.set(marker4.x, 0.5, marker4.z);  // VRカメラの視界内に配置
         coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
-        marker5=undefined;
+        marker5 = undefined;
         const startLon = coordinates.start.lon;
         const startLat = coordinates.start.lat;
         const endLon = coordinates.end.lon;
@@ -495,7 +483,7 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
       function displayRouteOnMap(route) {
         console.log("経路を表示:", route);
 
-        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff}); // 経路を青色で表示
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // 経路を青色で表示
         const points = [];
 
         // 経路データをThree.jsの座標に変換
@@ -531,18 +519,18 @@ cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
       });
       lines = []; // 配列をクリア
     }
-// アニメーションループでカメラの位置と回転をリセット
-function lockCameraPosition() {
-  cameraContainer.position.set(0, 1.6, 0);  // 親オブジェクトの位置を固定
-  cameraContainer.rotation.set(0, 0, 0);  // 親オブジェクトの回転をリセット
-}
+    // アニメーションループでカメラの位置と回転をリセット
+    function lockCameraPosition() {
+      cameraContainer.position.set(0, 1.6, 0);  // 親オブジェクトの位置を固定
+      cameraContainer.rotation.set(0, 0, 0);  // 親オブジェクトの回転をリセット
+    }
 
     // 毎フレーム時に実行されるループイベント
     function tick() {
       //updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
+        
         // 後方カメラの映像をVR内HUDに表示
-        cameraContainer2.rotation.x = 0;//元に戻す回転
         renderer.render(scene, camera2);  // メインカメラでVRシーンを描画
         // 後方カメラの映像をVR内HUDに表示
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
@@ -552,31 +540,17 @@ function lockCameraPosition() {
         updateHUDPosition();  // HUDの位置を更新
 
       } else {
-        //lockCameraPosition();
-        
+        renderer.xr.enabled = true;//カメラの回転を有効
         cameraContainer.rotation.x = 0;  // 元に戻す回転
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-      
-        
-        
-    cameraContainer2.position.set(-2, 10, 0);
-    cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
-    cameraContainer2.updateMatrix();  // ローカル行列を更新
-cameraContainer2.updateMatrixWorld();  // ワールド行列を更新
-    
-camera2.position.set(-2, 10, 0);
-    camera2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
-    camera2.updateMatrix();  // ローカル行列を更新
-camera2.updateMatrixWorld();  // ワールド行列を更新
-          renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-         // camera2.quaternion.set(-0.7071067811865475, 0, 0, 0.7071067811865476);  // 回転を固定
-         // VRカメラやプレイヤーの首振りの影響を無効化
-  //camera2.rotation.set(0, Math.PI, 0);  // 回転を固定（首振りに影響されない）
-          renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
-        //  //camera2.quaternion.set(0, 0, 0, 1);  // クォータニオンを初期状態に設定（回転なしの状態）
-        console.log(camera2);
-       console.log(cameraContainer2);
-          renderer.setRenderTarget(null);  // ターゲットを元に戻す
+        cameraContainer2.position.set(-6, 10, 0);
+        cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
+        cameraContainer2.quaternion.set(-0.7071067811865475,0,0,0.7071067811865476);
+        renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
+        console.log(cameraContainer2);
+        renderer.xr.enabled = false;//カメラの回転を無効
+        renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
+        renderer.setRenderTarget(null);  // ターゲットを元に戻す
         updateHUDPosition();  // HUDの位置を更新
 
       }
@@ -697,7 +671,7 @@ camera2.updateMatrixWorld();  // ワールド行列を更新
             if (intersections.length > 0) {
               const intersection = intersections[0];
               const object = intersection.object;
-              if (object.name == "marker1"||object.name == "marker2") {
+              if (object.name == "marker1" || object.name == "marker2") {
                 // 動かす前の座標を保存
                 const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
@@ -711,28 +685,28 @@ camera2.updateMatrixWorld();  // ワールド行列を更新
           } else {
             line2.material.color.set(0xff0000);
             if (intersections.length > 0) {
-            const intersection = intersections[0];
-            const object = intersection.object;
-            if (object.name == "marker1"||object.name == "marker2") {
-              // 動かす前の座標を保存
-              const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
+              const intersection = intersections[0];
+              const object = intersection.object;
+              if (object.name == "marker1" || object.name == "marker2") {
+                // 動かす前の座標を保存
+                const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
-              // オブジェクトの座標をコントローラーにアタッチ
-              controller.attach(object);
+                // オブジェクトの座標をコントローラーにアタッチ
+                controller.attach(object);
 
-              // コントローラーのユーザーデータに選択されたオブジェクトを保存
-              controller.userData.selected = object;
+                // コントローラーのユーザーデータに選択されたオブジェクトを保存
+                controller.userData.selected = object;
+              }
             }
-          }
           }
         } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
-            if (intersections.length > 0 &&intersections[0].object.name=="hudScreen" &&!isRearView && hasZoomed1) {//カメラ切り替え
+            if (intersections.length > 0 && intersections[0].object.name == "hudScreen" && !isRearView && hasZoomed1) {//カメラ切り替え
               isRearView = true;
               hasZoomed1 = false;
               console.log("isrear");
-            } else if (intersections.length > 0 &&intersections[0].object.name=="hudScreen"&& isRearView && hasZoomed1) {//カメラ切り替え
+            } else if ( isRearView == true&&hasZoomed1) {//カメラ切り替え
               isRearView = false;
               hasZoomed1 = false;
               console.log("isrear");
@@ -744,11 +718,11 @@ camera2.updateMatrixWorld();  // ワールド行列を更新
             }
           } else {
             line2.material.color.set(0xff0000); // 赤色に設定
-            if (intersections.length > 0 &&intersections[0].object.name=="hudScreen" && !isRearView && hasZoomed2) {//カメラ切り替え
+            if (intersections.length > 0 && intersections[0].object.name == "hudScreen" && !isRearView && hasZoomed2) {//カメラ切り替え
               isRearView = true;
               hasZoomed2 = false;
               console.log("isrear");
-            } else if (intersections.length > 0 &&intersections[0].object.name=="hudScreen" && isRearView && hasZoomed2) {//カメラ切り替え
+            } else if ( isRearView == true&&hasZoomed2) {//カメラ切り替え
               isRearView = false;
               hasZoomed2 = false;
               console.log("isrear");
@@ -769,7 +743,7 @@ camera2.updateMatrixWorld();  // ワールド行列を更新
 
           object.matrix.premultiply(controller.matrixWorld);
           object.matrix.decompose(object.position, object.quaternion, object.scale);
-          marker5= object;
+          marker5 = object;
           scene.add(object);
           controller.userData.selected = undefined;
           clear();
@@ -782,7 +756,7 @@ camera2.updateMatrixWorld();  // ワールド行列を更新
           const object = controller.userData.selected;
           object.matrix.premultiply(controller.matrixWorld);
           object.matrix.decompose(object.position, object.quaternion, object.scale);
-          marker5= object;
+          marker5 = object;
           scene.add(object);
           controller.userData.selected = undefined;
           clear();
@@ -894,4 +868,5 @@ camera2.updateMatrixWorld();  // ワールド行列を更新
     renderer.setAnimationLoop(render);
   </script>
 </body>
+
 </html>
