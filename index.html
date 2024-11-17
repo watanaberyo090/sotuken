@@ -518,7 +518,6 @@
         
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-        console.log(cameraContainer2);
         renderer.xr.enabled = false;//カメラの回転を無効
         renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
@@ -533,7 +532,6 @@
         
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
-        console.log(cameraContainer2);
         renderer.xr.enabled = false;//カメラの回転を無効
         renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
