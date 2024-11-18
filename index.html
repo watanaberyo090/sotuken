@@ -83,7 +83,6 @@
     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
-
     cameraContainer2.position.set(-6, 10, 0);
     cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く
     cameraContainer2.updateMatrix();  // ローカル行列を更新
@@ -133,11 +132,6 @@
       // HUDの位置をHUDの枠の位置に設定
       hudBorder.position.copy(cameraContainer.position).add(offset2);
       hudBorder.quaternion.copy(camera.quaternion);
-
-
-      // // デバッグ用ログ
-      // console.log("HUD Position:", hudScreen.position);
-      // console.log("HUD Rotation:", hudScreen.quaternion);
     }
 
 
@@ -222,7 +216,7 @@
     let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
     let lines = [];//すべての経路を管理する配列
-    let builds = [];//すべての経路を管理する配列
+    let builds = [];//すべての建物を管理する配列
     // 出発地点と目的地点の緯度経度を定義
     const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
     const startLon = 139.6917; // 出発地点の経度 (例: 東京)
@@ -456,6 +450,7 @@
       }
       // // シェープファイルのパスを指定（.zip形式）
       // loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
+
       //経路探索
       const routeUrl = createOSRMRoute(marker1, marker2, zoom);
       // 経路データを取得
@@ -488,6 +483,7 @@
         scene.add(line);
         lines.push(line);
       }
+      //建物表示
       function loadBuildings(bounds) {
         // Overpass APIクエリ (指定範囲内の建物を取得)
         const query = `
@@ -542,7 +538,7 @@
           const levels = parseInt(tags["building:levels"], 10);
           return levels * 0.1; // 1階を0.1メートルとして換算
         } else {
-          return 0.1; // デフォルトの高さ（-.1メートル）を使用
+          return 0.1; // デフォルトの高さ（0.1メートル）を使用
         }
       }
 
@@ -563,6 +559,7 @@
         loadBuildings(bounds);
       }
       console.log(zoom);
+      //zoomが一番拡大されたときのみ建物を表示
       if (zoom > 18) {
         // 中心座標変更時に呼び出す
         updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
@@ -571,7 +568,7 @@
     map();
 
 
-    // タイル、ピン、経路を削除する関数
+    // タイル、ピン、経路、建物を削除する関数
     function clear() {
       tiles.forEach(tile => {
         scene.remove(tile); // シーンからタイルを削除
