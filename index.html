@@ -231,8 +231,8 @@
     // OSRM APIのURLを構築
 
     // ピン（Marker）オブジェクトを作成する
-    const geometry1 = new THREE.CylinderGeometry(0.1, 0.1, 10, 32);  // 半径0.1、高さ0.2、32セグメントの円柱
-    const material1 = new THREE.MeshBasicMaterial({ color: 0 });  // 色を設定（黒）
+    const geometry1 = new THREE.CylinderGeometry(0.1, 0.1, 5, 32);  // 半径0.1、高さ0.2、32セグメントの円柱
+    const material1 = new THREE.MeshBasicMaterial({ color: 0x9acd32 });  // 色を設定（黒）
     let marker1 = new THREE.Mesh(geometry1, material1);
     marker1.position.set(0.48421333333408256, 0.5, -3.0365134467951975);  // 東京タワーの緯度経度をthree.js座標に変えたもの
 
@@ -382,10 +382,10 @@
         }
 
         const marker3 = convertCoordinates(coordinates.start.lon, coordinates.start.lat);
-        marker1.position.set(marker3.x, 0.5, marker3.z);  // VRカメラの視界内に配置
+        marker1.position.set(marker3.x, 2.5, marker3.z);  // VRカメラの視界内に配置
         const marker4 = convertCoordinates(coordinates.end.lon, coordinates.end.lat);
 
-        marker2.position.set(marker4.x, 0.5, marker4.z);  // VRカメラの視界内に配置
+        marker2.position.set(marker4.x, 2.5, marker4.z);  // VRカメラの視界内に配置
         coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
         marker5 = undefined;
         const startLon = coordinates.start.lon;
@@ -530,11 +530,8 @@
                     const geometry = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
                     const material = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
                     const building = new THREE.Mesh(geometry, material);
-                    //building.rotation.z -= Math.PI; // Y軸を中心に180度回転
-                    building.rotation.x = -Math.PI / 2; // XY平面をXZ平面に回転
-                    //building.rotation.y = -Math.PI / 2; // XY平面をXZ平面に回転
-                    // 建物の高さを反映するためにY座標を調整
-                   // building.position.y = height / 2;
+                    building.rotation.x = -Math.PI / 2; //x中心に回転
+                   
                    builds.push(building);
                     // シーンに追加
                     scene.add(building);
@@ -550,9 +547,9 @@ function getBuildingHeight(tags) {
         return parseFloat(tags.height*0.05); // OSMのheightタグを使用
     } else if (tags["building:levels"]) {
         const levels = parseInt(tags["building:levels"], 10);
-        return levels * 0.1; // 1階を3メートルとして換算
+        return levels * 0.1; // 1階を0.1メートルとして換算
     } else {
-        return 0.1; // デフォルトの高さ（3メートル）を使用
+        return 0.1; // デフォルトの高さ（-.1メートル）を使用
     }
 }
 
