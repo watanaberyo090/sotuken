@@ -123,17 +123,17 @@
       // カメラのクォータニオンをコピー
       const cameraRotation = camera2.quaternion.clone();
 
-        // カメラの回転を適用してHUDの位置を計算
-        offset.applyQuaternion(camera.quaternion);
-        offset2.applyQuaternion(camera.quaternion);
+      // カメラの回転を適用してHUDの位置を計算
+      offset.applyQuaternion(camera.quaternion);
+      offset2.applyQuaternion(camera.quaternion);
 
-        // HUDの位置をカメラの位置からオフセットを加えたものに設定
-        hudScreen.position.copy(cameraContainer.position).add(offset);
-        hudScreen.quaternion.copy(camera.quaternion);
-        // HUDの位置をHUDの枠の位置に設定
-        hudBorder.position.copy(cameraContainer.position).add(offset2);
-        hudBorder.quaternion.copy(camera.quaternion);
-      
+      // HUDの位置をカメラの位置からオフセットを加えたものに設定
+      hudScreen.position.copy(cameraContainer.position).add(offset);
+      hudScreen.quaternion.copy(camera.quaternion);
+      // HUDの位置をHUDの枠の位置に設定
+      hudBorder.position.copy(cameraContainer.position).add(offset2);
+      hudBorder.quaternion.copy(camera.quaternion);
+
 
       // // デバッグ用ログ
       // console.log("HUD Position:", hudScreen.position);
@@ -397,7 +397,7 @@
 
         console.log('OSRM API URL:', url);
         return url; // 必要に応じてURLを返す
-       }
+      }
 
       // function calculatePinSize(zoom) {
       //   let size;
@@ -438,8 +438,8 @@
       // }
       // // タイルの範囲内に座標があるかを確認する関数
       // function isWithinTileBounds(lon, lat) {
-      //   const tileNW = tileToLonLat(tileOriginX, tileOriginY, zoom); // タイルの左上
-      //   const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 5, zoom); // タイルの右下
+      //   const tileNW = tileToLonLat(tileOriginX - (26 - zoom), tileOriginY - (10 - Math.floor(zoom / 3)), zoom); // 左上
+      //const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
 
       //   return (
       //     lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
@@ -489,91 +489,84 @@
         lines.push(line);
       }
       function loadBuildings(bounds) {
-        console.log("gfsgs");
-        console.log("a"+bounds.south);
-        console.log(bounds.west);
-        
-        console.log(bounds.north);
-        
-        console.log(bounds.east);
-    // Overpass APIクエリ (指定範囲内の建物を取得)
-    const query = `
+        // Overpass APIクエリ (指定範囲内の建物を取得)
+        const query = `
         [out:json];
         (way["building"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
          relation["building"](${bounds.south},${bounds.west},${bounds.north},${bounds.east}););
         out tags geom;`;
 
-    const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
-    
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
+        const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
             // 建物データをThree.jsオブジェクトとして追加
             data.elements.forEach(element => {
-                if (element.type === "way" && element.geometry) {
-                    const shape = new THREE.Shape();
+              if (element.type === "way" && element.geometry) {
+                const shape = new THREE.Shape();
 
-                    // 建物のポリゴン座標をThree.js座標に変換
-                    element.geometry.forEach((point, index) => {
-                        const coords = convertCoordinates(point.lon, point.lat);
-                        if (index === 0) {
-                            shape.moveTo(coords.x, -coords.z);
-                        } else {
-                            shape.lineTo(coords.x, -coords.z);
-                        }
-                    });
+                // 建物のポリゴン座標をThree.js座標に変換
+                element.geometry.forEach((point, index) => {
+                  const coords = convertCoordinates(point.lon, point.lat);
+                  if (index === 0) {
+                    shape.moveTo(coords.x, -coords.z);
+                  } else {
+                    shape.lineTo(coords.x, -coords.z);
+                  }
+                });
 
-                    // 建物の高さを取得
-                    const height = getBuildingHeight(element.tags);
+                // 建物の高さを取得
+                const height = getBuildingHeight(element.tags);
 
-                    // ポリゴンを3Dオブジェクトに変換
-                    const geometry = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
-                    const material = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
-                    const building = new THREE.Mesh(geometry, material);
-                    building.rotation.x = -Math.PI / 2; //x中心に回転
-                   
-                   builds.push(building);
-                    // シーンに追加
-                    scene.add(building);
-                }
+                // ポリゴンを3Dオブジェクトに変換
+                const geometry = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
+                const material = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
+                const building = new THREE.Mesh(geometry, material);
+                building.rotation.x = -Math.PI / 2; //x中心に回転
+
+                builds.push(building);
+                // シーンに追加
+                scene.add(building);
+              }
             });
-        })
-        .catch(error => console.error('Error loading buildings:', error));
-}
+          })
+          .catch(error => console.error('Error loading buildings:', error));
+      }
 
-// 建物の高さを取得する関数
-function getBuildingHeight(tags) {
-    if (tags.height) {
-        return parseFloat(tags.height*0.05); // OSMのheightタグを使用
-    } else if (tags["building:levels"]) {
-        const levels = parseInt(tags["building:levels"], 10);
-        return levels * 0.1; // 1階を0.1メートルとして換算
-    } else {
-        return 0.1; // デフォルトの高さ（-.1メートル）を使用
-    }
-}
+      // 建物の高さを取得する関数
+      function getBuildingHeight(tags) {
+        if (tags.height) {
+          return parseFloat(tags.height * 0.05); // OSMのheightタグを使用
+        } else if (tags["building:levels"]) {
+          const levels = parseInt(tags["building:levels"], 10);
+          return levels * 0.1; // 1階を0.1メートルとして換算
+        } else {
+          return 0.1; // デフォルトの高さ（-.1メートル）を使用
+        }
+      }
 
-// 地図範囲を取得して建物をロード
-function updateBuildings(center, zoom) {
-    // 地図範囲を計算
-    const tileNW = tileToLonLat(tileOriginX - (26 - zoom), tileOriginY - (10 - Math.floor(zoom / 3)), zoom); // 左上
-    const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
+      // 地図範囲を取得して建物をロード
+      function updateBuildings(center, zoom) {
+        // 地図範囲を計算
+        const tileNW = tileToLonLat(tileOriginX - (26 - zoom), tileOriginY - (10 - Math.floor(zoom / 3)), zoom); // 左上
+        const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
 
 
-    const bounds = {
-        north: tileNW.lat,
-        south: tileSE.lat,
-        east: tileSE.lon,
-        west: tileNW.lon,
-    };
+        const bounds = {
+          north: tileNW.lat,
+          south: tileSE.lat,
+          east: tileSE.lon,
+          west: tileNW.lon,
+        };
 
-    loadBuildings(bounds);
-}
-console.log(zoom);
-if(zoom>18){
-// 中心座標変更時に呼び出す
-updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
-}
+        loadBuildings(bounds);
+      }
+      console.log(zoom);
+      if (zoom > 18) {
+        // 中心座標変更時に呼び出す
+        updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
+      }
     }
     map();
 
@@ -603,24 +596,24 @@ updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
       //updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         renderer.xr.enabled = true;//カメラの回転を有効
-        cameraContainer.position.y=10;
+        cameraContainer.position.y = 10;
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-        cameraContainer2.position.set(-6+(-13/2+zoom/2), 26-zoom, 0);
-        
+        cameraContainer2.position.set(-6 + (-13 / 2 + zoom / 2), 26 - zoom, 0);
+
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
         renderer.xr.enabled = false;//カメラの回転を無効
         renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         updateHUDPosition();  // HUDの位置を更新
-       
+
       } else {
         renderer.xr.enabled = true;//カメラの回転を有効
-        
-        cameraContainer.position.y=0;
+
+        cameraContainer.position.y = 0;
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
-        cameraContainer2.position.set(-6+(-13/2+zoom/2), 26-zoom, 0);
-        
+        cameraContainer2.position.set(-6 + (-13 / 2 + zoom / 2), 26 - zoom, 0);
+
         cameraContainer2.rotation.x = -Math.PI / 2;  // -90度回転して真下を向く   
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
         renderer.xr.enabled = false;//カメラの回転を無効
@@ -781,7 +774,7 @@ updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
               isRearView = true;
               hasZoomed1 = false;
               console.log("isrear");
-            } else if ( isRearView == true&&hasZoomed1) {//カメラ切り替え
+            } else if (isRearView == true && hasZoomed1) {//カメラ切り替え
               isRearView = false;
               hasZoomed1 = false;
               console.log("isrear");
@@ -797,7 +790,7 @@ updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
               isRearView = true;
               hasZoomed2 = false;
               console.log("isrear");
-            } else if ( isRearView == true&&hasZoomed2) {//カメラ切り替え
+            } else if (isRearView == true && hasZoomed2) {//カメラ切り替え
               isRearView = false;
               hasZoomed2 = false;
               console.log("isrear");
@@ -910,12 +903,12 @@ updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
       //カメラに写っている範囲のみ地図を表示
       //updateVisibleTiles();
       //前方後方コントローラ切り替え
-   
-        cameraContainer.add(controller1);
-        cameraContainer.add(controller2);
-        cameraContainer.add(controllerGrip1);
-        cameraContainer.add(controllerGrip2);
-      
+
+      cameraContainer.add(controller1);
+      cameraContainer.add(controller2);
+      cameraContainer.add(controllerGrip1);
+      cameraContainer.add(controllerGrip2);
+
       //コントローラ機能
       handleController(controller1);
       handleController(controller2);
