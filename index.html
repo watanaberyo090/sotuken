@@ -213,7 +213,7 @@
     let tileOriginY;//地図のｙ座標
     let coordinates;//マーカーの座標を経度緯度に変換して保持する
     let centerTile;//中心座標
-    let zoom = 13;//地図のズームレベル
+    let zoom = 19;//地図のズームレベル
     let centerLon = 139.7454; // 東京都心の経度
     let centerLat = 35.6586;   // 東京都心の緯度
     // 神奈川35.481666902138336, 139.35879951675716
@@ -222,6 +222,7 @@
     let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
     let lines = [];//すべての経路を管理する配列
+    let builds = [];//すべての経路を管理する配列
     // 出発地点と目的地点の緯度経度を定義
     const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
     const startLon = 139.6917; // 出発地点の経度 (例: 東京)
@@ -230,8 +231,8 @@
     // OSRM APIのURLを構築
 
     // ピン（Marker）オブジェクトを作成する
-    const geometry1 = new THREE.ConeGeometry(0.1, 0.1, 32);
-    const material1 = new THREE.MeshBasicMaterial({ color: 0 });
+    const geometry1 = new THREE.CylinderGeometry(0.1, 0.1, 10, 32);  // 半径0.1、高さ0.2、32セグメントの円柱
+    const material1 = new THREE.MeshBasicMaterial({ color: 0 });  // 色を設定（黒）
     let marker1 = new THREE.Mesh(geometry1, material1);
     marker1.position.set(0.48421333333408256, 0.5, -3.0365134467951975);  // 東京タワーの緯度経度をthree.js座標に変えたもの
 
@@ -446,13 +447,13 @@
       //   );
       // }
 
-      // // タイル座標から緯度経度に変換する関数
-      // function tileToLonLat(x, y, zoom) {
-      //   const n = Math.pow(2, zoom);
-      //   const lon = ((x / n) * 360 - 180);
-      //   const lat = Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / n))) * (180 / Math.PI);
-      //   return { lon, lat };
-      // }
+      // タイル座標から緯度経度に変換する関数
+      function tileToLonLat(x, y, zoom) {
+        const n = Math.pow(2, zoom);
+        const lon = ((x / n) * 360 - 180);
+        const lat = Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / n))) * (180 / Math.PI);
+        return { lon, lat };
+      }
       // // シェープファイルのパスを指定（.zip形式）
       // loadShapefile('P29-13_14.zip'); // 実際のURLに置き換えてください
       //経路探索
@@ -487,6 +488,95 @@
         scene.add(line);
         lines.push(line);
       }
+      function loadBuildings(bounds) {
+        console.log("gfsgs");
+        console.log("a"+bounds.south);
+        console.log(bounds.west);
+        
+        console.log(bounds.north);
+        
+        console.log(bounds.east);
+    // Overpass APIクエリ (指定範囲内の建物を取得)
+    const query = `
+        [out:json];
+        (way["building"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+         relation["building"](${bounds.south},${bounds.west},${bounds.north},${bounds.east}););
+        out tags geom;`;
+
+    const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // 建物データをThree.jsオブジェクトとして追加
+            data.elements.forEach(element => {
+                if (element.type === "way" && element.geometry) {
+                    const shape = new THREE.Shape();
+
+                    // 建物のポリゴン座標をThree.js座標に変換
+                    element.geometry.forEach((point, index) => {
+                        const coords = convertCoordinates(point.lon, point.lat);
+                        if (index === 0) {
+                            shape.moveTo(coords.x, -coords.z);
+                        } else {
+                            shape.lineTo(coords.x, -coords.z);
+                        }
+                    });
+
+                    // 建物の高さを取得
+                    const height = getBuildingHeight(element.tags);
+
+                    // ポリゴンを3Dオブジェクトに変換
+                    const geometry = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
+                    const material = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
+                    const building = new THREE.Mesh(geometry, material);
+                    //building.rotation.z -= Math.PI; // Y軸を中心に180度回転
+                    building.rotation.x = -Math.PI / 2; // XY平面をXZ平面に回転
+                    //building.rotation.y = -Math.PI / 2; // XY平面をXZ平面に回転
+                    // 建物の高さを反映するためにY座標を調整
+                   // building.position.y = height / 2;
+                   builds.push(building);
+                    // シーンに追加
+                    scene.add(building);
+                }
+            });
+        })
+        .catch(error => console.error('Error loading buildings:', error));
+}
+
+// 建物の高さを取得する関数
+function getBuildingHeight(tags) {
+    if (tags.height) {
+        return parseFloat(tags.height*0.05); // OSMのheightタグを使用
+    } else if (tags["building:levels"]) {
+        const levels = parseInt(tags["building:levels"], 10);
+        return levels * 0.1; // 1階を3メートルとして換算
+    } else {
+        return 0.1; // デフォルトの高さ（3メートル）を使用
+    }
+}
+
+// 地図範囲を取得して建物をロード
+function updateBuildings(center, zoom) {
+    // 地図範囲を計算
+    const tileNW = tileToLonLat(tileOriginX - (26 - zoom), tileOriginY - (10 - Math.floor(zoom / 3)), zoom); // 左上
+    const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
+
+
+    const bounds = {
+        north: tileNW.lat,
+        south: tileSE.lat,
+        east: tileSE.lon,
+        west: tileNW.lon,
+    };
+
+    loadBuildings(bounds);
+}
+console.log(zoom);
+if(zoom>18){
+// 中心座標変更時に呼び出す
+updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
+}
     }
     map();
 
@@ -506,6 +596,10 @@
         scene.remove(line); // シーンから経路を削除
       });
       lines = []; // 配列をクリア
+      builds.forEach(line => {
+        scene.remove(line); // シーンから経路を削除
+      });
+      builds = []; // 配列をクリア
     }
     // 毎フレーム時に実行されるループイベント
     function tick() {
