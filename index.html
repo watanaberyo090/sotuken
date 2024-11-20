@@ -57,7 +57,6 @@
     renderer.setPixelRatio(window.devicePixelRatio);
 
     // レンダラーのWebVR設定を有効にする
-    console.log(renderer);
     renderer.xr.enabled = true;
 
     document.body.appendChild(renderer.domElement);
@@ -226,7 +225,7 @@
 
     // ピン（Marker）オブジェクトを作成する
     const geometry1 = new THREE.CylinderGeometry(0.1, 0.1, 5, 32);  // 半径0.1、高さ0.2、32セグメントの円柱
-    const material1 = new THREE.MeshBasicMaterial({ color: 0x9acd32 });  // 色を設定（黒）
+    const material1 = new THREE.MeshBasicMaterial({ color: 0x9acd32 });  // 色を設定（黄緑）
     let marker1 = new THREE.Mesh(geometry1, material1);
     marker1.position.set(0.48421333333408256, 0.5, -3.0365134467951975);  // 東京タワーの緯度経度をthree.js座標に変えたもの
 
@@ -248,16 +247,12 @@
       const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
       //地図中心座標
       if (coordinates == undefined) {
-        console.log("A");
         centerTile = lonLatToTileXY(endLon, endLat, zoom);
         tileOriginX = Math.floor(centerTile.x) - 2;
         tileOriginY = Math.floor(centerTile.y) - 2;
-
-        console.log(convertCoordinates(endLon, endLat));
       } else {
         //マーカーの座標を経度緯度に変換して保持するcoordinatesを更新
         if (marker5 == undefined) { } else if (marker5.name == "marker1") {
-          console.log("gs");
           //マーカ1を動かした際に変更
           coordinates = getMarkerCoordinates(marker5, marker2, zoom);
         } else if (marker5.name == "marker2") {
@@ -368,7 +363,6 @@
       // マーカーの前のフレームの座標を上書きするのとOSRM APIのURLを構築する関数
       function createOSRMRoute(startMarker, endMarker, zoom) {
         if (!hasExecuted) {
-          console.log("このコードは一度だけ実行されます。");
           // ここに実行したいコードを書く
           coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
           // フラグを更新
@@ -389,8 +383,7 @@
         // OSRM APIのURLを構築
         const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
 
-        console.log('OSRM API URL:', url);
-        return url; // 必要に応じてURLを返す
+        return url; // URLを返す
       }
 
       // function calculatePinSize(zoom) {
@@ -465,8 +458,6 @@
         .catch(error => console.error('Error fetching route:', error));
       // 取得した経路を表示する (地図表示の関数)
       function displayRouteOnMap(route) {
-        console.log("経路を表示:", route);
-
         const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // 経路を青色で表示
         const points = [];
 
@@ -475,7 +466,7 @@
           const lon = coord[0];
           const lat = coord[1];
           const { x, z } = convertCoordinates(lon, lat);  // 緯度経度をThree.jsの座標系に変換
-          points.push(new THREE.Vector3(x, 0.05, z));  // Y軸を0.01に設定して地面から少し浮かせる
+          points.push(new THREE.Vector3(x, 0.05, z));  // Y軸を0.05に設定して地面から少し浮かせる
         });
 
         const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -517,10 +508,10 @@
 
                 // ポリゴンを3Dオブジェクトに変換
                 const geometry = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
-                const material = new THREE.MeshStandardMaterial({ color: 0x999999, side: THREE.DoubleSide });
+                const material = new THREE.MeshStandardMaterial({ color: 0x999999,transparent: true, side: THREE.DoubleSide });
                 const building = new THREE.Mesh(geometry, material);
                 building.rotation.x = -Math.PI / 2; //x中心に回転
-
+                
                 builds.push(building);
                 // シーンに追加
                 scene.add(building);
@@ -558,16 +549,32 @@
 
         loadBuildings(bounds);
       }
-      console.log(zoom);
       //zoomが一番拡大されたときのみ建物を表示
       if (zoom > 18) {
         // 中心座標変更時に呼び出す
         updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
       }
+      
     }
     map();
+    //建物を半透明にする
+    function updateBuildingTransparency(playerPosition, buildings, radius) {
+  buildings.forEach(building => {
+     // 建物のジオメトリから中心を計算
+  const boundingBox = new THREE.Box3().setFromObject(building);
+  const buildingCenter = new THREE.Vector3();
+  boundingBox.getCenter(buildingCenter);
 
+  // プレイヤーとの距離を計算
+  const distance = playerPosition.distanceTo(buildingCenter);
 
+    if (distance<radius) {
+      building.material.opacity = 0.2;  // 範囲内: 半透明
+    } else {
+      building.material.opacity = 1.0;  // 範囲外: 不透明
+    }
+  });
+}
     // タイル、ピン、経路、建物を削除する関数
     function clear() {
       tiles.forEach(tile => {
@@ -583,14 +590,13 @@
         scene.remove(line); // シーンから経路を削除
       });
       lines = []; // 配列をクリア
-      builds.forEach(line => {
-        scene.remove(line); // シーンから経路を削除
+      builds.forEach(build => {
+        scene.remove(build); // シーンから建物を削除
       });
       builds = []; // 配列をクリア
     }
     // 毎フレーム時に実行されるループイベント
     function tick() {
-      //updateHUDPosition();  // HUDの位置を更新
       if (isRearView) {
         renderer.xr.enabled = true;//カメラの回転を有効
         cameraContainer.position.y = 10;
@@ -890,6 +896,8 @@
         }
       });
     }
+    // 初期状態でカメラコンテナの位置を記録
+let previousPosition = cameraContainer.position.clone();
     //毎フレーム実行される
     function render() {
       //カメラ切り替え
@@ -897,10 +905,13 @@
       //スティック移動
       updateMovement1(controller1);
       updateMovement1(controller2);
-      //カメラに写っている範囲のみ地図を表示
-      //updateVisibleTiles();
+      //移動した時のみ建物を半透明に
+  if (!cameraContainer.position.equals(previousPosition)) {
+      updateBuildingTransparency(cameraContainer.position, builds, 5);  // 半径5m
+      previousPosition.copy(cameraContainer.position); // 前回の位置を更新
+  }
       //前方後方コントローラ切り替え
-
+    
       cameraContainer.add(controller1);
       cameraContainer.add(controller2);
       cameraContainer.add(controllerGrip1);
@@ -910,8 +921,10 @@
       handleController(controller1);
       handleController(controller2);
     }
+    
     // 初回のレンダリングループの開始
     renderer.setAnimationLoop(render);
+    
   </script>
 </body>
 
