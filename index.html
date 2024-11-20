@@ -508,11 +508,25 @@
 
                 // ポリゴンを3Dオブジェクトに変換
                 const geometry = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
-                const material = new THREE.MeshStandardMaterial({ color: 0x999999,transparent: true, side: THREE.DoubleSide });
+                const material = new THREE.MeshStandardMaterial({ color: 0x999999, transparent: true, side: THREE.DoubleSide });
+
                 const building = new THREE.Mesh(geometry, material);
                 building.rotation.x = -Math.PI / 2; //x中心に回転
-                
+
                 builds.push(building);
+                // 建物のジオメトリから中心を計算
+                const boundingBox = new THREE.Box3().setFromObject(building);
+                const buildingCenter = new THREE.Vector3();
+                boundingBox.getCenter(buildingCenter);
+
+                // プレイヤーとの距離を計算
+                const distance = cameraContainer.position.distanceTo(buildingCenter);
+
+                if (distance < 5) {
+                  building.material.opacity = 0.2;  // 範囲内: 半透明
+                } else {
+                  building.material.opacity = 1.0;  // 範囲外: 不透明
+                }
                 // シーンに追加
                 scene.add(building);
               }
@@ -554,27 +568,27 @@
         // 中心座標変更時に呼び出す
         updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
       }
-      
+
     }
     map();
     //建物を半透明にする
     function updateBuildingTransparency(playerPosition, buildings, radius) {
-  buildings.forEach(building => {
-     // 建物のジオメトリから中心を計算
-  const boundingBox = new THREE.Box3().setFromObject(building);
-  const buildingCenter = new THREE.Vector3();
-  boundingBox.getCenter(buildingCenter);
+      buildings.forEach(building => {
+        // 建物のジオメトリから中心を計算
+        const boundingBox = new THREE.Box3().setFromObject(building);
+        const buildingCenter = new THREE.Vector3();
+        boundingBox.getCenter(buildingCenter);
 
-  // プレイヤーとの距離を計算
-  const distance = playerPosition.distanceTo(buildingCenter);
+        // プレイヤーとの距離を計算
+        const distance = playerPosition.distanceTo(buildingCenter);
 
-    if (distance<radius) {
-      building.material.opacity = 0.2;  // 範囲内: 半透明
-    } else {
-      building.material.opacity = 1.0;  // 範囲外: 不透明
+        if (distance < radius) {
+          building.material.opacity = 0.2;  // 範囲内: 半透明
+        } else {
+          building.material.opacity = 1.0;  // 範囲外: 不透明
+        }
+      });
     }
-  });
-}
     // タイル、ピン、経路、建物を削除する関数
     function clear() {
       tiles.forEach(tile => {
@@ -835,7 +849,7 @@
         }
       }
     }
-    const speed = 0.05;
+    const speed = 0.1;
     // スティック入力に基づく移動
     function updateMovement1(controller) {
       // コントローラのゲームパッドデータを取得
@@ -896,6 +910,8 @@
         }
       });
     }
+    // 初期状態でカメラコンテナの位置を記録
+    let previousPosition = cameraContainer.position.clone();
     //毎フレーム実行される
     function render() {
       //カメラ切り替え
@@ -903,10 +919,13 @@
       //スティック移動
       updateMovement1(controller1);
       updateMovement1(controller2);
-      //建物を半透明に
-      updateBuildingTransparency(cameraContainer.position, builds, 5);  // 半径5m
+      //移動した時のみ建物を半透明に
+      if (!cameraContainer.position.equals(previousPosition)) {
+        updateBuildingTransparency(cameraContainer.position, builds, 5);  // 半径5m
+        previousPosition.copy(cameraContainer.position); // 前回の位置を更新
+      }
       //前方後方コントローラ切り替え
-    
+
       cameraContainer.add(controller1);
       cameraContainer.add(controller2);
       cameraContainer.add(controllerGrip1);
@@ -916,10 +935,10 @@
       handleController(controller1);
       handleController(controller2);
     }
-    
+
     // 初回のレンダリングループの開始
     renderer.setAnimationLoop(render);
-    
+
   </script>
 </body>
 
