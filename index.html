@@ -896,8 +896,6 @@
         }
       });
     }
-    // 初期状態でカメラコンテナの位置を記録
-let previousPosition = cameraContainer.position.clone();
     //毎フレーム実行される
     function render() {
       //カメラ切り替え
@@ -905,11 +903,8 @@ let previousPosition = cameraContainer.position.clone();
       //スティック移動
       updateMovement1(controller1);
       updateMovement1(controller2);
-      //移動した時のみ建物を半透明に
-  if (!cameraContainer.position.equals(previousPosition)) {
+      //建物を半透明に
       updateBuildingTransparency(cameraContainer.position, builds, 5);  // 半径5m
-      previousPosition.copy(cameraContainer.position); // 前回の位置を更新
-  }
       //前方後方コントローラ切り替え
     
       cameraContainer.add(controller1);
