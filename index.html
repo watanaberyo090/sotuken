@@ -461,9 +461,8 @@
     // 地図範囲を取得して建物をロード
     function updateBuildings(center, zoom) {
       // 地図範囲を計算
-      const tileNW = tileToLonLat(tileOriginX - 15, tileOriginY - 15, zoom); // 左上
-      const tileSE = tileToLonLat(tileOriginX + 15, tileOriginY + 15, zoom); // 右下
-
+      const tileNW = tileToLonLat(tileOriginX- (26 - zoom), tileOriginY - (10 - Math.floor(zoom / 3)), zoom); // 左上
+      const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
 
       const bounds = {
         north: tileNW.lat,
@@ -503,43 +502,15 @@
         tileOriginX = Math.floor(centerTile.x) - 2;
         tileOriginY = Math.floor(centerTile.y) - 2;
       }
-      //const zoomFactor = Math.pow(zoom, 2);  // ズームレベルに応じた拡大率（2のズームレベル乗）
-      // ズームレベルが大きくなるにつれて表示範囲を拡大
-      const rangeX = Math.floor(300 / zoom);  // ズームに応じてX方向の範囲を拡大
-      const rangeY = Math.floor(300 / zoom);  // ズームに応じてY方向の範囲を拡大
-      console.log(rangeX)
-      console.log(rangeY)
-      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-        for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
+    
 
-          loadOSMTile(x, y, zoom);
-
-
+      //タイルを複数ロード
+        for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+          for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
+            loadOSMTile(x, y, zoom);
+          }
         }
-      }
-      // //タイルを複数ロード
-      // let delay = 1; // 100msごとにリクエストを送信
-      // function loadTileWithDelay(x, y, zoom, delayTime) {
-      //   setTimeout(() => {
-      //     loadOSMTile(x, y, zoom);
-      //   }, delayTime);
-      // }
-
-      // if (zoom < 17) {
-      //   for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-      //     for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
-      //       loadTileWithDelay(x, y, zoom, delay);
-      //       delay += 1; // 100msずつ遅延時間を増加
-      //     }
-      //   }
-      // } else {
-      //   for (let x = tileOriginX - 15; x < tileOriginX + 15; x++) {
-      //     for (let y = tileOriginY - 15; y < tileOriginY + 15; y++) {
-      //       loadTileWithDelay(x, y, zoom, delay);
-      //       delay += 1; // 100msずつ遅延時間を増加
-      //     }
-      //   }
-      // }
+   
 
 
       // function calculatePinSize(zoom) {
@@ -702,7 +673,7 @@
         renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
         renderer.setRenderTarget(null);  // ターゲットを元に戻す
         updateHUDPosition();  // HUDの位置を更新
-        console.log(Execute);
+      
 
       }
     }
@@ -720,32 +691,32 @@
 
     /* ----コントローラー設定----- */
 
-    // コントローラーイベントの設定
-    function onSelectStart() {
-      this.userData.isSelecting = true;
-    }
-    function onSelectEnd() {
-      this.userData.isSelecting = false;
-    }
-    function onButtonDown() {
-      this.userData.isSelecting = true;
-    }
-    function onButtonUp() {
-      this.userData.isSelecting = false;
-    }
-    function onSqueezeStart() {
-      this.userData.isSelecting = true;
-    }
-    function onSqueezeEnd() {
-      this.userData.isSelecting = false;
-    }
+    // // コントローラーイベントの設定
+    // function onSelectStart() {
+    //   this.userData.isSelecting = true;
+    // }
+    // function onSelectEnd() {
+    //   this.userData.isSelecting = false;
+    // }
+    // function onButtonDown() {
+    //   this.userData.isSelecting = true;
+    // }
+    // function onButtonUp() {
+    //   this.userData.isSelecting = false;
+    // }
+    // function onSqueezeStart() {
+    //   this.userData.isSelecting = true;
+    // }
+    // function onSqueezeEnd() {
+    //   this.userData.isSelecting = false;
+    // }
     //コントローラー取得
     //前方コントローラ
     controller1 = renderer.xr.getController(0);
-    controller1.addEventListener('selectstart', onSelectStart);//トリガー
-    controller1.addEventListener('selectend', onSelectEnd);
-    controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
-    controller1.addEventListener('squeezeend', onSqueezeEnd);
+    // controller1.addEventListener('selectstart', onSelectStart);//トリガー
+    // controller1.addEventListener('selectend', onSelectEnd);
+    // controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
+    // controller1.addEventListener('squeezeend', onSqueezeEnd);
     controller1.addEventListener('connected', (event) => {
       if ('gamepad' in event.data) {//接続した際にコントローラの情報を渡す
         if ('axes' in event.data.gamepad) {
@@ -754,10 +725,10 @@
       }
     });
     controller2 = renderer.xr.getController(1);
-    controller2.addEventListener('selectstart', onSelectStart);//トリガー
-    controller2.addEventListener('selectend', onSelectEnd);
-    controller2.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
-    controller2.addEventListener('squeezeend', onSqueezeEnd);
+    // controller2.addEventListener('selectstart', onSelectStart);//トリガー
+    // controller2.addEventListener('selectend', onSelectEnd);
+    // controller2.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
+    // controller2.addEventListener('squeezeend', onSqueezeEnd);
     controller2.addEventListener('connected', (event) => {
       if ('gamepad' in event.data) {
         if ('axes' in event.data.gamepad) {
@@ -773,9 +744,7 @@
 
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-    // Set positions for controllers
-    controller1.position.set(0.5, 200, 0.5); // Example position for controller1
-    controller2.position.set(-0.5, 200, 0.5); // Example position for controller2
+    
     // コントローラーに userData プロパティを追加して id を設定する
     controller1.userData.id = 0;
     controller2.userData.id = 1;
@@ -806,8 +775,7 @@
     }
     let hasZoomed1 = true; // ボタンを押した状態を追跡するフラグ
     let hasZoomed2 = true; // ボタンを押した状態を追跡するフラグ
-    // レイキャスターの原点（コントローラーの位置）を格納するVector3
-    const rayOrigin = new THREE.Vector3();
+   
     function handleController(controller) {
       const controllerData = controller.gamepad;
       const userData = controller.userData;
@@ -1054,6 +1022,7 @@
       handleController(controller1);
       handleController(controller2);
     }
+    
 
     // 初回のレンダリングループの開始
     renderer.setAnimationLoop(render);
