@@ -509,37 +509,37 @@
       const rangeY = Math.floor(300 / zoom);  // ズームに応じてY方向の範囲を拡大
       console.log(rangeX)
       console.log(rangeY)
-      // for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-      //   for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
+      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+        for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
 
+          loadOSMTile(x, y, zoom);
+
+
+        }
+      }
+      // //タイルを複数ロード
+      // let delay = 1; // 100msごとにリクエストを送信
+      // function loadTileWithDelay(x, y, zoom, delayTime) {
+      //   setTimeout(() => {
       //     loadOSMTile(x, y, zoom);
+      //   }, delayTime);
+      // }
 
-
+      // if (zoom < 17) {
+      //   for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+      //     for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
+      //       loadTileWithDelay(x, y, zoom, delay);
+      //       delay += 1; // 100msずつ遅延時間を増加
+      //     }
+      //   }
+      // } else {
+      //   for (let x = tileOriginX - 15; x < tileOriginX + 15; x++) {
+      //     for (let y = tileOriginY - 15; y < tileOriginY + 15; y++) {
+      //       loadTileWithDelay(x, y, zoom, delay);
+      //       delay += 1; // 100msずつ遅延時間を増加
+      //     }
       //   }
       // }
-      //タイルを複数ロード
-      let delay = 1; // 100msごとにリクエストを送信
-      function loadTileWithDelay(x, y, zoom, delayTime) {
-        setTimeout(() => {
-          loadOSMTile(x, y, zoom);
-        }, delayTime);
-      }
-
-      if (zoom < 17) {
-        for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-          for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
-            loadTileWithDelay(x, y, zoom, delay);
-            delay += 1; // 100msずつ遅延時間を増加
-          }
-        }
-      } else {
-        for (let x = tileOriginX - 15; x < tileOriginX + 15; x++) {
-          for (let y = tileOriginY - 15; y < tileOriginY + 15; y++) {
-            loadTileWithDelay(x, y, zoom, delay);
-            delay += 1; // 100msずつ遅延時間を増加
-          }
-        }
-      }
 
 
       // function calculatePinSize(zoom) {
