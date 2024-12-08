@@ -139,7 +139,7 @@ scene.add(sprite3);
       const offset = new THREE.Vector3(0.4, 2, -2.5); // 後方視点用のオフセット
       // カメラの位置を基準にHUDの位置を計算
       const offset2 = new THREE.Vector3(0.4, 2.05, -2.6); // 後方視点用のオフセット
-      const offset3 = new THREE.Vector3(3, 3, -2.5); // 後方視点用のオフセット
+      const offset3 = new THREE.Vector3(2, 3, -2.5); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
     
@@ -637,8 +637,8 @@ function updateCylinderRadius(zoom) {
       // const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
       // const tileNW = tileToLonLat(tileOriginX-15, tileOriginY - 15, zoom); // 左上
       // const tileSE = tileToLonLat(tileOriginX + 15, tileOriginY + 15, zoom); // 右下
-      const tileNW = tileToLonLat(tileOriginX - 7, tileOriginY - 5, zoom); // 左上
-      const tileSE = tileToLonLat(tileOriginX + 7, tileOriginY + 5, zoom); // 右下
+      const tileNW = tileToLonLat(tileOriginX - 10, tileOriginY - 10, zoom); // 左上
+      const tileSE = tileToLonLat(tileOriginX + 10, tileOriginY + 5, zoom); // 右下
 
       const bounds = {
         north: tileNW.lat,
@@ -784,8 +784,8 @@ function updateCylinderRadius(zoom) {
 
     // タイルの範囲内に座標があるかを確認する関数
     function isWithinTileBounds(lon, lat) {
-      const tileNW = tileToLonLat(tileOriginX - 7, tileOriginY - 5, zoom); // 左上
-      const tileSE = tileToLonLat(tileOriginX + 7, tileOriginY + 5, zoom); // 右下
+      const tileNW = tileToLonLat(tileOriginX - 10, tileOriginY - 10, zoom); // 左上
+      const tileSE = tileToLonLat(tileOriginX + 10, tileOriginY + 5, zoom); // 右下
 
       return (
         lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
@@ -823,8 +823,8 @@ function updateCylinderRadius(zoom) {
       //     loadOSMTile(x, y, zoom);
       //   }
       // }
-      for (let x = tileOriginX - 7; x < tileOriginX + 7; x++) {
-        for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
+      for (let x = tileOriginX - 10; x < tileOriginX + 10; x++) {
+        for (let y = tileOriginY - 10; y < tileOriginY + 5; y++) {
           loadOSMTile(x, y, zoom);
         }
       }
@@ -931,7 +931,7 @@ function updateCylinderRadius(zoom) {
 
 
       // シェープファイルのパスを指定（.zip形式）
-      //loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1,propertyKey2);
+      loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1,propertyKey2);
       // 129.94426531798547,
       // 32.955020790227536,
       // 129.94469362096686,
@@ -967,14 +967,14 @@ function updateCylinderRadius(zoom) {
       //   lines.push(line);
       // }
 
-      // //zoomが一番拡大されたときのみ建物を表示
-      // if (zoom > 18) {
-      //   // 中心座標変更時に呼び出す
-      //   updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
-      // }
+      //zoomが一番拡大されたときのみ建物を表示
+      if (zoom > 18) {
+        // 中心座標変更時に呼び出す
+        updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
+      }
 
     }
-    //map();
+    map();
     //建物を半透明にする
     function updateBuildingTransparency(playerPosition, buildings, radius) {
       buildings.forEach(building => {
