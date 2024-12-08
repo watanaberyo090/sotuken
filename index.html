@@ -414,6 +414,24 @@ scene.add(sprite3);
     cylinder.name = "cylinder";
     scene.add(cylinder);
 
+// ズームレベルに応じて半径を更新する関数
+function updateCylinderRadius(zoom) {
+  
+  const heightMapping = {
+        19: 0.2,   // zoom 19で高さが大きい
+        16: 0.05,
+        13: 0.05,
+        10: 0.05,
+        7: 0.01    // zoom 7で最小の高さ
+      };
+
+  const radius = heightMapping[zoom] || 0.01; // マッピング外ズーム時のデフォルト値
+       // 古いジオメトリを削除
+    cylinder.geometry.dispose();
+      // 新しいジオメトリを作成し、適用
+    cylinder.geometry = new THREE.CylinderGeometry(radius, radius, 0.4, 32);
+}
+
     // タイルをロードする関数
     function loadOSMTile(x, y, z) {
       const subdomain = ['a', 'b', 'c'][Math.floor(Math.random() * 3)];
@@ -619,8 +637,8 @@ scene.add(sprite3);
       // const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
       // const tileNW = tileToLonLat(tileOriginX-15, tileOriginY - 15, zoom); // 左上
       // const tileSE = tileToLonLat(tileOriginX + 15, tileOriginY + 15, zoom); // 右下
-      const tileNW = tileToLonLat(tileOriginX - 10, tileOriginY - 10, zoom); // 左上
-      const tileSE = tileToLonLat(tileOriginX + 10, tileOriginY + 5, zoom); // 右下
+      const tileNW = tileToLonLat(tileOriginX - 7, tileOriginY - 5, zoom); // 左上
+      const tileSE = tileToLonLat(tileOriginX + 7, tileOriginY + 5, zoom); // 右下
 
       const bounds = {
         north: tileNW.lat,
@@ -766,8 +784,8 @@ scene.add(sprite3);
 
     // タイルの範囲内に座標があるかを確認する関数
     function isWithinTileBounds(lon, lat) {
-      const tileNW = tileToLonLat(tileOriginX - 10, tileOriginY - 10, zoom); // 左上
-      const tileSE = tileToLonLat(tileOriginX + 10, tileOriginY + 5, zoom); // 右下
+      const tileNW = tileToLonLat(tileOriginX - 7, tileOriginY - 5, zoom); // 左上
+      const tileSE = tileToLonLat(tileOriginX + 7, tileOriginY + 5, zoom); // 右下
 
       return (
         lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
@@ -805,8 +823,8 @@ scene.add(sprite3);
       //     loadOSMTile(x, y, zoom);
       //   }
       // }
-      for (let x = tileOriginX - 10; x < tileOriginX + 10; x++) {
-        for (let y = tileOriginY - 10; y < tileOriginY + 5; y++) {
+      for (let x = tileOriginX - 7; x < tileOriginX + 7; x++) {
+        for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
           loadOSMTile(x, y, zoom);
         }
       }
@@ -824,6 +842,7 @@ scene.add(sprite3);
 
       coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
       marker5 = undefined;
+      updateCylinderRadius(zoom); // 例えばズームレベル2に変更
       // //const zoomFactor = Math.pow(zoom, 2);  // ズームレベルに応じた拡大率（2のズームレベル乗）
       // ズームレベルが大きくなるにつれて表示範囲を拡大
       // const rangeX = Math.floor(300 / zoom);  // ズームに応じてX方向の範囲を拡大
