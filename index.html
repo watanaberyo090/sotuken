@@ -1192,11 +1192,13 @@ function updateCylinderRadius(zoom) {
 
     function handleController(controller) {
      
-      const controllerData = controller.gamepad;
+      
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
-      if (controllerData) {
+      //console.log(controllerData);
+      if (controller&&controller.gamepad) {
+        const controllerData = controller.gamepad;
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
         console.log("0");
       if (userData.id == 0) {
