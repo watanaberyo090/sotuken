@@ -817,17 +817,17 @@ function updateCylinderRadius(zoom) {
 
 
 
-      //タイルを複数ロード
-      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-        for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
-          loadOSMTile(x, y, zoom);
-        }
-      }
-      // for (let x = tileOriginX - 7; x < tileOriginX + 7; x++) {
-      //   for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
+      // //タイルを複数ロード
+      // for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+      //   for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
       //     loadOSMTile(x, y, zoom);
       //   }
       // }
+      for (let x = tileOriginX - 7; x < tileOriginX + 7; x++) {
+        for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
+          loadOSMTile(x, y, zoom);
+        }
+      }
       if (!hasExecuted) {
         // ここに実行したいコードを書く
         coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
@@ -974,7 +974,7 @@ function updateCylinderRadius(zoom) {
       // }
 
     }
-    map();
+    //map();
     //建物を半透明にする
     function updateBuildingTransparency(playerPosition, buildings, radius) {
       buildings.forEach(building => {
