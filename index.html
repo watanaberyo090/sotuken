@@ -85,7 +85,7 @@
     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
-    cameraContainer2.position.set(0, 2, 0);
+    cameraContainer2.position.set(0, 2, 105);
     // cameraContainer2.rotation.y = Math.PI;  // 前方を向くように回転
     //右にX60前にZ-150
     cameraContainer2.add(camera2);
@@ -818,16 +818,16 @@ function updateCylinderRadius(zoom) {
 
 
       //タイルを複数ロード
-      // for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-      //   for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
-      //     loadOSMTile(x, y, zoom);
-      //   }
-      // }
-      for (let x = tileOriginX - 7; x < tileOriginX + 7; x++) {
-        for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
+      for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
+        for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
           loadOSMTile(x, y, zoom);
         }
       }
+      // for (let x = tileOriginX - 7; x < tileOriginX + 7; x++) {
+      //   for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
+      //     loadOSMTile(x, y, zoom);
+      //   }
+      // }
       if (!hasExecuted) {
         // ここに実行したいコードを書く
         coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
@@ -1028,7 +1028,7 @@ function updateCylinderRadius(zoom) {
         updateHUDPosition();  // HUDの位置を更新
 
       } else {
-        renderer.xr.enabled = true;
+        renderer.xr.enabled = !isRearView;
         // const distance = 10; // カメラからの距離
         // const direction = new THREE.Vector3(); // カメラの方向ベクトル
         // camera.getWorldDirection(direction); // カメラの向きを取得
@@ -1041,7 +1041,7 @@ function updateCylinderRadius(zoom) {
         cameraContainer.rotation.x = 0;  // 元に戻す回転
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
 
-        //renderer.xr.enabled = isRearView;
+        renderer.xr.enabled = isRearView;
         // 後方カメラの映像をVR内HUDに表示
         renderer.setRenderTarget(renderTarget);  // 後方カメラ用のレンダリングターゲットをセット
         renderer.render(scene, camera2);  // 後方カメラでVRシーンを描画
