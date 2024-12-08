@@ -1196,7 +1196,7 @@ function updateCylinderRadius(zoom) {
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
-      if (controllerData!==undefined) {
+      if (controllerData) {
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
@@ -1265,11 +1265,7 @@ function updateCylinderRadius(zoom) {
             }
           }
         }
-        else if (controllerData.buttons[2].pressed == true) {//不明
-          console.log("2");
-        } else if (controllerData.buttons[3].pressed == true) {//スティック押し込み
-          console.log("3");
-        } else if (controllerData.buttons[4].pressed == true) {//xaボタン
+          else if (controllerData.buttons[4].pressed == true) {//xaボタン
           console.log("4");
           if (userData.id == 0) {
             if (hasZoomed1) {//カメラ切り替え
@@ -1332,9 +1328,7 @@ function updateCylinderRadius(zoom) {
               hasZoomed2 = false;
             }
           }
-        } else if (controllerData.buttons[6].pressed == true) {//不明
-          console.log("6");
-        } else if (userData.id == 0) {
+        }  else if (userData.id == 0) {
           //右ボタンが離されたときの処理
           line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
           if (controller.userData.selected !== undefined) {
