@@ -1192,56 +1192,173 @@ function updateCylinderRadius(zoom) {
 
     function handleController(controller) {
      
-      
+     
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
-      //console.log(controllerData);
       if (controller&&controller.gamepad) {
         const controllerData = controller.gamepad;
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
-        console.log("0");
-      if (userData.id == 0) {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      } else {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      }
-    } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
-        console.log("1");
-      if (userData.id == 0) {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      } else{
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      }
-    }
-    else if (controllerData.buttons[2].pressed == true) {//不明
-      console.log("2");
-    } else if (controllerData.buttons[3].pressed == true) {//スティック押し込み
-      console.log("3");
-    } else if (controllerData.buttons[4].pressed == true) {//xaボタン
-      console.log("4");
-      if (userData.id == 0) {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      } else {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      }
-    } else if (controllerData.buttons[5].pressed == true) {//ybボタン
-      console.log("5");
-      if (userData.id == 0) {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      } else {
-        //コントローラの左右pcではuserData.id == 1が左0が右ゴーグルでは逆
-      }
-    } else if (controllerData.buttons[6].pressed == true) {//不明
-      console.log("6");
-    } else if (userData.id == 0) {
-      //pcでは右ボタンが離されたときの処理ゴーグルでは逆
+          if (userData.id == 0) {
+            line1.material.color.set(0xff0000); // 赤色に設定
 
-    } else {
-      //pcでは左ボタンが離されたときの処理ゴーグルでは逆
+            if (intersections2.length > 0) {
+              const intersection = intersections2[0];
+              const object = intersection.object;
+              // すでにオブジェクトがアタッチされている場合は何もしない
+              if (controller.userData.selected) {
+                return;
+              }
+              if (object.name == "cylinder" || object.name == "newBuilding") {
+                // 動かす前の座標を保存
+                const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
-    }
+                // オブジェクトの座標をコントローラーにアタッチ
+                controller.attach(object);
 
+                // コントローラーのユーザーデータに選択されたオブジェクトを保存
+                controller.userData.selected = object;
+              }
+            }
+          } else {
+            line2.material.color.set(0xff0000);
+            if (intersections.length > 0) {
+              const intersection = intersections[0];
+              const object = intersection.object;
+              // すでにオブジェクトがアタッチされている場合は何もしない
+              if (controller.userData.selected) {
+                return;
+              }
+              if (object.name == "cylinder") {
+                // 動かす前の座標を保存
+                const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
+
+                // オブジェクトの座標をコントローラーにアタッチ
+                controller.attach(object);
+
+                // コントローラーのユーザーデータに選択されたオブジェクトを保存
+                controller.userData.selected = object;
+              } else {
+                if (hasZoomed2) {
+                  const selectedBuilding = object;
+                  copyBuilding(selectedBuilding); // 建物をコピー
+                  hasZoomed2 = false;
+                }
+              }
+            }
+          }
+        } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
+          if (userData.id == 0) {
+            line1.material.color.set(0xff0000); // 赤色に設定
+            if (hasZoomed1 && zoom < 19) {//地図拡大
+              zoom += 3;
+              clear();
+              map();
+              hasZoomed1 = false;
+            }
+          } else {
+            line2.material.color.set(0xff0000); // 赤色に設定
+            if (hasZoomed2 && zoom > 7) {//地図縮小
+              zoom -= 3;
+              clear();
+              map();
+              hasZoomed2 = false;
+            }
+          }
+        }
+          else if (controllerData.buttons[4].pressed == true) {//xaボタン
+          console.log("4");
+          if (userData.id == 0) {
+            if (hasZoomed1) {//カメラ切り替え
+              isRearView = !isRearView;
+              hasZoomed1 = false;
+              console.log("isrear");
+            }
+          } else {
+            if (hasZoomed2) {//カメラ切り替え
+              isRearView = !isRearView;
+              hasZoomed2 = false;
+              console.log("isrear");
+            }
+          }
+        } else if (controllerData.buttons[5].pressed == true) {//yb
+          console.log("5");
+          if (userData.id == 0) {
+            if (hasZoomed1) {
+              let parts = propertyKeyHeight.split('_'); // "_" で分割
+      let prefix = parts[0] + '_'; // "S12_"
+      let numberPart1 = parts[1];   // "009"
+      let numberPart2 = parseInt(numberPart1, 10); // 文字列の "009" を整数に変換
+      if(numberPart2<maxValue){
+              propertyKeyHeight = incrementPropertyKey(propertyKeyHeight, 4);
+              propertyKey1 = incrementPropertyKey(propertyKey1, 4);
+              propertyKey2 = incrementPropertyKey(propertyKey2, 4);
+              clear();
+              map();
+              
+              year++; // 年をインクリメント
+                // 新しい年をキャンバスに描画
+            context3.clearRect(0, 0, canvas3.width, canvas3.height); // 以前の描画をクリア
+            context3.fillText(year + "年", 10, 50); // 新しい年を描画
+
+            // テクスチャを更新
+            texture3.needsUpdate = true; // テクスチャの更新を反映させる
+      }
+      hasZoomed1 = false;
+            }
+          } else {
+            if (hasZoomed2) {
+              let parts = propertyKey1.split('_'); // "_" で分割
+      let prefix = parts[0] + '_'; // "S12_"
+      let numberPart1 = parts[1];   // "006"
+      let numberPart2 = parseInt(numberPart1, 10); // 文字列の "006" を整数に変換
+      if(numberPart2>minValue){
+              propertyKeyHeight = decrementPropertyKey(propertyKeyHeight, 4);
+              propertyKey1 = decrementPropertyKey(propertyKey1, 4);
+              propertyKey2 = decrementPropertyKey(propertyKey2, 4);
+              clear();
+              map();
+              year--; // 年をインクリメント
+                // 新しい年をキャンバスに描画
+            context3.clearRect(0, 0, canvas3.width, canvas3.height); // 以前の描画をクリア
+            context3.fillText(year + "年", 10, 50); // 新しい年を描画
+
+            // テクスチャを更新
+            texture3.needsUpdate = true; // テクスチャの更新を反映させる
+      }
+              hasZoomed2 = false;
+            }
+          }
+        }  else if (userData.id == 0) {
+          //右ボタンが離されたときの処理
+          line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
+          if (controller.userData.selected !== undefined) {
+            const object = controller.userData.selected;
+
+            object.matrix.premultiply(controller.matrixWorld);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
+            marker5 = object;
+            scene.add(object);
+            controller.userData.selected = undefined;
+            if (object.name == "cylinder") {
+              clear();
+              map();
+            }
+          }
+        } else {
+          //左ボタンが離されたときの処理
+          line2.material.color.set(0xffffff); hasZoomed2 = true
+          if (controller.userData.selected !== undefined) {
+            const object = controller.userData.selected;
+            object.matrix.premultiply(controller.matrixWorld);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
+            marker5 = object;
+            scene.add(object);
+            controller.userData.selected = undefined;
+            clear();
+            map();
+          }
+        }
       }
     }
     const speed = 0.1;
