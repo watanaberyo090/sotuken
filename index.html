@@ -1065,32 +1065,32 @@ function updateCylinderRadius(zoom) {
 
     /* ----コントローラー設定----- */
 
-    // // コントローラーイベントの設定
-    // function onSelectStart() {
-    //   this.userData.isSelecting = true;
-    // }
-    // function onSelectEnd() {
-    //   this.userData.isSelecting = false;
-    // }
-    // function onButtonDown() {
-    //   this.userData.isSelecting = true;
-    // }
-    // function onButtonUp() {
-    //   this.userData.isSelecting = false;
-    // }
-    // function onSqueezeStart() {
-    //   this.userData.isSelecting = true;
-    // }
-    // function onSqueezeEnd() {
-    //   this.userData.isSelecting = false;
-    // }
+    // コントローラーイベントの設定
+    function onSelectStart() {
+      this.userData.isSelecting = true;
+    }
+    function onSelectEnd() {
+      this.userData.isSelecting = false;
+    }
+    function onButtonDown() {
+      this.userData.isSelecting = true;
+    }
+    function onButtonUp() {
+      this.userData.isSelecting = false;
+    }
+    function onSqueezeStart() {
+      this.userData.isSelecting = true;
+    }
+    function onSqueezeEnd() {
+      this.userData.isSelecting = false;
+    }
     //コントローラー取得
     //前方コントローラ
     controller1 = renderer.xr.getController(0);
-    // controller1.addEventListener('selectstart', onSelectStart);//トリガー
-    // controller1.addEventListener('selectend', onSelectEnd);
-    // controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
-    // controller1.addEventListener('squeezeend', onSqueezeEnd);
+    controller1.addEventListener('selectstart', onSelectStart);//トリガー
+    controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
+    controller1.addEventListener('squeezeend', onSqueezeEnd);
     controller1.addEventListener('connected', (event) => {
       if ('gamepad' in event.data) {//接続した際にコントローラの情報を渡す
         if ('axes' in event.data.gamepad) {
@@ -1099,10 +1099,10 @@ function updateCylinderRadius(zoom) {
       }
     });
     controller2 = renderer.xr.getController(1);
-    // controller2.addEventListener('selectstart', onSelectStart);//トリガー
-    // controller2.addEventListener('selectend', onSelectEnd);
-    // controller2.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
-    // controller2.addEventListener('squeezeend', onSqueezeEnd);
+    controller2.addEventListener('selectstart', onSelectStart);//トリガー
+    controller2.addEventListener('selectend', onSelectEnd);
+    controller2.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
+    controller2.addEventListener('squeezeend', onSqueezeEnd);
     controller2.addEventListener('connected', (event) => {
       if ('gamepad' in event.data) {
         if ('axes' in event.data.gamepad) {
