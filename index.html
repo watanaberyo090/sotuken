@@ -115,24 +115,24 @@
     hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
     scene.add(hudBorder);
     // テキストを描画するためのキャンバスを作成
-    let year = 2012;
-const canvas3 = document.createElement('canvas');
-const context3 = canvas3.getContext('2d');
-context3.font = '30px Arial';
-context3.fillStyle = 'red';
-context3.fillText(year + "年", 10, 50); // 高さのテキスト
+//     let year = 2012;
+// const canvas3 = document.createElement('canvas');
+// const context3 = canvas3.getContext('2d');
+// context3.font = '30px Arial';
+// context3.fillStyle = 'red';
+// context3.fillText(year + "年", 10, 50); // 高さのテキスト
 
-// CanvasTextureを作成し、Spriteを作成（最初に一度だけ）
-const texture3 = new THREE.CanvasTexture(canvas3);
-const spriteMaterial3 = new THREE.SpriteMaterial({
-    map: texture3,
-    side: THREE.DoubleSide,  // 両面描画
-    depthTest: false,         // 深度テストを無効に
-    depthWrite: false         // 深度書き込みを無効に
-});
-const sprite3 = new THREE.Sprite(spriteMaterial3);
-//sprite3.position.set(1,1,-5);
-scene.add(sprite3);
+// // CanvasTextureを作成し、Spriteを作成（最初に一度だけ）
+// const texture3 = new THREE.CanvasTexture(canvas3);
+// const spriteMaterial3 = new THREE.SpriteMaterial({
+//     map: texture3,
+//     side: THREE.DoubleSide,  // 両面描画
+//     depthTest: false,         // 深度テストを無効に
+//     depthWrite: false         // 深度書き込みを無効に
+// });
+// const sprite3 = new THREE.Sprite(spriteMaterial3);
+// //sprite3.position.set(1,1,-5);
+// scene.add(sprite3);
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
@@ -170,8 +170,8 @@ scene.add(sprite3);
         hudBorder.position.copy(cameraContainer.position).add(offset2);
         hudBorder.quaternion.copy(camera.quaternion);
            
-               sprite3.position.copy(cameraContainer.position).add(offset3);
-               sprite3.rotation.copy(camera.rotation);
+               // sprite3.position.copy(cameraContainer.position).add(offset3);
+               // sprite3.rotation.copy(camera.rotation);
               
       }
     }
