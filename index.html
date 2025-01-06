@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
+  <title>VR駅別乗降客数可視化</title>
   <style>
     body {
       margin: 0;
@@ -70,7 +71,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
 
 
     // カメラ用コンテナを作成
@@ -82,7 +83,7 @@
 
     scene.add(cameraContainer);
     // 後方カメラを作成
-    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 2, 105);
@@ -99,7 +100,6 @@
     const hudScreen = new THREE.Mesh(hudGeometry, hudMaterial);
     // HUDをユーザーの視界の右上に配置
     hudScreen.position.set(0.8, 1.2, -1.5);  // VRカメラの視界内に配置
-    scene.add(hudScreen);
     hudScreen.name = "hudScreen";
     // 枠用のジオメトリ (HUDより少し大きい)
     const borderGeometry = new THREE.PlaneGeometry(1.1, 0.7);  // HUDより少し大きくして枠をつける
@@ -113,26 +113,47 @@
     // 枠の位置をHUDと同じ位置に設定
     hudBorder.position.copy(hudScreen.position);  // 同じ位置
     hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
-    scene.add(hudBorder);
     // テキストを描画するためのキャンバスを作成
     let year = 2012;
-const canvas3 = document.createElement('canvas');
-const context3 = canvas3.getContext('2d');
-context3.font = '30px Arial';
-context3.fillStyle = 'red';
-context3.fillText(year + "年", 10, 50); // 高さのテキスト
+    const canvas3 = document.createElement('canvas');
+    const context3 = canvas3.getContext('2d');
+    context3.font = '30px Arial';
+    context3.fillStyle = 'red';
+    context3.fillText(year + "年", 10, 50); // 高さのテキスト
 
-// CanvasTextureを作成し、Spriteを作成（最初に一度だけ）
-const texture3 = new THREE.CanvasTexture(canvas3);
-const spriteMaterial3 = new THREE.SpriteMaterial({
-    map: texture3,
-    side: THREE.DoubleSide,  // 両面描画
-    depthTest: false,         // 深度テストを無効に
-    depthWrite: false         // 深度書き込みを無効に
-});
-const sprite3 = new THREE.Sprite(spriteMaterial3);
-//sprite3.position.set(1,1,-5);
-scene.add(sprite3);
+    // CanvasTextureを作成し、Spriteを作成（最初に一度だけ）
+    const texture3 = new THREE.CanvasTexture(canvas3);
+    const spriteMaterial3 = new THREE.SpriteMaterial({
+      map: texture3,
+      side: THREE.DoubleSide,  // 両面描画
+      depthTest: false,         // 深度テストを無効に
+      depthWrite: false         // 深度書き込みを無効に
+    });
+    const sprite3 = new THREE.Sprite(spriteMaterial3);
+    //sprite3.position.set(1,1,-5);
+    const canvas4 = document.createElement('canvas');
+    const context4 = canvas4.getContext('2d');
+    context4.font = '100px Arial';
+    context4.fillStyle = 'red';
+    context4.fillText(year + "年", 0, 100); // 高さのテキスト
+    // CanvasTextureを作成し、Spriteを作成（最初に一度だけ）
+    const texture4 = new THREE.CanvasTexture(canvas4);
+    const spriteMaterial4 = new THREE.SpriteMaterial({
+      map: texture4,
+      side: THREE.DoubleSide,  // 両面描画
+      depthTest: false,         // 深度テストを無効に
+      depthWrite: false         // 深度書き込みを無効に
+    });
+    const sprite4 = new THREE.Sprite(spriteMaterial4);
+    // HUDグループを作成して関連オブジェクトを追加
+    const hudGroup = new THREE.Group();
+    hudGroup.add(hudScreen);
+    hudGroup.add(hudBorder);
+    hudGroup.add(sprite3);
+    scene.add(hudGroup);
+
+    // HUDの初期状態を設定
+    hudGroup.visible = true; // 表示状態
     // HUDが常にカメラに追従するようにする
     function updateHUDPosition() {
       // カメラの位置を基準にHUDの位置を計算
@@ -142,7 +163,6 @@ scene.add(sprite3);
       const offset3 = new THREE.Vector3(2, 3, -2.5); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
-    
 
 
       if (isRearView) {
@@ -159,8 +179,8 @@ scene.add(sprite3);
         hudBorder.position.copy(cameraContainer2.position).add(offset2);
         hudBorder.quaternion.copy(camera2.quaternion);
         sprite3.position.copy(cameraContainer2.position).add(offset3);
-               sprite3.rotation.copy(camera2.rotation);
-              
+        sprite3.rotation.copy(camera2.rotation);
+
       } else {
         // カメラの回転を適用してHUDの位置を計算
         offset.applyQuaternion(camera.quaternion);
@@ -173,10 +193,10 @@ scene.add(sprite3);
         // HUDの位置をHUDの枠の位置に設定
         hudBorder.position.copy(cameraContainer.position).add(offset2);
         hudBorder.quaternion.copy(camera.quaternion);
-           
-               sprite3.position.copy(cameraContainer.position).add(offset3);
-               sprite3.rotation.copy(camera.rotation);
-              
+
+        sprite3.position.copy(cameraContainer.position).add(offset3);
+        sprite3.rotation.copy(camera.rotation);
+
       }
     }
 
@@ -186,170 +206,13 @@ scene.add(sprite3);
     const spotLight = new THREE.DirectionalLight(
       0xffffff,
       1,        // 光の強さ
-
     );
-    // //  spotLight.shadow.mapSize.width = 2048;
-    // //  spotLight.shadow.mapSize.height = 2048;
-    // spotLight.shadow.mapSize.width = 512;
-    // spotLight.shadow.mapSize.height = 512;
-    // // spotLight.shadow.mapSize.set(4096, 4096);
-    // spotLight.castShadow = true;  // 影を生成
-    // spotLight.shadow.camera.left = -1000;
-    // spotLight.shadow.camera.right = 1000;
-    // spotLight.shadow.camera.top = 1000;
-    // spotLight.shadow.camera.bottom = -1000;
     spotLight.position.set(500, 900, 500);
     scene.add(spotLight);
 
     // // 周囲の光源 (Ambient Light)
     const ambientLight = new THREE.AmbientLight(0x333333);
     scene.add(ambientLight);
-
-    // This is typically done in the render loop :
-    //ThreeMeshUI.update();
-    // 時間帯に応じて光源を変更
-    // function updateSunPosition(hour) {
-    //   let x = 0, y = 0, z = 0;
-
-    //   // 時間帯に基づく太陽の位置
-    //   if (hour == 1) { // 朝
-    //     x = 10;
-    //     y = 20;
-    //     z = 10; // 朝日
-    //   } else if (hour == 2) { // 昼
-    //     x = 0;
-    //     y = 900;
-    //     z = 500 * Math.sin(Math.PI / 2); // 昼の太陽
-    //   } else if (hour == 3) { // 夕方
-    //     x = -500;
-    //     y = 900;
-    //     z = 500 * Math.sin(Math.PI / 3); // 夕日
-    //   } else { // 夜
-    //     x = 0;
-    //     y = 0;
-    //     z = 0; // 夜間は光源を消す
-    //   }
-
-    //   // 光源の位置を設定
-    //   spotLight.position.set(x, y, z);
-    //   // 光源の向き (ターゲットを地面に向ける)
-    //   spotLight.target.position.set(0, 0, 0);
-    // }
-    //       // GLTF形式のモデルデータを読み込む
-    //       const loader2 = new GLTFLoader();
-    //       // GLTFファイルのパスを指定
-    //       const objects = await loader2.loadAsync("東京23区地図.glb");
-    //       // 読み込み後に3D空間に追加
-    //       const model = objects.scene;
-    //       scene.add(model);
-    //     // MTLLoaderでMTLファイルを読み込み
-    // const mtlLoader = new MTLLoader();
-    // mtlLoader.load("Scene1.mtl", function (materials) {
-    //     materials.preload();
-
-    //     // OBJLoaderでOBJファイルを読み込み
-    //     const objLoader = new OBJLoader();
-    //     objLoader.setMaterials(materials);
-    //     objLoader.load("Scene1.obj", function (object) {
-    //         scene.add(object);
-    //     });
-    // });
-
-    // シェープファイルのデータを読み込み、GeoJSONとして表示
-    // function loadShapefile(url) {
-    //   shp(url).then(function (geojson) {
-    //     geojson.features.forEach(feature => {
-    //       const coordinates = feature.geometry.coordinates;
-    //       coordinates.forEach(coord => {
-    //         const [lon, lat] = coord;
-
-    //         // ピンとして表示するためのジオメトリとマテリアルを作成
-    //         const pinGeometry = new THREE.ConeGeometry(0.01, 0.05, 32);
-    //         const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    //         const pin = new THREE.Mesh(pinGeometry, pinMaterial);
-
-    //         // 座標をThree.jsの位置に変換（仮にそのまま使用）
-    //         pin.position.set(lon, 0.025, -lat);
-    //         scene.add(pin);
-    //       });
-    //     });
-    //   });
-    // }
-
-    // // シェープファイルを指定したURLからロード
-    // loadShapefile('A40-20_14.GML.zip');
-    //     // 半透明キューブの作成
-    // const geometry3 = new THREE.BoxGeometry(20, 20, 15); // サイズ: 20×15×50
-    // const material3 = new THREE.MeshBasicMaterial({ color: 0xffffff,   // 色を設定
-    //   opacity: 0.5,      // 半透明
-    //   transparent: true, // 透明設定
-    //   alphaToCoverage:true,
-    //   side: THREE.DoubleSide // 両面を描画する設定
-    //   });
-    // const cube = new THREE.Mesh(geometry3, material3);
-
-    // cube.position.set(-2.5,10,-8);
-    // // scene.add(cube);
-
-    // const wid = 21;  // 板の幅
-    // const depth = 16;  // 板の奥行き
-    // // 半透明の黒い板を作成（5ユニットごとに高さを分ける）
-    // const material4 = new THREE.MeshBasicMaterial({
-    //   color: 0x000000,   // 色を黒に設定
-    //   opacity: 0.5,      // 半透明
-    //   transparent: true, // 透明設定
-    //   alphaToCoverage: true,
-    //   side: THREE.DoubleSide // 両面を描画する設定
-    // });
-    // // 高さ5ごとに板を作成
-    // for (let i = 1; i <= 30; i ++) { // 高さ5ごとに板を配置
-    //   const geometry = new THREE.PlaneGeometry(wid, depth); // 各板のサイズ
-    // // 高さに応じて色を変更し、マテリアルを個別に作成
-    // let material4; // ここでマテリアルを宣言
-
-    // if (i <= 5) {
-    //   material4 = new THREE.MeshBasicMaterial({
-    //     color: 0x0000ff,   // 青
-    //     opacity: 0.4,      // 半透明
-    //     transparent: true, // 透明設定
-    //     alphaToCoverage: true,
-    //     side: THREE.DoubleSide // 両面を描画する設定
-    //   });
-    // } else if (i <= 10) {
-    //   material4 = new THREE.MeshBasicMaterial({
-    //     color: 0x00ff00,   // 緑
-    //     opacity: 0.4,      // 半透明
-    //     transparent: true, // 透明設定
-    //     alphaToCoverage: true,
-    //     side: THREE.DoubleSide // 両面を描画する設定
-    //   });
-    // } else if (i <= 15) {
-    //   material4 = new THREE.MeshBasicMaterial({
-    //     color: 0xff0000,   // 赤
-    //     opacity: 0.4,      // 半透明
-    //     transparent: true, // 透明設定
-    //     alphaToCoverage: true,
-    //     side: THREE.DoubleSide // 両面を描画する設定
-    //   });
-    // } else {
-    //   material4 = new THREE.MeshBasicMaterial({
-    //     color: 0xffff00,   // 黄色
-    //     opacity: 0.4,      // 半透明
-    //     transparent: true, // 透明設定
-    //     alphaToCoverage: true,
-    //     side: THREE.DoubleSide // 両面を描画する設定
-    //   });
-    // }
-
-    // // 新しいメッシュを作成し、シーンに追加
-    // const plane = new THREE.Mesh(geometry, material4);
-
-    // // 各板を高さ方向に配置（高さごとに5ユニットごとに配置）
-    // plane.position.set(-2.5, i, -8); // 高さごとに5ユニット間隔で配置
-    // plane.rotation.x = -Math.PI / 2;  // 平面を地面に置くために回転させる
-
-    // scene.add(plane); // シーンに板を追加
-    // }
 
     const loader = new THREE.TextureLoader();
     const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -368,8 +231,6 @@ scene.add(sprite3);
     let centerLat = 35.6586;   // 東京都心の緯度
     let Execute = true //カメラ２を停止するための変数
     let hour = 1;//太陽の位置
-    // 神奈川35.481666902138336, 139.35879951675716
-    //東京35.689,139.6917
     // タイルメッシュを保持する配列
     let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
@@ -384,32 +245,12 @@ scene.add(sprite3);
     let propertyKey1 = "S12_006";//駅データの年数を変えるためのプロパティーを変更するための変数
     let propertyKey2 = "S12_007";//駅データの年数を変えるためのプロパティーを変更するための変数
     let maxValue;//駅データのプロパティ最大値確認
-    let minValue=6;//駅データのプロパティ最小値は常に6
-    // OSRM APIのURLを構築
-
-    // // ピン（Marker）オブジェクトを作成する
-    // const geometry1 = new THREE.CylinderGeometry(0.1, 0.1, 5, 32);  // 半径0.1、高さ0.2、32セグメントの円柱
-    // const material1 = new THREE.MeshBasicMaterial({ color: 0x9acd32 });  // 色を設定（黄緑）
-    // let marker1 = new THREE.Mesh(geometry1, material1);
-    // marker1.position.set(0.48421333333408256, 0.5, -3.0365134467951975);  // 東京タワーの緯度経度をthree.js座標に変えたもの
-
-    // marker1.name = "marker1";
-    // scene.add(marker1);
-
-    // let marker2 = new THREE.Mesh(geometry1, material1);
-    // marker2.position.set(0.8, 0.5, -0.5);  // VRカメラの視界内に配置
-    // marker2.name = "marker2";
-    // scene.add(marker2);
-    // //床を作成
-    // const gridHelper = new THREE.GridHelper(50, 7, 0xffffff, 0xffffff);
-    // gridHelper.position.set(0, 0, 100);
-    // scene.add(gridHelper);
-    const pg = new THREE.PlaneGeometry(50, 50);
+    let minValue = 6;//駅データのプロパティ最小値は常に6
+    const pg = new THREE.PlaneGeometry(120, 50);
     const pm = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(pg, pm); plane.rotation.x = -Math.PI / 2;
-    plane.position.set(0, 0, 100);
+    plane.position.set(-10, 0, 80);
     scene.add(plane);
-    //scene.add( new THREE.HemisphereLight( 0x888877, 0x777788 ) );
     //中心座標を表すobject
     const geometry2 = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
     const material2 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -418,10 +259,10 @@ scene.add(sprite3);
     cylinder.name = "cylinder";
     scene.add(cylinder);
 
-// ズームレベルに応じて半径を更新する関数
-function updateCylinderRadius(zoom) {
-  
-  const heightMapping = {
+    // ズームレベルに応じて半径を更新する関数
+    function updateCylinderRadius(zoom) {
+
+      const heightMapping = {
         19: 0.2,   // zoom 19で高さが大きい
         16: 0.05,
         13: 0.05,
@@ -429,12 +270,12 @@ function updateCylinderRadius(zoom) {
         7: 0.01    // zoom 7で最小の高さ
       };
 
-  const radius = heightMapping[zoom] || 0.01; // マッピング外ズーム時のデフォルト値
-       // 古いジオメトリを削除
-    cylinder.geometry.dispose();
+      const radius = heightMapping[zoom] || 0.01; // マッピング外ズーム時のデフォルト値
+      // 古いジオメトリを削除
+      cylinder.geometry.dispose();
       // 新しいジオメトリを作成し、適用
-    cylinder.geometry = new THREE.CylinderGeometry(radius, radius, 0.4, 32);
-}
+      cylinder.geometry = new THREE.CylinderGeometry(radius, radius, 0.4, 32);
+    }
 
     // タイルをロードする関数
     function loadOSMTile(x, y, z) {
@@ -446,11 +287,13 @@ function updateCylinderRadius(zoom) {
         const material = new THREE.MeshStandardMaterial({ map: texture });
         const tile = new THREE.Mesh(geometry, material);
         tile.rotation.x = -Math.PI / 2;
-        tile.position.set((x - 2 - tileOriginX), 0, (y - 5 - tileOriginY));
+        tile.position.set((x - 2 - tileOriginX), 0.01, (y - 5 - tileOriginY));
         // tile.receiveShadow = true;  // 建物が影を受ける設定
         // タイルを配列に追加
         tiles.push(tile);
-        scene.add(tile);
+        //scene.add(tile);
+        group.add(tile);
+
       }, undefined, function (err) {
         console.error('タイルの読み込みに失敗しました:', err);
       });
@@ -508,47 +351,6 @@ function updateCylinderRadius(zoom) {
       return { lon, lat };
     }
 
-    // // マーカーの座標を返す関数
-    // function getMarkerCoordinates(startMarker, endMarker, zoom) {
-    //   const startPosition = convertSceneToLatLon(startMarker.position.x, startMarker.position.z, zoom);
-    //   const endPosition = convertSceneToLatLon(endMarker.position.x, endMarker.position.z, zoom);
-
-    //   return {
-    //     start: startPosition,
-    //     end: endPosition
-    //   };
-    // }
-
-    // // マーカーの前のフレームの座標を上書きするのとOSRM APIのURLを構築する関数
-    // function createOSRMRoute(startMarker, endMarker, zoom) {
-    //   if (!hasExecuted) {
-    //     // // ここに実行したいコードを書く
-    //     // coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
-    //     coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
-    //     // フラグを更新
-    //     hasExecuted = true;
-    //   }
-
-    //   // let marker3 = convertCoordinates(coordinates.start.lon, coordinates.start.lat);
-    //   // marker1.position.set(marker3.x, 2.5, marker3.z);  // VRカメラの視界内に配置
-    //   let marker3 = convertCoordinates(coordinates2.lon, coordinates2.lat);
-    //   cylinder.position.set(marker3.x, 0.5, marker3.z);
-    //   // const marker4 = convertCoordinates(coordinates.end.lon, coordinates.end.lat);
-
-    //   // // marker2.position.set(marker4.x, 2.5, marker4.z);  // VRカメラの視界内に配置
-    //   // coordinates = getMarkerCoordinates(startMarker, endMarker, zoom);
-
-    //   coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
-    //   marker5 = undefined;
-    //   const startLon = coordinates.start.lon;
-    //   const startLat = coordinates.start.lat;
-    //   const endLon = coordinates.end.lon;
-    //   const endLat = coordinates.end.lat;
-    //   // OSRM APIのURLを構築
-    //   const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`;
-
-    //   return url; // URLを返す
-    // }
     // タイル座標から緯度経度に変換する関数
     function tileToLonLat(x, y, zoom) {
       const n = Math.pow(2, zoom);
@@ -603,17 +405,6 @@ function updateCylinderRadius(zoom) {
 
               // プレイヤーとの距離を計算
               const distance = cameraContainer.position.distanceTo(buildingCenter);
-
-              // if (distance < 5) {
-              //   building.material.transparent = true;
-              //   building.material.alphaToCoverage = true;
-              //   building.material.opacity = 0.5;  // 範囲内: 半透明
-              // } else {
-              //   building.material.opacity = 1.0;  // 範囲外: 不透明
-              // //  }
-              // groupsToIntersect.push(building);
-              // building.castShadow = true;  // 建物が影を投げるように設定
-              // building.receiveShadow = true;
               // シーンに追加
               scene.add(building);
             }
@@ -637,10 +428,6 @@ function updateCylinderRadius(zoom) {
     // 地図範囲を取得して建物をロード
     function updateBuildings(center, zoom) {
       // 地図範囲を計算
-      // const tileNW = tileToLonLat(tileOriginX- (26 - zoom), tileOriginY - (10 - Math.floor(zoom / 3)), zoom); // 左上
-      // const tileSE = tileToLonLat(tileOriginX + 5, tileOriginY + 19, zoom); // 右下
-      // const tileNW = tileToLonLat(tileOriginX-15, tileOriginY - 15, zoom); // 左上
-      // const tileSE = tileToLonLat(tileOriginX + 15, tileOriginY + 15, zoom); // 右下
       const tileNW = tileToLonLat(tileOriginX - 10, tileOriginY - 10, zoom); // 左上
       const tileSE = tileToLonLat(tileOriginX + 10, tileOriginY + 5, zoom); // 右下
 
@@ -669,11 +456,11 @@ function updateCylinderRadius(zoom) {
     }
     function getHeightBasedOnZoom(zoom) {
       const heightMapping = {
-        19: 0.0001,   // zoom 19で高さが大きい
+        19: 0.00001,   // zoom 19で高さが大きい
         16: 0.00001,
         13: 0.00001,
         10: 0.00001,
-        7: 0.000001    // zoom 7で最小の高さ
+        7: 0.00001    // zoom 7で最小の高さ
       };
       return heightMapping[zoom];  // 対応する値がなければ最小の1を返す
     }
@@ -684,7 +471,9 @@ function updateCylinderRadius(zoom) {
       } else size = 0.002
       return size;
     }
-    function loadGeoJson(url,propertyKeyHeight, propertyKeyName1,propertyKeyName2) {
+    // テキストとデータのグループ作成
+    const group = new THREE.Group();
+    function loadGeoJson(url, propertyKeyHeight, propertyKeyName1, propertyKeyName2) {
       // GeoJSONファイルをロードしてピンを再表示
       fetch(url)
         .then(response => response.json())  // GeoJSONファイルをJSONとして読み込む
@@ -692,7 +481,7 @@ function updateCylinderRadius(zoom) {
           let instanceCount = 0;  // 描画する円柱の数を取得
           let propertyConfirmation = geojson.features[0].properties; // 最大値を求めるためにgeojsonのプロパティを取得
           // 最大値を求める
-           maxValue = Object.keys(propertyConfirmation).length-2;//-2は同じ数値があるため
+          maxValue = Object.keys(propertyConfirmation).length - 2;//-2は同じ数値があるため
 
 
           const radius = calculateRadius(zoom);
@@ -700,26 +489,26 @@ function updateCylinderRadius(zoom) {
           const instancedGeometry = new THREE.CylinderGeometry(radius, radius, 1, 16); // 高さは後でスケーリング
           const instancedMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
-         
-          
+
+
 
           geojson.features.forEach((feature, index) => {
             //console.log(JSON.stringify(feature, null, 2));
             const [lon, lat] = feature.geometry.coordinates[0];
-            
+
             if (isWithinTileBounds(lon, lat) && feature.properties[propertyKeyName1] == 1 && feature.properties[propertyKeyName2] == 1) {
-            instanceCount++;
+              instanceCount++;
             };
           });
- // InstancedMeshを作成
- const instancedMesh = new THREE.InstancedMesh(instancedGeometry, instancedMaterial, instanceCount);
+          // InstancedMeshを作成
+          const instancedMesh = new THREE.InstancedMesh(instancedGeometry, instancedMaterial, instanceCount);
           lines.push(instancedMesh);
           scene.add(instancedMesh);
-          instanceCount=-1;
+          instanceCount = -1;
           geojson.features.forEach((feature, index) => {
-            
-          //console.log(JSON.stringify(feature, null, 2));
-          const [lon, lat] = feature.geometry.coordinates[0];
+
+            //console.log(JSON.stringify(feature, null, 2));
+            const [lon, lat] = feature.geometry.coordinates[0];
             const basePosition = convertCoordinates(lon, lat);
             const height = feature.properties[propertyKeyHeight] * baseHeight;  // 高さをデータに基づいて設定
 
@@ -744,6 +533,7 @@ function updateCylinderRadius(zoom) {
 
               // もう一つのテキストを描画するためのキャンバスを作成
               const canvas2 = document.createElement('canvas');
+
               const context2 = canvas2.getContext('2d');
               context2.font = '30px Arial';
               context2.fillStyle = 'blue';
@@ -754,18 +544,26 @@ function updateCylinderRadius(zoom) {
               const spriteMaterial2 = new THREE.SpriteMaterial({ map: texture2 });
               const sprite2 = new THREE.Sprite(spriteMaterial2);
               sprite2.position.set(basePosition.x, height + 0.25, basePosition.z); // 名前を配置
-              if(zoom>=16){
-              scene.add(sprite1);
-              scene.add(sprite2);
-              
-              lines.push(sprite1);
-              lines.push(sprite2);
+              if (zoom >= 16) {
+                group.add(sprite1);
+                group.add(sprite2);
+                lines.push(sprite1);
+                lines.push(sprite2);
               }
             };
           });
           console.log("GeoJSONのデータをロードしました");
-          
-          groupsToIntersect.push(instancedMesh);
+
+          group.add(instancedMesh);
+          scene.add(group);
+          // グループ内のすべてのMeshを判定対象に追加
+          group.children.forEach(child => {
+            if (child.isMesh) {
+              groupsToIntersect.push(child); // メッシュを配列に追加
+            }
+          });
+
+          console.log(group);
         })
         .catch(error => {
           console.error("GeoJSONの読み込みに失敗しました:", error);
@@ -777,6 +575,8 @@ function updateCylinderRadius(zoom) {
       let numberPart1 = parts[1];   // "009"
       let numberPart2 = parseInt(numberPart1, 10); // 文字列の "009" を整数に変換
       numberPart2 += increment; // 増加させる
+
+      console.log(prefix + numberPart2.toString().padStart(3, '0'));
       return prefix + numberPart2.toString().padStart(3, '0'); // 3桁でゼロ埋めし、戻り値を返す
     }
     function decrementPropertyKey(baseKey, increment) {
@@ -813,23 +613,11 @@ function updateCylinderRadius(zoom) {
 
         }
 
-
-        // x = coordinates.start.lon;
-        // z = coordinates.start.lat;
-
         centerTile = lonLatToTileXY(coordinates2.lon, coordinates2.lat, zoom);
         tileOriginX = Math.floor(centerTile.x) - 2;
         tileOriginY = Math.floor(centerTile.y) - 2;
       }
 
-
-
-      // //タイルを複数ロード
-      // for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-      //   for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
-      //     loadOSMTile(x, y, zoom);
-      //   }
-      // }
       for (let x = tileOriginX - 10; x < tileOriginX + 10; x++) {
         for (let y = tileOriginY - 10; y < tileOriginY + 5; y++) {
           loadOSMTile(x, y, zoom);
@@ -850,129 +638,10 @@ function updateCylinderRadius(zoom) {
       coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
       marker5 = undefined;
       updateCylinderRadius(zoom); // 例えばズームレベル2に変更
-      // //const zoomFactor = Math.pow(zoom, 2);  // ズームレベルに応じた拡大率（2のズームレベル乗）
-      // ズームレベルが大きくなるにつれて表示範囲を拡大
-      // const rangeX = Math.floor(300 / zoom);  // ズームに応じてX方向の範囲を拡大
-      // const rangeY = Math.floor(300 / zoom);  // ズームに応じてY方向の範囲を拡大
-      // console.log(rangeX)
-      // console.log(rangeY)
-
-      // //タイルを複数ロード
-      // let delay = 1; // 100msごとにリクエストを送信
-      // function loadTileWithDelay(x, y, zoom, delayTime) {
-      //   setTimeout(() => {
-      //     loadOSMTile(x, y, zoom);
-      //   }, delayTime);
-      // }
-
-      // if (zoom < 17) {
-      //   for (let x = tileOriginX - (26 - zoom); x < tileOriginX + 5; x++) {
-      //     for (let y = tileOriginY - (10 - Math.floor(zoom / 3)); y < tileOriginY + 19; y++) {
-      //       loadTileWithDelay(x, y, zoom, delay);
-      //       delay += 1; // 100msずつ遅延時間を増加
-      //     }
-      //   }
-      // } else {
-      //   for (let x = tileOriginX - 15; x < tileOriginX + 15; x++) {
-      //     for (let y = tileOriginY - 15; y < tileOriginY + 15; y++) {
-      //       loadTileWithDelay(x, y, zoom, delay);
-      //       delay += 1; // 100msずつ遅延時間を増加
-      //     }
-      //   }
-      // }
-
-
-      // function calculatePinSize(zoom) {
-      //   let size;
-      //   if (zoom > 12) {
-      //     size = 0.002;
-      //   } else size = 0.002
-      //   return size;
-      // }
-      // function loadShapefile(url) {
-
-      //   // シェープファイルをロードしてピンを再表示
-      //   shp(url).then(function (geojson) {
-      //     geojson.features.forEach(feature => {
-      //       console.log(JSON.stringify(feature, null, 2));
-      //       console.log(feature.geometry.type);
-      //       if (feature.geometry.type === 'Point') {
-
-      //         console.log(feature.geometry.coordinates);  // 座標を確認
-      //         const [lon, lat] = feature.geometry.coordinates;
-      //         if (isWithinTileBounds(lon, lat)) {
-      //           console.log("a");
-      //           const pos = convertCoordinates(lon, lat);
-      //           const pinsize = calculatePinSize(zoom);
-      //           const pinGeometry = new THREE.CylinderGeometry(pinsize, pinsize, 0.5);
-      //           const pinMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-      //           const pin = new THREE.Mesh(pinGeometry, pinMaterial);
-
-      //           pin.position.set(pos.x, 0.025, pos.z);
-
-      //           scene.add(pin); // シーンにピンを追加
-      //           pins.push(pin); // 配列にピンを追加して追跡
-      //         }
-      //       }
-      //       // ポリゴンやラインの処理も必要に応じて追加
-      //     });
-
-      //     console.log("シェープファイルのデータをロードしました");
-      //   }).catch(function (error) {
-      //     console.error("シェープファイルの読み込みに失敗しました:", error);
-      //   });
-      // }
-      // // タイルの範囲内に座標があるかを確認する関数
-      // function isWithinTileBounds(lon, lat) {
-      //   const tileNW = tileToLonLat(tileOriginX-10, tileOriginY - 10, zoom); // 左上
-      //   const tileSE = tileToLonLat(tileOriginX + 10, tileOriginY + 5, zoom); // 右下
-
-      //   return (
-      //     lon >= tileNW.lon && lon <= tileSE.lon && // 経度が範囲内
-      //     lat <= tileNW.lat && lat >= tileSE.lat    // 緯度が範囲内
-      //   );
-      // }
+    
 
       // シェープファイルのパスを指定（.zip形式）
-      // loadShapefile('P28-22_14.zip'); // 実際のURLに置き換えてください
-
-
-      // シェープファイルのパスを指定（.zip形式）
-      loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1,propertyKey2);
-      // 129.94426531798547,
-      // 32.955020790227536,
-      // 129.94469362096686,
-      // 32.95574414637338
-      // // //経路探索
-      // // const routeUrl = createOSRMRoute(marker1, marker2, zoom);
-      // // 経路データを取得
-      // fetch(routeUrl)
-      //   .then(response => response.json())
-      //   .then(data => {
-      //     // 経路情報を取得
-      //     const route = data.routes[0].geometry.coordinates;
-      //     displayRouteOnMap(route);
-
-      //   })
-      //   .catch(error => console.error('Error fetching route:', error));
-      // // 取得した経路を表示する (地図表示の関数)
-      // function displayRouteOnMap(route) {
-      //   const lineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // 経路を青色で表示
-      //   const points = [];
-
-      //   // 経路データをThree.jsの座標に変換
-      //   route.forEach(coord => {
-      //     const lon = coord[0];
-      //     const lat = coord[1];
-      //     const { x, z } = convertCoordinates(lon, lat);  // 緯度経度をThree.jsの座標系に変換
-      //     points.push(new THREE.Vector3(x, 0.05, z));  // Y軸を0.05に設定して地面から少し浮かせる
-      //   });
-
-      //   const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-      //   const line = new THREE.Line(lineGeometry, lineMaterial);
-      //   scene.add(line);
-      //   lines.push(line);
-      // }
+      loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1, propertyKey2);
 
       //zoomが一番拡大されたときのみ建物を表示
       if (zoom > 18) {
@@ -1019,6 +688,30 @@ function updateCylinderRadius(zoom) {
         scene.remove(build); // シーンから建物を削除
       });
       builds = []; // 配列をクリア
+      console.log(group);
+
+      // グループの子を全削除
+      group.children.forEach(child => {
+        if (child.isMesh) {
+          // シーンから削除
+          scene.remove(child);
+
+          // 配列から削除
+          const index = groupsToIntersect.indexOf(child);
+          if (index !== -1) {
+            groupsToIntersect.splice(index, 1);
+          }
+        }
+
+        // メモリ解放のためにジオメトリとマテリアルを破棄
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+      });
+      group.clear();
+
+      scene.remove(group);
+
+      console.log(group);
     }
     // 毎フレーム時に実行されるループイベント
     function tick() {
@@ -1036,15 +729,6 @@ function updateCylinderRadius(zoom) {
 
       } else {
         renderer.xr.enabled = !isRearView;
-        // const distance = 10; // カメラからの距離
-        // const direction = new THREE.Vector3(); // カメラの方向ベクトル
-        // camera.getWorldDirection(direction); // カメラの向きを取得
-        // カメラの位置に基づいてカメラ2の位置を計算
-        // if (Execute) {
-        //   const fixedY = cameraContainer2.position.y;
-        //   cameraContainer2.position.copy(cameraContainer.position).add(direction.multiplyScalar(distance));
-        //   cameraContainer2.position.y=fixedY;
-        // }
         cameraContainer.rotation.x = 0;  // 元に戻す回転
         renderer.render(scene, camera);  // メインカメラでVRシーンを描画
 
@@ -1092,7 +776,6 @@ function updateCylinderRadius(zoom) {
     //   this.userData.isSelecting = false;
     // }
     //コントローラー取得
-    //前方コントローラ
     controller1 = renderer.xr.getController(0);
     // controller1.addEventListener('selectstart', onSelectStart);//トリガー
     // controller1.addEventListener('selectend', onSelectEnd);
@@ -1167,61 +850,130 @@ function updateCylinderRadius(zoom) {
     // x座標を管理するカウンター
     let xOffset = -5;
     let zOffset = -2;
-   // 複製された建物を管理する配列
-const copiedBuildings = [];
-const maxCopies = 2; // 最大複製数
-let lastRemovedPosition = null; // 削除されたオブジェクトの最後の位置
-let offsetX = 0; // X軸方向のオフセット
+    // 複製されたデータを管理する配列
+    let copiedData = [];
+    let maxCopies = 4; // 最大複製数
+    let gridSize = 4; // 1行に並べるデータの数 (正方形の幅)
+    let spacing = 25; // 各データの間隔
+    let lastRemovedPositions = []; // 削除されたデータの位置をリストで管理
 
-function copyBuilding(originalBuilding) {
-    if (copiedBuildings.length >= maxCopies) {
-        console.log("最大複製数に達しています");
-        return; // これ以上複製しない
+    function copyData(originalData) {
+  if (copiedData.length >= maxCopies) {
+    console.log("最大複製数に達しています");
+    return; // これ以上複製しない
+  }
+
+  // 独立したCanvasを作成
+  const canvasCopy = document.createElement('canvas');
+  canvasCopy.width = 500; // 必要に応じて設定
+  canvasCopy.height = 250;
+  const contextCopy = canvasCopy.getContext('2d');
+
+  // オリジナルのCanvas内容をコピー
+  contextCopy.drawImage(canvas4, 0, 0); // canvas4が元のCanvasの場合
+
+  // 独立したTextureとSpriteを作成
+  const textureCopy = new THREE.CanvasTexture(canvasCopy);
+  const spriteMaterialCopy = new THREE.SpriteMaterial({
+    map: textureCopy,
+    side: THREE.DoubleSide,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const copiedSprite = new THREE.Sprite(spriteMaterialCopy);
+  copiedSprite.scale.set(10, 10, 0);
+
+  // データオブジェクトを複製
+  const clonedData = originalData.clone();
+
+  // 配置位置を決定
+  let position;
+  if (lastRemovedPositions.length > 0) {
+    // 削除された位置を優先して配置
+    position = lastRemovedPositions.pop();
+  } else {
+    // グリッド上の位置を計算（横一列に並べる）
+    const index = copiedData.length;
+    const col = index % gridSize; // 列 (X軸方向)
+     // 左に表示をずらすためのオフセットを追加
+     const offsetX = -spacing * (gridSize / 2); // グリッドの中心から左にずらす
+    position = {
+      x: col * spacing+offsetX,  // 列方向の間隔
+      y: 0,
+      z: 90,  // Z軸の固定位置（奥行き）
+    };
+  }
+
+  // 配置位置をデータに追加
+  clonedData.position.set(position.x, position.y, position.z);
+  copiedSprite.position.set(position.x, 10, position.z - 10); // 表示したい位置に移動
+
+  // コピーされたデータを配列に追加（スプライトも含む）
+  copiedData.push({ data: clonedData, sprite: copiedSprite });
+  clonedData.children.forEach(child => {
+    if (child.isMesh) {
+      groupsToIntersect2.push(child); // メッシュを配列に追加
     }
+  });
 
-    // 建物のジオメトリとマテリアルを複製
-    const clonedMesh = originalBuilding.clone();
-    clonedMesh.material = originalBuilding.material.clone();
-    clonedMesh.geometry = originalBuilding.geometry.clone();
+  // シーンに追加
+  scene.add(clonedData);
+  scene.add(copiedSprite);
 
-    // 位置を決定
-    if (lastRemovedPosition) {
-        // 削除された位置に配置
-        clonedMesh.position.copy(lastRemovedPosition);
-        lastRemovedPosition = null; // 位置をリセット
-    } else {
-        // 最初のコピー位置
-        clonedMesh.position.set(offsetX, 0, 100);
-        offsetX += 20; // 次のコピーはX軸方向に20ずらす
-    }
-
-    // シーンに追加
-    scene.add(clonedMesh);
-
-    // 配列に追加
-    copiedBuildings.push(clonedMesh);
+  // デバッグ用にコンソールで表示
+  console.log("コピーされたデータ:", clonedData);
 }
 
-function removeCopiedBuilding(index) {
-    if (index < 0 || index >= copiedBuildings.length) {
-        console.log("無効なインデックスです");
-        return;
+    function removeData(data) {
+      // データに関連付けられたスプライトを見つける
+      const dataIndex = copiedData.findIndex(item => item.data === data);
+
+      if (dataIndex > -1) {
+        // スプライトを取得して削除
+        const associatedSprite = copiedData[dataIndex].sprite;
+        scene.remove(associatedSprite);
+
+        // 配列からデータとスプライトを削除
+        copiedData.splice(dataIndex, 1);
+      }
+
+      // シーンからデータを削除
+      scene.remove(data);
+
+      // 子オブジェクト（メッシュ）の処理
+      data.children.forEach(child => {
+        if (child.isMesh) {
+          // groupsToIntersect2 から削除
+          const childIndex = groupsToIntersect2.indexOf(child);
+          if (childIndex > -1) {
+            groupsToIntersect2.splice(childIndex, 1);
+          }
+
+          // メモリ解放のためジオメトリとマテリアルを破棄
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) child.material.dispose();
+        }
+      });
+
+      // 削除された位置をリストに記録
+      lastRemovedPositions.push(data.position.clone());
+
+      // デバッグ用ログ
+      console.log("削除されたデータ:", data);
     }
-
-    // 削除対象の建物
-    const buildingToRemove = copiedBuildings[index];
-
-    // 位置を記録
-    lastRemovedPosition = buildingToRemove.position.clone();
-
-    // シーンから削除
-    scene.remove(buildingToRemove);
-
-    // 配列から削除
-    copiedBuildings.splice(index, 1);
-
-    console.log("建物を削除しました");
-}
+    // グループの親を探す関数
+    function findParentGroup(object) {
+      let parent = object.parent;
+      console.log("グループの状態:", parent);
+      while (parent) {
+        if (parent.isGroup) {
+          console.log("c");
+          return parent;
+        }
+        parent = parent.parent;
+      }
+      return null;
+    }
 
 
 
@@ -1232,7 +984,7 @@ function removeCopiedBuilding(index) {
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
-      if (controller&&controller.gamepad) {
+      if (controller && controller.gamepad) {
         const controllerData = controller.gamepad;
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
@@ -1245,7 +997,7 @@ function removeCopiedBuilding(index) {
               if (controller.userData.selected) {
                 return;
               }
-              if (object.name == "cylinder" || object.name == "newBuilding") {
+              if (object.name == "cylinder") {
                 // 動かす前の座標を保存
                 const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
@@ -1254,6 +1006,15 @@ function removeCopiedBuilding(index) {
 
                 // コントローラーのユーザーデータに選択されたオブジェクトを保存
                 controller.userData.selected = object;
+              } else {
+                if (hasZoomed1) {
+                  const groupToCopy = findParentGroup(object);
+
+                  if (groupToCopy) {
+                    removeData(groupToCopy);
+                  }
+                  hasZoomed1 = false;
+                }
               }
             }
           } else {
@@ -1276,8 +1037,14 @@ function removeCopiedBuilding(index) {
                 controller.userData.selected = object;
               } else {
                 if (hasZoomed2) {
-                  const selectedBuilding = object;
-                  copyBuilding(selectedBuilding); // 建物をコピー
+                  console.log("a");
+                  const groupToCopy = findParentGroup(object);
+                  console.log(object);
+                  if (groupToCopy) {
+
+                    console.log("b");
+                    copyData(groupToCopy);
+                  }
                   hasZoomed2 = false;
                 }
               }
@@ -1310,15 +1077,13 @@ function removeCopiedBuilding(index) {
           console.log("4");
           if (userData.id == 0) {
             if (hasZoomed1) {//カメラ切り替え
-              isRearView = !isRearView;
+              hudGroup.visible = !hudGroup.visible; // 表示・非表示を切り替え
               hasZoomed1 = false;
-              console.log("isrear");
             }
           } else {
             if (hasZoomed2) {//カメラ切り替え
               isRearView = !isRearView;
               hasZoomed2 = false;
-              console.log("isrear");
             }
           }
         } else if (controllerData.buttons[5].pressed == true) {//yb
@@ -1326,46 +1091,55 @@ function removeCopiedBuilding(index) {
           if (userData.id == 0) {
             if (hasZoomed1) {
               let parts = propertyKeyHeight.split('_'); // "_" で分割
-      let prefix = parts[0] + '_'; // "S12_"
-      let numberPart1 = parts[1];   // "009"
-      let numberPart2 = parseInt(numberPart1, 10); // 文字列の "009" を整数に変換
-      if(numberPart2<maxValue){
-              propertyKeyHeight = incrementPropertyKey(propertyKeyHeight, 4);
-              propertyKey1 = incrementPropertyKey(propertyKey1, 4);
-              propertyKey2 = incrementPropertyKey(propertyKey2, 4);
-              clear();
-              map();
-              
-              year++; // 年をインクリメント
-                // 新しい年をキャンバスに描画
-            context3.clearRect(0, 0, canvas3.width, canvas3.height); // 以前の描画をクリア
-            context3.fillText(year + "年", 10, 50); // 新しい年を描画
+              let prefix = parts[0] + '_'; // "S12_"
+              let numberPart1 = parts[1];   // "009"
+              let numberPart2 = parseInt(numberPart1, 10); // 文字列の "009" を整数に変換
+              if (numberPart2 < maxValue) {
+                propertyKeyHeight = incrementPropertyKey(propertyKeyHeight, 4);
+                propertyKey1 = incrementPropertyKey(propertyKey1, 4);
+                propertyKey2 = incrementPropertyKey(propertyKey2, 4);
+                clear();
+                map();
 
-            // テクスチャを更新
-            texture3.needsUpdate = true; // テクスチャの更新を反映させる
-      }
-      hasZoomed1 = false;
+                year++; // 年をインクリメント
+                // 新しい年をキャンバスに描画
+                context3.clearRect(0, 0, canvas3.width, canvas3.height); // 以前の描画をクリア
+
+                context4.clearRect(0, 0, canvas4.width, canvas4.height); // 以前の描画をクリア
+                context3.fillText(year + "年", 10, 50); // 新しい年を描画
+                context4.fillText(year + "年", 0, 100); // 新しい年を描画
+                // テクスチャを更新
+                texture3.needsUpdate = true; // テクスチャの更新を反映させる
+                texture4.needsUpdate = true; // テクスチャの更新を反映させる
+              }
+              hasZoomed1 = false;
             }
           } else {
             if (hasZoomed2) {
               let parts = propertyKey1.split('_'); // "_" で分割
-      let prefix = parts[0] + '_'; // "S12_"
-      let numberPart1 = parts[1];   // "006"
-      let numberPart2 = parseInt(numberPart1, 10); // 文字列の "006" を整数に変換
-      if(numberPart2>minValue){
-              propertyKeyHeight = decrementPropertyKey(propertyKeyHeight, 4);
-              propertyKey1 = decrementPropertyKey(propertyKey1, 4);
-              propertyKey2 = decrementPropertyKey(propertyKey2, 4);
-              clear();
-              map();
-              year--; // 年をインクリメント
+              let prefix = parts[0] + '_'; // "S12_"
+              let numberPart1 = parts[1];   // "006"
+              let numberPart2 = parseInt(numberPart1, 10); // 文字列の "006" を整数に変換
+              if (numberPart2 > minValue) {
+                propertyKeyHeight = decrementPropertyKey(propertyKeyHeight, 4);
+                propertyKey1 = decrementPropertyKey(propertyKey1, 4);
+                propertyKey2 = decrementPropertyKey(propertyKey2, 4);
+                clear();
+                map();
+                year--; // 年をインクリメント
                 // 新しい年をキャンバスに描画
-            context3.clearRect(0, 0, canvas3.width, canvas3.height); // 以前の描画をクリア
-            context3.fillText(year + "年", 10, 50); // 新しい年を描画
+                context3.clearRect(0, 0, canvas3.width, canvas3.height); // 以前の描画をクリア
+                context4.clearRect(0, 0, canvas4.width, canvas4.height); // 以前の描画をクリア
+                context3.fillText(year + "年", 10, 50); // 新しい年を描画
 
-            // テクスチャを更新
-            texture3.needsUpdate = true; // テクスチャの更新を反映させる
-      }
+                context4.fillText(year + "年", 0, 100); // 新しい年を描画
+
+
+                // テクスチャを更新
+                texture3.needsUpdate = true; // テクスチャの更新を反映させる
+
+                texture4.needsUpdate = true; // テクスチャの更新を反映させる
+              }
               hasZoomed2 = false;
             }
           }
@@ -1403,28 +1177,45 @@ function removeCopiedBuilding(index) {
         }
       }
     }
-    const speed = 0.1;
     // スティック入力に基づく移動
     function updateMovement1(controller) {
       // コントローラのゲームパッドデータを取得
       const controllerData = controller.gamepad;
 
       if (controllerData && controllerData.axes) {
-        const joystickInput = controllerData.axes; // スティックの入力
-        // スティックの入力がゼロでないかを確認
-        if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
-          cameraContainer.position.x += joystickInput[2] * speed;
-          cameraContainer.position.z += joystickInput[3] * speed;
+        let cameraRotation;
 
+        if (!isRearView) {
+          cameraRotation = camera.rotation;
+        } else {
+          cameraRotation = camera2.rotation;
+        }
 
-        } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
+        const bugRotat = Math.abs(cameraRotation.x) + Math.abs(cameraRotation.z);
+        let speed;
+        speed = (Math.abs(controllerData.axes[2]) + Math.abs(controllerData.axes[3])) * 0.1;
+        if (bugRotat > 3) {
+          speed *= -1;
+          cameraRotation.y *= -1;
+        }
+        move(cameraRotation, speed, controller);
+        // 移動関数
+        function move(orientation, speed, controller) {
+          const direction = new THREE.Vector3(controller.gamepad.axes[2], 0, controller.gamepad.axes[3]);
+          direction.applyQuaternion(new THREE.Quaternion(0, orientation.y, 0));
+          // 方向ベクトルを正規化してから速度を掛け算
+          direction.normalize();
+          if (!isRearView) {
+            cameraContainer.position.addScaledVector(direction, speed);
+          } else if (isRearView) {
 
-          cameraContainer2.position.x += joystickInput[2] * speed;
-          cameraContainer2.position.z += joystickInput[3] * speed;
-
+            cameraContainer2.position.addScaledVector(direction, speed*2.5);
+          }
         }
       }
     }
+
+    const speeded = 0.1;
     // スティック入力に基づく移動
     function updateMovement2(controller) {
       // コントローラのゲームパッドデータを取得
@@ -1434,14 +1225,14 @@ function removeCopiedBuilding(index) {
         const joystickInput = controllerData.axes; // スティックの入力
         // スティックの入力がゼロでないかを確認
         if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && !isRearView) {
-          cameraContainer.position.y -= joystickInput[2] * speed;
-          cameraContainer.position.y -= joystickInput[3] * speed;
+          cameraContainer.position.y -= joystickInput[2] * speeded;
+          cameraContainer.position.y -= joystickInput[3] * speeded;
 
 
         } else if ((Math.abs(joystickInput[2]) > 0.1 || Math.abs(joystickInput[3]) > 0.1) && isRearView) {
 
-          cameraContainer2.position.y -= joystickInput[2] * speed;
-          cameraContainer2.position.y -= joystickInput[3] * speed;
+          cameraContainer2.position.y -= joystickInput[2] * speeded;
+          cameraContainer2.position.y -= joystickInput[3] * speeded;
 
         }
       }
@@ -1451,10 +1242,6 @@ function removeCopiedBuilding(index) {
 
     /* ----コントローラー設定----- */
 
-
-
-    // レンダラーにループ関数を登録
-    //renderer.setAnimationLoop(tick);
     // フラストムを生成
     const frustum = new THREE.Frustum();
     const cameraViewProjectionMatrix = new THREE.Matrix4();
@@ -1493,39 +1280,25 @@ function removeCopiedBuilding(index) {
 
     //毎フレーム実行される
     function render() {
-    
-      // // console.log(hour);
-      // updateSunPosition(hour);
-      // console.log(spotLight.position);
       //カメラ切り替え
       tick();
       //スティック移動
       updateMovement1(controller1);
       updateMovement2(controller2);
-      //移動した時のみ建物を半透明に
-      // if (!cameraContainer.position.equals(previousPosition)) {
-      //   updateBuildingTransparency(cameraContainer.position, builds, 5);  // 半径5m
-      //   previousPosition.copy(cameraContainer.position); // 前回の位置を更新
-      // }
+  
       // //前方後方コントローラ切り替え
       if (isRearView) {
         cameraContainer2.add(controller1);
         cameraContainer2.add(controller2);
         cameraContainer2.add(controllerGrip1);
         cameraContainer2.add(controllerGrip2);
-        // cameraContainer.remove(controller1);
-        // cameraContainer.remove(controller2);
-        // cameraContainer.remove(controllerGrip1);
-        // cameraContainer.remove(controllerGrip2);
+
       } else {
         cameraContainer.add(controller1);
         cameraContainer.add(controller2);
         cameraContainer.add(controllerGrip1);
         cameraContainer.add(controllerGrip2);
-        // cameraContainer2.remove(controller1);
-        // cameraContainer2.remove(controller2);
-        // cameraContainer2.remove(controllerGrip1);
-        // cameraContainer2.remove(controllerGrip2);
+    
       }
       //コントローラ機能
       handleController(controller1);
