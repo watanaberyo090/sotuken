@@ -860,7 +860,9 @@
 
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-
+    // Set positions for controllers
+    controller1.position.set(0.5, 200, 0.5); // Example position for controller1
+    controller2.position.set(-0.5, 200, 0.5); // Example position for controller2
     // コントローラーに userData プロパティを追加して id を設定する
     controller1.userData.id = 0;
     controller2.userData.id = 1;
