@@ -71,7 +71,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 30);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
 
 
     // カメラ用コンテナを作成
@@ -83,7 +83,7 @@
 
     scene.add(cameraContainer);
     // 後方カメラを作成
-    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 30);
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 2, 105);
@@ -1037,10 +1037,7 @@
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
       let controllerData = controller.gamepad;
-      console.log(userData.isSelecting)
-      if(controllerData){
-        console.log("a");
-      }
+      
       if (controllerData!==undefined) {
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
@@ -1199,9 +1196,7 @@
               hasZoomed2 = false;
             }
           }
-        } else if (controllerData.buttons[6].pressed == true) {//不明
-          console.log("6");
-        } else if (userData.id == 0) {
+        }  else if (userData.id == 0) {
           //右ボタンが離されたときの処理
           line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
           if (controller.userData.selected !== undefined) {
