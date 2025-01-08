@@ -613,7 +613,7 @@ hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
       const intersections = getIntersections(controller);//当たり判定
       //console.log(intersections);
       if (controllerData) {
-        if (controllerData.buttons[0].pressed == true) {//トリガーボタン
+        if (controllerData.buttons[0].pressed === true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
 
@@ -621,7 +621,7 @@ hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
             line2.material.color.set(0xff0000);
 
           }
-        } else if (controllerData.buttons[1].pressed == true) {//スクイーズボタン
+        } else if (controllerData.buttons[1].pressed === true) {//スクイーズボタン
           //YXボタンが押されたとき
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
