@@ -71,19 +71,19 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 30);
 
 
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
-    cameraContainer.position.set(0, 0, 0);
+    cameraContainer.position.set(0, 1, 0);
     //右にX60前にZ-150
 
     cameraContainer.add(camera);
 
     scene.add(cameraContainer);
     // 後方カメラを作成
-    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 30);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 2, 105);
@@ -1036,8 +1036,8 @@
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
-      const controllerData = controller.gamepad;
-      if (userData.isSelecting === true) {
+      let controllerData = controller.gamepad;
+      if (controllerData && controllerData.buttons) {
         if (controllerData.buttons[1].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
@@ -1227,6 +1227,7 @@
             map();
           }
         }
+        controllerData = undefined;
       }
     }
     // スティック入力に基づく移動
