@@ -985,7 +985,8 @@
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
       const controllerData = controller.gamepad;
-      if (controllerData) {
+      console.log(controllerData);
+      if (userData.isSelecting === true) {
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
@@ -1001,7 +1002,7 @@
                 // 動かす前の座標を保存
                 const originalPosition = { x: object.position.x, y: object.position.y, z: object.position.z };
 
-                // オブジェクトの座標をコントローラーにアタッチ
+                // オブジェクトの座標をコントローラーにアタッチ/
                 controller.attach(object);
 
                 // コントローラーのユーザーデータに選択されたオブジェクトを保存
