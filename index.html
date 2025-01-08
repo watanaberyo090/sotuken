@@ -71,7 +71,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 25);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
 
 
     // カメラ用コンテナを作成
@@ -83,7 +83,7 @@
 
     scene.add(cameraContainer);
     // 後方カメラを作成
-    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 25);
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 2, 105);
@@ -246,7 +246,7 @@
     let propertyKey2 = "S12_007";//駅データの年数を変えるためのプロパティーを変更するための変数
     let maxValue;//駅データのプロパティ最大値確認
     let minValue = 6;//駅データのプロパティ最小値は常に6
-    const pg = new THREE.PlaneGeometry(10, 10);
+    const pg = new THREE.PlaneGeometry(120, 50);
     const pm = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(pg, pm); plane.rotation.x = -Math.PI / 2;
     plane.position.set(-10, 0, 80);
