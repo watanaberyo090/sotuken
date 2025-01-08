@@ -76,7 +76,7 @@
 
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
-    cameraContainer.position.set(0, 0, 0);
+    cameraContainer.position.set(0, 1, 0);
     //右にX60前にZ-150
 
     cameraContainer.add(camera);
@@ -670,8 +670,8 @@
         tileOriginY = Math.floor(centerTile.y) - 2;
       }
 
-      for (let x = tileOriginX - 10; x < tileOriginX + 10; x++) {
-        for (let y = tileOriginY - 10; y < tileOriginY + 5; y++) {
+      for (let x = tileOriginX - 5; x < tileOriginX + 5; x++) {
+        for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
           loadOSMTile(x, y, zoom);
         }
       }
