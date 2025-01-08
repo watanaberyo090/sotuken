@@ -695,11 +695,11 @@
       // シェープファイルのパスを指定（.zip形式）
       loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1, propertyKey2);
 
-      //zoomが一番拡大されたときのみ建物を表示
-      if (zoom > 18) {
-        // 中心座標変更時に呼び出す
-        updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
-      }
+      // //zoomが一番拡大されたときのみ建物を表示
+      // if (zoom > 18) {
+      //   // 中心座標変更時に呼び出す
+      //   updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
+      // }
 
     }
     map();
