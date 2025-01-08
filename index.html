@@ -606,66 +606,62 @@ hudBorder.quaternion.copy(hudScreen.quaternion);  // 同じ回転
     let hasZoomed2 = true; // ボタンを押した状態を追跡するフラグ
     // レイキャスターの原点（コントローラーの位置）を格納するVector3
     const rayOrigin = new THREE.Vector3();
-    function handleController(controller) {
-      const controllerData = controller.gamepad;
-      //console.log(controllerData);
-      const userData = controller.userData;
-      const intersections = getIntersections(controller);//当たり判定
-      //console.log(intersections);
-      if (controllerData) {
-        if (controllerData.buttons[0].pressed === true) {//トリガーボタン
-          if (userData.id == 0) {
-            line1.material.color.set(0xff0000); // 赤色に設定
+    function handleController(controller) { 
+    const controllerData = controller.gamepad;
+    const userData = controller.userData;
+    const intersections = getIntersections(controller); // 当たり判定
 
-          } else {
-            line2.material.color.set(0xff0000);
-
-          }
-        } else if (controllerData.buttons[1].pressed === true) {//スクイーズボタン
-          //YXボタンが押されたとき
-          if (userData.id == 0) {
-            line1.material.color.set(0xff0000); // 赤色に設定
-            if (intersections.length > 0 && !isRearView && hasZoomed1) {//カメラ切り替え
-              isRearView = true;
-              hasZoomed1 = false;
-              console.log("isrear");
-            } else if (intersections.length > 0 && isRearView && hasZoomed1) {//カメラ切り替え
-              isRearView = false;
-              hasZoomed1 = false;
-              console.log("isrear");
-            } else if (hasZoomed1 && zoom < 19) {//地図拡大
-              zoom += 3;
-              clear();
-              map();
-              hasZoomed1 = false;
+    if (controllerData) {
+        // トリガーボタン
+        if (controllerData.buttons[0].pressed) {
+            if (userData.id == 0) {
+                line1.material.color.set(0xff0000); // 赤色に設定
+            } else {
+                line2.material.color.set(0xff0000);
             }
-          } else {
-            line2.material.color.set(0xff0000); // 赤色に設定
-            if (intersections.length > 0 && !isRearView && hasZoomed2) {//カメラ切り替え
-              isRearView = true;
-              hasZoomed2 = false;
-              console.log("isrear");
-            } else if (intersections.length > 0 && isRearView && hasZoomed2) {//カメラ切り替え
-              isRearView = false;
-              hasZoomed2 = false;
-              console.log("isrear");
-            } else if (hasZoomed2 && zoom > 7) {//地図縮小
-              zoom -= 3;
-              clear();
-              map();
-              hasZoomed2 = false;
-            }
-          }
         }
-
-      } else if (userData.id == 0) {
-        //右ボタンが離されたときの処理
-        line1.material.color.set(0xffffff); hasZoomed1 = true; //白色に設定
-      } else {
-        //左ボタンが離されたときの処理
-        line2.material.color.set(0xffffff); hasZoomed2 = true
-      }
+        // スクイーズボタン
+        else if (controllerData.buttons[1].pressed) {
+            handleSqueezeButton(userData, intersections);
+        }
     }
+
+    handleButtonRelease(userData);
+}
+
+function handleSqueezeButton(userData, intersections) {
+    if (userData.id == 0) {
+        line1.material.color.set(0xff0000); // 赤色に設定
+        handleZoomAndViewSwitch(intersections, hasZoomed1, true);
+    } else {
+        line2.material.color.set(0xff0000); // 赤色に設定
+        handleZoomAndViewSwitch(intersections, hasZoomed2, false);
+    }
+}
+
+function handleZoomAndViewSwitch(intersections, hasZoomed, isUser0) {
+    if (intersections.length > 0 && hasZoomed) {
+        isRearView = !isRearView;
+        hasZoomed = false;
+        console.log("isrear");
+    } else if (hasZoomed && (isUser0 ? zoom < 19 : zoom > 7)) {
+        zoom += isUser0 ? 3 : -3;
+        clear();
+        map();
+        hasZoomed = false;
+    }
+}
+
+function handleButtonRelease(userData) {
+    if (userData.id == 0) {
+        line1.material.color.set(0xffffff); 
+        hasZoomed1 = true; // 白色に設定
+    } else {
+        line2.material.color.set(0xffffff); 
+        hasZoomed2 = true; // 白色に設定
+    }
+}
+
     const speed = 0.01;
     // スティック入力に基づくx移動
     function updateMovement1(controller) {
