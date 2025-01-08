@@ -1038,8 +1038,11 @@
     const intersections2 = getIntersections2(controller); // 当たり判定2
     let controllerData = controller.gamepad;
 
-    if (!controllerData) return;
-
+    if (!controllerData || !controllerData.buttons || !controllerData.buttons.some(button => button.pressed)) {
+      
+      handleButtonRelease(controller, userData);
+    return;
+}
     if (controllerData.buttons[0].pressed) {
         handleTriggerButton(controller, userData, intersections, intersections2);
     } else if (controllerData.buttons[1].pressed) {
@@ -1052,9 +1055,8 @@
         handleXorAButton(userData);
     } else if (controllerData.buttons[5].pressed) {
         handleYorBButton(userData);
-    } else {
-        handleButtonRelease(controller, userData);
     }
+    console.log("a");
 
 }
 
@@ -1084,7 +1086,7 @@ function handleObjectSelection(controller,userData, object, hasZoomed) {
     }else if(userData.id===1&& hasZoomed2){
       const groupToCopy = findParentGroup(object);
       if (groupToCopy) {
-      copyData(groupToCopy)
+      copyData(groupToCopy);
       }
       hasZoomed2 = false;
     }
