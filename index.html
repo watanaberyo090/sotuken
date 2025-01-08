@@ -1213,9 +1213,9 @@
               map();
             }
           }
-        } else {
+        } else if(userData.id == 1){
           //左ボタンが離されたときの処理
-          line2.material.color.set(0xffffff); hasZoomed2 = true
+          line2.material.color.set(0xffffff); hasZoomed2 = true;
           if (controller.userData.selected !== undefined) {
             const object = controller.userData.selected;
             object.matrix.premultiply(controller.matrixWorld);
