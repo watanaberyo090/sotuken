@@ -76,7 +76,7 @@
 
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
-    cameraContainer.position.set(0, 1, 0);
+    cameraContainer.position.set(0, 0, 0);
     //右にX60前にZ-150
 
     cameraContainer.add(camera);
@@ -670,8 +670,8 @@
         tileOriginY = Math.floor(centerTile.y) - 2;
       }
 
-      for (let x = tileOriginX - 5; x < tileOriginX + 5; x++) {
-        for (let y = tileOriginY - 5; y < tileOriginY + 5; y++) {
+      for (let x = tileOriginX - 10; x < tileOriginX + 10; x++) {
+        for (let y = tileOriginY - 10; y < tileOriginY + 5; y++) {
           loadOSMTile(x, y, zoom);
         }
       }
@@ -695,11 +695,11 @@
       // シェープファイルのパスを指定（.zip形式）
       loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1, propertyKey2);
 
-      // //zoomが一番拡大されたときのみ建物を表示
-      // if (zoom > 18) {
-      //   // 中心座標変更時に呼び出す
-      //   updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
-      // }
+      //zoomが一番拡大されたときのみ建物を表示
+      if (zoom > 18) {
+        // 中心座標変更時に呼び出す
+        updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
+      }
 
     }
     map();
@@ -860,9 +860,7 @@
 
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-    // Set positions for controllers
-    controller1.position.set(0.5, 200, 0.5); // Example position for controller1
-    controller2.position.set(-0.5, 200, 0.5); // Example position for controller2
+
     // コントローラーに userData プロパティを追加して id を設定する
     controller1.userData.id = 0;
     controller2.userData.id = 1;
@@ -1039,7 +1037,7 @@
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
       const controllerData = controller.gamepad;
-      if (false) {
+      if (userData.isSelecting === true) {
         if (controllerData.buttons[1].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
