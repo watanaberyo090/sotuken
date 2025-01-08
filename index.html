@@ -441,55 +441,55 @@
       loadBuildings(bounds);
     }
     let loadingSprite;
-let loadingTextCanvas;
-let loadingTextContext;
-let darkOverlay;
+    let loadingTextCanvas;
+    let loadingTextContext;
+    let darkOverlay;
 
-function createLoadingMessage() {
-  // Canvasを作成してテキストを描画
-  loadingTextCanvas = document.createElement('canvas');
-  loadingTextCanvas.width = 1024;  // 大きなキャンバス
-  loadingTextCanvas.height = 256;  // 高さも調整
-  loadingTextContext = loadingTextCanvas.getContext('2d');
-  
-  // フォントサイズを大きくしてテキストを描画
-  loadingTextContext.fillStyle = 'white';
-  loadingTextContext.font = '80px Arial';  // フォントサイズを大きく
-  loadingTextContext.fillText('ロード中...', 10, 150);  // 位置を調整
+    function createLoadingMessage() {
+      // Canvasを作成してテキストを描画
+      loadingTextCanvas = document.createElement('canvas');
+      loadingTextCanvas.width = 1024;  // 大きなキャンバス
+      loadingTextCanvas.height = 256;  // 高さも調整
+      loadingTextContext = loadingTextCanvas.getContext('2d');
 
-  // Canvasをテクスチャに変換
-  const texture = new THREE.CanvasTexture(loadingTextCanvas);
-  const material = new THREE.SpriteMaterial({ map: texture });
+      // フォントサイズを大きくしてテキストを描画
+      loadingTextContext.fillStyle = 'white';
+      loadingTextContext.font = '80px Arial';  // フォントサイズを大きく
+      loadingTextContext.fillText('ロード中...', 10, 150);  // 位置を調整
 
-  // Spriteを作成
-  loadingSprite = new THREE.Sprite(material);
-  loadingSprite.position.set(0, 2, -10);  // VR空間内で表示する位置を調整
-  loadingSprite.scale.set(16, 4, 2);  // 文字のスケールを調整して大きく
+      // Canvasをテクスチャに変換
+      const texture = new THREE.CanvasTexture(loadingTextCanvas);
+      const material = new THREE.SpriteMaterial({ map: texture });
 
-  scene.add(loadingSprite);  // シーンに追加
+      // Spriteを作成
+      loadingSprite = new THREE.Sprite(material);
+      loadingSprite.position.set(0, 2, -10);  // VR空間内で表示する位置を調整
+      loadingSprite.scale.set(16, 4, 2);  // 文字のスケールを調整して大きく
 
-  // 画面全体を暗くするためのオーバーレイを作成
-  const overlayGeometry = new THREE.PlaneGeometry(40, 40);  // 画面全体を覆うような大きさに調整
-  const overlayMaterial = new THREE.MeshBasicMaterial({
-    color: 0x000000,  // 黒
-    opacity: 0.5,  // 半透明
-    transparent: true
-  });
-  darkOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
-  darkOverlay.position.set(0, 0, -20);  // カメラの前に配置
-  scene.add(darkOverlay);  // シーンに追加
-}
+      scene.add(loadingSprite);  // シーンに追加
 
-// 読み込み完了後に非表示にする
-function hideLoadingMessage() {
-  if (loadingSprite) {
-    scene.remove(loadingSprite);  // シーンから削除
-  }
-  if (darkOverlay) {
-    scene.remove(darkOverlay);  // 画面を暗くしているオーバーレイを削除
-  }
-}
-    // zoomレベルに応じて円柱の半径を設定
+      // 画面全体を暗くするためのオーバーレイを作成
+      const overlayGeometry = new THREE.PlaneGeometry(40, 40);  // 画面全体を覆うような大きさに調整
+      const overlayMaterial = new THREE.MeshBasicMaterial({
+        color: 0x000000,  // 黒
+        opacity: 0.5,  // 半透明
+        transparent: true
+      });
+      darkOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+      darkOverlay.position.set(0, 0, -20);  // カメラの前に配置
+      scene.add(darkOverlay);  // シーンに追加
+    }
+
+    // 読み込み完了後に非表示にする
+    function hideLoadingMessage() {
+      if (loadingSprite) {
+        scene.remove(loadingSprite);  // シーンから削除
+      }
+      if (darkOverlay) {
+        scene.remove(darkOverlay);  // 画面を暗くしているオーバーレイを削除
+      }
+    }
+    // zoomレベルに応じて中心座標の円柱の半径を設定
     function calculateRadius(zoom) {
       // zoomレベルに対応する半径を設定
       const radiusMapping = {
@@ -523,8 +523,8 @@ function hideLoadingMessage() {
     // テキストとデータのグループ作成
     const group = new THREE.Group();
     function loadGeoJson(url, propertyKeyHeight, propertyKeyName1, propertyKeyName2) {
-       // ロード中メッセージを表示
-  createLoadingMessage();
+      // ロード中メッセージを表示
+      createLoadingMessage();
       // GeoJSONファイルをロードしてピンを再表示
       fetch(url)
         .then(response => response.json())  // GeoJSONファイルをJSONとして読み込む
@@ -605,7 +605,7 @@ function hideLoadingMessage() {
           });
           console.log("GeoJSONのデータをロードしました");
 
-      hideLoadingMessage();  // エラーが発生した場合にも非表示にする
+          hideLoadingMessage();  // エラーが発生した場合にも非表示にする
           group.add(instancedMesh);
           scene.add(group);
           // グループ内のすべてのMeshを判定対象に追加
@@ -690,7 +690,7 @@ function hideLoadingMessage() {
       coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
       marker5 = undefined;
       updateCylinderRadius(zoom); // 例えばズームレベル2に変更
-    
+
 
       // シェープファイルのパスを指定（.zip形式）
       loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1, propertyKey2);
@@ -910,71 +910,71 @@ function hideLoadingMessage() {
     let lastRemovedPositions = []; // 削除されたデータの位置をリストで管理
 
     function copyData(originalData) {
-  if (copiedData.length >= maxCopies) {
-    console.log("最大複製数に達しています");
-    return; // これ以上複製しない
-  }
+      if (copiedData.length >= maxCopies) {
+        console.log("最大複製数に達しています");
+        return; // これ以上複製しない
+      }
 
-  // 独立したCanvasを作成
-  const canvasCopy = document.createElement('canvas');
-  canvasCopy.width = 500; // 必要に応じて設定
-  canvasCopy.height = 250;
-  const contextCopy = canvasCopy.getContext('2d');
+      // 独立したCanvasを作成
+      const canvasCopy = document.createElement('canvas');
+      canvasCopy.width = 500; // 必要に応じて設定
+      canvasCopy.height = 250;
+      const contextCopy = canvasCopy.getContext('2d');
 
-  // オリジナルのCanvas内容をコピー
-  contextCopy.drawImage(canvas4, 0, 0); // canvas4が元のCanvasの場合
+      // オリジナルのCanvas内容をコピー
+      contextCopy.drawImage(canvas4, 0, 0); // canvas4が元のCanvasの場合
 
-  // 独立したTextureとSpriteを作成
-  const textureCopy = new THREE.CanvasTexture(canvasCopy);
-  const spriteMaterialCopy = new THREE.SpriteMaterial({
-    map: textureCopy,
-    side: THREE.DoubleSide,
-    depthTest: false,
-    depthWrite: false,
-  });
-  const copiedSprite = new THREE.Sprite(spriteMaterialCopy);
-  copiedSprite.scale.set(10, 10, 0);
+      // 独立したTextureとSpriteを作成
+      const textureCopy = new THREE.CanvasTexture(canvasCopy);
+      const spriteMaterialCopy = new THREE.SpriteMaterial({
+        map: textureCopy,
+        side: THREE.DoubleSide,
+        depthTest: false,
+        depthWrite: false,
+      });
+      const copiedSprite = new THREE.Sprite(spriteMaterialCopy);
+      copiedSprite.scale.set(10, 10, 0);
 
-  // データオブジェクトを複製
-  const clonedData = originalData.clone();
+      // データオブジェクトを複製
+      const clonedData = originalData.clone();
 
-  // 配置位置を決定
-  let position;
-  if (lastRemovedPositions.length > 0) {
-    // 削除された位置を優先して配置
-    position = lastRemovedPositions.pop();
-  } else {
-    // グリッド上の位置を計算（横一列に並べる）
-    const index = copiedData.length;
-    const col = index % gridSize; // 列 (X軸方向)
-     // 左に表示をずらすためのオフセットを追加
-     const offsetX = -spacing * (gridSize / 2); // グリッドの中心から左にずらす
-    position = {
-      x: col * spacing+offsetX,  // 列方向の間隔
-      y: 0,
-      z: 90,  // Z軸の固定位置（奥行き）
-    };
-  }
+      // 配置位置を決定
+      let position;
+      if (lastRemovedPositions.length > 0) {
+        // 削除された位置を優先して配置
+        position = lastRemovedPositions.pop();
+      } else {
+        // グリッド上の位置を計算（横一列に並べる）
+        const index = copiedData.length;
+        const col = index % gridSize; // 列 (X軸方向)
+        // 左に表示をずらすためのオフセットを追加
+        const offsetX = -spacing * (gridSize / 2); // グリッドの中心から左にずらす
+        position = {
+          x: col * spacing + offsetX,  // 列方向の間隔
+          y: 0,
+          z: 90,  // Z軸の固定位置（奥行き）
+        };
+      }
 
-  // 配置位置をデータに追加
-  clonedData.position.set(position.x, position.y, position.z);
-  copiedSprite.position.set(position.x, 10, position.z - 10); // 表示したい位置に移動
+      // 配置位置をデータに追加
+      clonedData.position.set(position.x, position.y, position.z);
+      copiedSprite.position.set(position.x, 10, position.z - 10); // 表示したい位置に移動
 
-  // コピーされたデータを配列に追加（スプライトも含む）
-  copiedData.push({ data: clonedData, sprite: copiedSprite });
-  clonedData.children.forEach(child => {
-    if (child.isMesh) {
-      groupsToIntersect2.push(child); // メッシュを配列に追加
+      // コピーされたデータを配列に追加（スプライトも含む）
+      copiedData.push({ data: clonedData, sprite: copiedSprite });
+      clonedData.children.forEach(child => {
+        if (child.isMesh) {
+          groupsToIntersect2.push(child); // メッシュを配列に追加
+        }
+      });
+
+      // シーンに追加
+      scene.add(clonedData);
+      scene.add(copiedSprite);
+
+      // デバッグ用にコンソールで表示
+      console.log("コピーされたデータ:", clonedData);
     }
-  });
-
-  // シーンに追加
-  scene.add(clonedData);
-  scene.add(copiedSprite);
-
-  // デバッグ用にコンソールで表示
-  console.log("コピーされたデータ:", clonedData);
-}
 
     function removeData(data) {
       // データに関連付けられたスプライトを見つける
@@ -1038,7 +1038,7 @@ function hideLoadingMessage() {
       const intersections2 = getIntersections2(controller);//当たり判定
       const controllerData = controller.gamepad;
       if (controllerData && controllerData.buttons) {
-        if (controllerData.buttons[0].pressed == true) {//トリガーボタン
+        if (controllerData.buttons[1].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
 
@@ -1261,7 +1261,7 @@ function hideLoadingMessage() {
             cameraContainer.position.addScaledVector(direction, speed);
           } else if (isRearView) {
 
-            cameraContainer2.position.addScaledVector(direction, speed*2.5);
+            cameraContainer2.position.addScaledVector(direction, speed * 2.5);
           }
         }
       }
@@ -1337,7 +1337,7 @@ function hideLoadingMessage() {
       //スティック移動
       updateMovement1(controller1);
       updateMovement2(controller2);
-  
+
       // //前方後方コントローラ切り替え
       if (isRearView) {
         cameraContainer2.add(controller1);
@@ -1350,7 +1350,7 @@ function hideLoadingMessage() {
         cameraContainer.add(controller2);
         cameraContainer.add(controllerGrip1);
         cameraContainer.add(controllerGrip2);
-    
+
       }
       //コントローラ機能
       handleController(controller1);
