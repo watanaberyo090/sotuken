@@ -160,7 +160,7 @@
       const offset = new THREE.Vector3(0.4, 2, -2.5); // 後方視点用のオフセット
       // カメラの位置を基準にHUDの位置を計算
       const offset2 = new THREE.Vector3(0.4, 2.05, -2.6); // 後方視点用のオフセット
-      const offset3 = new THREE.Vector3(2, 3, -2.5); // 後方視点用のオフセット
+      const offset3 = new THREE.Vector3(1.5, 2, -2.5); // 後方視点用のオフセット
       // カメラのクォータニオンをコピー
       const cameraRotation = camera.quaternion.clone();
 
@@ -440,6 +440,55 @@
 
       loadBuildings(bounds);
     }
+    let loadingSprite;
+let loadingTextCanvas;
+let loadingTextContext;
+let darkOverlay;
+
+function createLoadingMessage() {
+  // Canvasを作成してテキストを描画
+  loadingTextCanvas = document.createElement('canvas');
+  loadingTextCanvas.width = 1024;  // 大きなキャンバス
+  loadingTextCanvas.height = 256;  // 高さも調整
+  loadingTextContext = loadingTextCanvas.getContext('2d');
+  
+  // フォントサイズを大きくしてテキストを描画
+  loadingTextContext.fillStyle = 'white';
+  loadingTextContext.font = '80px Arial';  // フォントサイズを大きく
+  loadingTextContext.fillText('ロード中...', 10, 150);  // 位置を調整
+
+  // Canvasをテクスチャに変換
+  const texture = new THREE.CanvasTexture(loadingTextCanvas);
+  const material = new THREE.SpriteMaterial({ map: texture });
+
+  // Spriteを作成
+  loadingSprite = new THREE.Sprite(material);
+  loadingSprite.position.set(0, 2, -10);  // VR空間内で表示する位置を調整
+  loadingSprite.scale.set(16, 4, 2);  // 文字のスケールを調整して大きく
+
+  scene.add(loadingSprite);  // シーンに追加
+
+  // 画面全体を暗くするためのオーバーレイを作成
+  const overlayGeometry = new THREE.PlaneGeometry(40, 40);  // 画面全体を覆うような大きさに調整
+  const overlayMaterial = new THREE.MeshBasicMaterial({
+    color: 0x000000,  // 黒
+    opacity: 0.5,  // 半透明
+    transparent: true
+  });
+  darkOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+  darkOverlay.position.set(0, 0, -20);  // カメラの前に配置
+  scene.add(darkOverlay);  // シーンに追加
+}
+
+// 読み込み完了後に非表示にする
+function hideLoadingMessage() {
+  if (loadingSprite) {
+    scene.remove(loadingSprite);  // シーンから削除
+  }
+  if (darkOverlay) {
+    scene.remove(darkOverlay);  // 画面を暗くしているオーバーレイを削除
+  }
+}
     // zoomレベルに応じて円柱の半径を設定
     function calculateRadius(zoom) {
       // zoomレベルに対応する半径を設定
@@ -474,6 +523,8 @@
     // テキストとデータのグループ作成
     const group = new THREE.Group();
     function loadGeoJson(url, propertyKeyHeight, propertyKeyName1, propertyKeyName2) {
+       // ロード中メッセージを表示
+  createLoadingMessage();
       // GeoJSONファイルをロードしてピンを再表示
       fetch(url)
         .then(response => response.json())  // GeoJSONファイルをJSONとして読み込む
@@ -554,6 +605,7 @@
           });
           console.log("GeoJSONのデータをロードしました");
 
+      hideLoadingMessage();  // エラーが発生した場合にも非表示にする
           group.add(instancedMesh);
           scene.add(group);
           // グループ内のすべてのMeshを判定対象に追加
