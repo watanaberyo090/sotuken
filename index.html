@@ -71,7 +71,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 25);
 
 
     // カメラ用コンテナを作成
@@ -83,7 +83,7 @@
 
     scene.add(cameraContainer);
     // 後方カメラを作成
-    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 25);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 2, 105);
@@ -695,11 +695,11 @@
       // シェープファイルのパスを指定（.zip形式）
       loadGeoJson('S12-23_NumberOfPassengers.geojson', propertyKeyHeight, propertyKey1, propertyKey2);
 
-      // //zoomが一番拡大されたときのみ建物を表示
-      // if (zoom > 18) {
-      //   // 中心座標変更時に呼び出す
-      //   updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
-      // }
+      //zoomが一番拡大されたときのみ建物を表示
+      if (zoom > 18) {
+        // 中心座標変更時に呼び出す
+        updateBuildings({ lon: centerLon, lat: centerLat }, zoom);
+      }
 
     }
     map();
