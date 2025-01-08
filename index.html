@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>VR駅別乗降客数の可視化</title>
+  <title>VR駅別乗降客数可視化</title>
   <style>
     body {
       margin: 0;
@@ -984,8 +984,8 @@
       const userData = controller.userData;
       const intersections = getIntersections(controller);//当たり判定
       const intersections2 = getIntersections2(controller);//当たり判定
-      if (controller && controller.gamepad) {
-        const controllerData = controller.gamepad;
+      const controllerData = controller.gamepad;
+      if (controllerData) {
         if (controllerData.buttons[0].pressed == true) {//トリガーボタン
           if (userData.id == 0) {
             line1.material.color.set(0xff0000); // 赤色に設定
