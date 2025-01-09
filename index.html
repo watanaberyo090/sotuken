@@ -24,7 +24,6 @@
         }
       }
     </script>
-  <script src="https://unpkg.com/shpjs@3.5.0/dist/shp.min.js"></script>
   <script type="module">
     //建物比較
     // three.jsの読み込み
@@ -54,7 +53,6 @@
     let renderer = new THREE.WebGLRenderer({
       antialias: true,
     });
-    // renderer.shadowMap.enabled = true;        // 影の有効化
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -72,23 +70,17 @@
 
     // カメラを作成
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
-
-
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
     cameraContainer.position.set(0, 1, 0);
-    //右にX60前にZ-150
-
     cameraContainer.add(camera);
-
     scene.add(cameraContainer);
+
     // 後方カメラを作成
     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
     cameraContainer2.position.set(0, 2, 105);
-    // cameraContainer2.rotation.y = Math.PI;  // 前方を向くように回転
-    //右にX60前にZ-150
     cameraContainer2.add(camera2);
     scene.add(cameraContainer2);
     // ミラーとして使用する後方カメラの映像を保存するためのターゲット
@@ -218,29 +210,19 @@
     const osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     let hasExecuted = false;//一度のみ処理するための変数
     let marker5;//前のフレームのマーカーの座標を保持
-    let zoomed = 0;//前のフレームのzoom値を保持する
-    let x;//前のフレームのマーカーx座標を保持する
-    let z;//前のフレームのマーカーz座標を保持する
     let tileOriginX;//地図のｘ座標
     let tileOriginY;//地図のｙ座標
-    let coordinates;//マーカーの座標を経度緯度に変換して保持する
     let coordinates2;//中心の円柱の座標を経度緯度に変換して保持する
     let centerTile;//中心座標
     let zoom = 19;//地図のズームレベル
     let centerLon = 139.7454; // 東京都心の経度
     let centerLat = 35.6586;   // 東京都心の緯度
-    let Execute = true //カメラ２を停止するための変数
-    let hour = 1;//太陽の位置
-    // タイルメッシュを保持する配列
     let tiles = [];//全ての地図タイルを管理する配列
     let pins = []; // すべてのピンを管理する配列
     let lines = [];//すべての経路を管理する配列
     let builds = [];//すべての建物を管理する配列
-    // 出発地点と目的地点の緯度経度を定義
-    const startLat = 35.6895; // 出発地点の緯度 (例: 東京)
-    const startLon = 139.6917; // 出発地点の経度 (例: 東京)
-    const endLat = 35.6586; // 目的地点の緯度 (例: 東京タワー)
-    const endLon = 139.7454; // 目的地点の経度 (例: 東京タワー)
+    const endLat = 35.6586; // 緯度 (東京タワー)
+    const endLon = 139.7454; // 経度 (東京タワー)
     let propertyKeyHeight = "S12_009";//駅データの年数を変えるためのプロパティーを変更するための変数
     let propertyKey1 = "S12_006";//駅データの年数を変えるためのプロパティーを変更するための変数
     let propertyKey2 = "S12_007";//駅データの年数を変えるためのプロパティーを変更するための変数
@@ -499,26 +481,8 @@
         10: 0.01,
         7: 0.001
       };
-
       // zoomレベルに基づく半径を返す
       return radiusMapping[zoom] || 0.1;  // 対応する値がなければ最小の0.1を返す
-    }
-    function getHeightBasedOnZoom(zoom) {
-      const heightMapping = {
-        19: 0.00001,   // zoom 19で高さが大きい
-        16: 0.00001,
-        13: 0.00001,
-        10: 0.00001,
-        7: 0.00001    // zoom 7で最小の高さ
-      };
-      return heightMapping[zoom];  // 対応する値がなければ最小の1を返す
-    }
-    function calculatePinSize(zoom) {
-      let size;
-      if (zoom > 12) {
-        size = 0.002;
-      } else size = 0.002
-      return size;
     }
     // テキストとデータのグループ作成
     const group = new THREE.Group();
@@ -536,7 +500,7 @@
 
 
           const radius = calculateRadius(zoom);
-          const baseHeight = getHeightBasedOnZoom(zoom);  // 基本の高さを設定
+          const baseHeight = 0.00001;  // 基本の高さを設定
           const instancedGeometry = new THREE.CylinderGeometry(radius, radius, 1, 16); // 高さは後でスケーリング
           const instancedMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
@@ -689,7 +653,7 @@
 
       coordinates2 = convertSceneToLatLon(cylinder.position.x, cylinder.position.z, zoom);
       marker5 = undefined;
-      updateCylinderRadius(zoom); // 例えばズームレベル2に変更
+      updateCylinderRadius(zoom);
 
 
       // シェープファイルのパスを指定（.zip形式）
@@ -703,24 +667,6 @@
 
     }
     map();
-    //建物を半透明にする
-    function updateBuildingTransparency(playerPosition, buildings, radius) {
-      buildings.forEach(building => {
-        // 建物のジオメトリから中心を計算
-        const boundingBox = new THREE.Box3().setFromObject(building);
-        const buildingCenter = new THREE.Vector3();
-        boundingBox.getCenter(buildingCenter);
-
-        // プレイヤーとの距離を計算
-        const distance = playerPosition.distanceTo(buildingCenter);
-
-        if (distance < radius) {
-          building.material.opacity = 0.5;  // 範囲内: 半透明
-        } else {
-          building.material.opacity = 1.0;  // 範囲外: 不透明
-        }
-      });
-    }
     // タイル、ピン、経路、建物を削除する関数
     function clear() {
       tiles.forEach(tile => {
@@ -897,11 +843,6 @@
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
       return raycaster.intersectObjects(groupsToIntersect2, true);
     }
-    let builds2 = [];
-    //選択した建物をコピー
-    // x座標を管理するカウンター
-    let xOffset = -5;
-    let zOffset = -2;
     // 複製されたデータを管理する配列
     let copiedData = [];
     let maxCopies = 4; // 最大複製数
@@ -1032,168 +973,151 @@
     let hasZoomed1 = true; // ボタンを押した状態を追跡するフラグ
     let hasZoomed2 = true; // ボタンを押した状態を追跡するフラグ
 
- function handleController(controller) { 
-    const userData = controller.userData;
-    const intersections = getIntersections(controller); // 当たり判定1
-    const intersections2 = getIntersections2(controller); // 当たり判定2
-    let controllerData = controller.gamepad;
+    function handleController(controller) {
+      const userData = controller.userData;
+      const intersections = getIntersections(controller); // 当たり判定1
+      const intersections2 = getIntersections2(controller); // 当たり判定2
+      let controllerData = controller.gamepad;
 
-    if (!controllerData || !controllerData.buttons || !controllerData.buttons.some(button => button.pressed)) {
-      
-      handleButtonRelease(controller, userData);
-    return;
-}
-    if (controllerData.buttons[0].pressed) {
-        handleTriggerButton(controller, userData, intersections, intersections2);
-    } else if (controllerData.buttons[1].pressed) {
-        handleSqueezeButton(userData);
-    } else if (controllerData.buttons[2].pressed) {
-        console.log("Button 2 pressed");
-    } else if (controllerData.buttons[3].pressed) {
-        console.log("Button 3 pressed");
-    } else if (controllerData.buttons[4].pressed) {
-        handleXorAButton(userData);
-    } else if (controllerData.buttons[5].pressed) {
-        handleYorBButton(userData);
+      if (!controllerData || !controllerData.buttons || !controllerData.buttons.some(button => button.pressed)) {
+        handleButtonRelease(controller, userData);
+        return;
+      }
+      if (controllerData.buttons[0].pressed) {
+        handleTriggerButton(controller, userData, intersections, intersections2);//トリガー
+      } else if (controllerData.buttons[1].pressed) {
+        handleSqueezeButton(userData);//スクイーズ
+      } else if (controllerData.buttons[2].pressed) {
+        console.log("Button 2 pressed");//?
+      } else if (controllerData.buttons[3].pressed) {
+        console.log("Button 3 pressed");//?
+      } else if (controllerData.buttons[4].pressed) {
+        handleXorAButton(userData);//XA
+      } else if (controllerData.buttons[5].pressed) {
+        handleYorBButton(userData);//YB
+      }
+
     }
-    console.log("a");
 
-}
+    function handleTriggerButton(controller, userData, intersections, intersections2) {
+      const line = userData.id === 0 ? line1 : line2;
+      line.material.color.set(0xff0000); // 赤色に設定
 
-function handleTriggerButton(controller, userData, intersections, intersections2) {
-    const line = userData.id === 0 ? line1 : line2;
-    line.material.color.set(0xff0000); // 赤色に設定
-
-    const targetIntersections = userData.id === 0 ? intersections2 : intersections;
-    if (targetIntersections.length > 0) {
+      const targetIntersections = userData.id === 0 ? intersections2 : intersections;
+      if (targetIntersections.length > 0) {
         const object = targetIntersections[0].object;
         if (!controller.userData.selected) {
-            handleObjectSelection(controller,userData, object, userData.id === 0 ? hasZoomed1 : hasZoomed2);
+          handleObjectSelection(controller, userData, object, userData.id === 0 ? hasZoomed1 : hasZoomed2);
         }
+      }
     }
-}
 
-function handleObjectSelection(controller,userData, object, hasZoomed) {
-    if (object.name === "cylinder") {
+    function handleObjectSelection(controller, userData, object, hasZoomed) {
+      if (object.name === "cylinder") {
         controller.attach(object);
         controller.userData.selected = object;
-    } else if (userData.id === 0&& hasZoomed1) {
+      } else if (userData.id === 0 && hasZoomed1) {
         const groupToCopy = findParentGroup(object);
         if (groupToCopy) {
-            removeData(groupToCopy);
+          removeData(groupToCopy);
         }
         hasZoomed1 = false;
-    }else if(userData.id===1&& hasZoomed2){
-      const groupToCopy = findParentGroup(object);
-      if (groupToCopy) {
-      copyData(groupToCopy);
+      } else if (userData.id === 1 && hasZoomed2) {
+        const groupToCopy = findParentGroup(object);
+        if (groupToCopy) {
+          copyData(groupToCopy);
+        }
+        hasZoomed2 = false;
       }
-      hasZoomed2 = false;
     }
-}
 
-function handleSqueezeButton(userData) {
-    const line = userData.id === 0 ? line1 : line2;
-    line.material.color.set(0xff0000); // 赤色に設定
+    function handleSqueezeButton(userData) {
+      const line = userData.id === 0 ? line1 : line2;
+      line.material.color.set(0xff0000); // 赤色に設定
 
-    if (userData.id === 0) {
+      if (userData.id === 0) {
         if (hasZoomed1 && zoom < 19) {
-            zoom += 3;
-            clear();
-            map();
-            hasZoomed1 = false;
+          zoom += 3;
+          clear();
+          map();
+          hasZoomed1 = false;
         }
-    } else {
+      } else {
         if (hasZoomed2 && zoom > 7) {
-            zoom -= 3;
+          zoom -= 3;
+          clear();
+          map();
+          hasZoomed2 = false;
+        }
+      }
+    }
+
+    function handleXorAButton(userData) {
+      console.log("Button 4 pressed");
+      if (userData.id === 0) {
+        if (hasZoomed1) {
+          hudGroup.visible = !hudGroup.visible;
+          hasZoomed1 = false;
+        }
+      } else {
+        if (hasZoomed2) {
+          isRearView = !isRearView;
+          hasZoomed2 = false;
+        }
+      }
+    }
+
+    function handleYorBButton(userData) {
+      console.log("Button 5 pressed");
+      if (userData.id === 0) {
+        if (hasZoomed1) {
+          let parts = propertyKeyHeight.split('_');
+          let numberPart = parseInt(parts[1], 10);
+          if (numberPart < maxValue) {
+            propertyKeyHeight = incrementPropertyKey(propertyKeyHeight, 4);
+            propertyKey1 = incrementPropertyKey(propertyKey1, 4);
+            propertyKey2 = incrementPropertyKey(propertyKey2, 4);
             clear();
             map();
-            hasZoomed2 = false;
+            year++;
+            updateCanvas();
+          }
+          hasZoomed1 = false;
         }
-    }
-}
-
-function handleXorAButton(userData) {
-    console.log("Button 4 pressed");
-    if (userData.id === 0) {
-        if (hasZoomed1) {
-            hudGroup.visible = !hudGroup.visible;
-            hasZoomed1 = false;
-        }
-    } else {
+      } else {
         if (hasZoomed2) {
-            isRearView = !isRearView;
-            hasZoomed2 = false;
+          let parts = propertyKey1.split('_');
+          let numberPart = parseInt(parts[1], 10);
+          if (numberPart > minValue) {
+            propertyKeyHeight = decrementPropertyKey(propertyKeyHeight, 4);
+            propertyKey1 = decrementPropertyKey(propertyKey1, 4);
+            propertyKey2 = decrementPropertyKey(propertyKey2, 4);
+            clear();
+            map();
+            year--;
+            updateCanvas();
+          }
+          hasZoomed2 = false;
         }
+      }
     }
-}
 
-function handleYorBButton(userData) {
-    console.log("Button 5 pressed");
-    if (userData.id === 0) {
-        if (hasZoomed1) {
-            let parts = propertyKeyHeight.split('_');
-            let numberPart = parseInt(parts[1], 10);
-            if (numberPart < maxValue) {
-                propertyKeyHeight = incrementPropertyKey(propertyKeyHeight, 4);
-                propertyKey1 = incrementPropertyKey(propertyKey1, 4);
-                propertyKey2 = incrementPropertyKey(propertyKey2, 4);
-                clear();
-                map();
-                year++;
-                updateCanvas();
-            }
-            hasZoomed1 = false;
-        }
-    } else {
-        if (hasZoomed2) {
-            let parts = propertyKey1.split('_');
-            let numberPart = parseInt(parts[1], 10);
-            if (numberPart > minValue) {
-                propertyKeyHeight = decrementPropertyKey(propertyKeyHeight, 4);
-                propertyKey1 = decrementPropertyKey(propertyKey1, 4);
-                propertyKey2 = decrementPropertyKey(propertyKey2, 4);
-                clear();
-                map();
-                year--;
-                updateCanvas();
-            }
-            hasZoomed2 = false;
-        }
+    function updateCanvas() {
+      context3.clearRect(0, 0, canvas3.width, canvas3.height);
+      context4.clearRect(0, 0, canvas4.width, canvas4.height);
+      context3.fillText(year + "年", 10, 50);
+      context4.fillText(year + "年", 0, 100);
+      texture3.needsUpdate = true;
+      texture4.needsUpdate = true;
     }
-}
 
+    function handleButtonRelease(controller, userData) {
+      const line = userData.id === 0 ? line1 : line2;
+      line.material.color.set(0xffffff);
+      if (userData.id === 0) hasZoomed1 = true;
+      else hasZoomed2 = true;
 
-function updateYear(increment, boundaryValue, keyHeight, key1, key2) {
-    const parts = keyHeight.split('_');
-    const numberPart = parseInt(parts[1], 10);
-    if ((increment > 0 && numberPart < boundaryValue) || (increment < 0 && numberPart > boundaryValue)) {
-        propertyKeyHeight = incrementPropertyKey(keyHeight, increment);
-        propertyKey1 = incrementPropertyKey(key1, increment);
-        propertyKey2 = incrementPropertyKey(key2, increment);
-        clear();
-        map();
-        year += increment;
-        updateCanvas();
-    }
-}
-
-function updateCanvas() {
-    context3.clearRect(0, 0, canvas3.width, canvas3.height);
-    context4.clearRect(0, 0, canvas4.width, canvas4.height);
-    context3.fillText(year + "年", 10, 50);
-    context4.fillText(year + "年", 0, 100);
-    texture3.needsUpdate = true;
-    texture4.needsUpdate = true;
-}
-
-function handleButtonRelease(controller, userData) {
-    const line = userData.id === 0 ? line1 : line2;
-    line.material.color.set(0xffffff); 
-    if (userData.id === 0) hasZoomed1 = true;
-    else hasZoomed2 = true;
-
-    if (controller.userData.selected) {
+      if (controller.userData.selected) {
         const object = controller.userData.selected;
         object.matrix.premultiply(controller.matrixWorld);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
@@ -1202,8 +1126,8 @@ function handleButtonRelease(controller, userData) {
         controller.userData.selected = undefined;
         clear();
         map();
+      }
     }
-}
 
     // スティック入力に基づく移動
     function updateMovement1(controller) {
@@ -1236,8 +1160,7 @@ function handleButtonRelease(controller, userData) {
           if (!isRearView) {
             cameraContainer.position.addScaledVector(direction, speed);
           } else if (isRearView) {
-
-            cameraContainer2.position.addScaledVector(direction, speed * 2.5);
+            cameraContainer2.position.addScaledVector(direction, speed * 3);
           }
         }
       }
@@ -1269,42 +1192,6 @@ function handleButtonRelease(controller, userData) {
 
 
     /* ----コントローラー設定----- */
-
-    // フラストムを生成
-    const frustum = new THREE.Frustum();
-    const cameraViewProjectionMatrix = new THREE.Matrix4();
-    const frustum2 = new THREE.Frustum();
-    const cameraViewProjectionMatrix2 = new THREE.Matrix4();
-
-    function updateVisibleTiles() {
-      // カメラのビュー投影行列を更新
-      camera.updateMatrixWorld(); // ワールドマトリクスを更新
-      cameraViewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-      frustum.setFromProjectionMatrix(cameraViewProjectionMatrix);
-      camera2.updateMatrixWorld(); // ワールドマトリクスを更新
-      cameraViewProjectionMatrix2.multiplyMatrices(camera2.projectionMatrix, camera2.matrixWorldInverse);
-      frustum2.setFromProjectionMatrix(cameraViewProjectionMatrix2);
-
-      tiles.forEach(tile => {
-        // タイルのボックスを生成
-        const box = new THREE.Box3().setFromCenterAndSize(tile.position, new THREE.Vector3(1, 1, 1));
-
-        // タイルがフラストム内にあるかを確認
-        if (frustum.intersectsBox(box) || frustum2.intersectsBox(box)) {
-          // フラストム内の場合はシーンに追加
-          if (!scene.children.includes(tile)) {
-            scene.add(tile);
-          }
-        } else {
-          // フラストム外の場合はシーンから削除
-          if (scene.children.includes(tile)) {
-            scene.remove(tile);
-          }
-        }
-      });
-    }
-    // 初期状態でカメラコンテナの位置を記録
-    let previousPosition = cameraContainer.position.clone();
 
     //毎フレーム実行される
     function render() {
