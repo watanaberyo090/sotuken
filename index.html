@@ -1051,15 +1051,15 @@
 
     function handleXorAButton(userData) {
       console.log("Button 4 pressed");
-      if (userData.id === 0) {
-        if (hasZoomed1) {
+      if (userData.id === 1) {
+        if (hasZoomed2) {
           hudGroup.visible = !hudGroup.visible;
-          hasZoomed1 = false;
+          hasZoomed2 = false;
         }
       } else {
-        if (hasZoomed2) {
+        if (hasZoomed1) {
           isRearView = !isRearView;
-          hasZoomed2 = false;
+          hasZoomed1 = false;
         }
       }
     }
