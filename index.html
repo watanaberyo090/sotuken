@@ -1185,6 +1185,35 @@
         }
       }
     }
+    let previousIsRearView = null; // 前回の状態を保持する変数
+
+function updateControllerView(isRearView) {
+    // 前回の状態と現在の状態を比較
+    if (isRearView !== previousIsRearView) {
+        if (isRearView) {
+            cameraContainer.remove(controller1);
+            cameraContainer.remove(controller2);
+            cameraContainer.remove(controllerGrip1);
+            cameraContainer.remove(controllerGrip2);
+            cameraContainer2.add(controller1);
+            cameraContainer2.add(controller2);
+            cameraContainer2.add(controllerGrip1);
+            cameraContainer2.add(controllerGrip2);
+        } else {
+            cameraContainer2.remove(controller1);
+            cameraContainer2.remove(controller2);
+            cameraContainer2.remove(controllerGrip1);
+            cameraContainer2.remove(controllerGrip2);
+            cameraContainer.add(controller1);
+            cameraContainer.add(controller2);
+            cameraContainer.add(controllerGrip1);
+            cameraContainer.add(controllerGrip2);
+        }
+
+        // 状態が切り替わった後に前回の状態を更新
+        previousIsRearView = isRearView;
+    }
+}
 
 
 
@@ -1199,27 +1228,7 @@
       updateMovement2(controller2);
 
       // //前方後方コントローラー切り替え
-      if (isRearView) {
-        cameraContainer.remove(controller1);
-        cameraContainer.remove(controller2);
-        cameraContainer.remove(controllerGrip1);
-        cameraContainer.remove(controllerGrip2);
-        cameraContainer2.add(controller1);
-        cameraContainer2.add(controller2);
-        cameraContainer2.add(controllerGrip1);
-        cameraContainer2.add(controllerGrip2);
-
-      } else {
-        cameraContainer2.remove(controller1);
-        cameraContainer2.remove(controller2);
-        cameraContainer2.remove(controllerGrip1);
-        cameraContainer2.remove(controllerGrip2);
-        cameraContainer.add(controller1);
-        cameraContainer.add(controller2);
-        cameraContainer.add(controllerGrip1);
-        cameraContainer.add(controllerGrip2);
-
-      }
+      updateControllerView(isRearView);
       //コントローラー機能
       handleController(controller1);
       handleController(controller2);
