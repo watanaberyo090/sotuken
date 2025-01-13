@@ -37,7 +37,7 @@
     import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
     // カメラの向きを反転するフラグ
     let isRearView = false;
-    //コントローラーー
+    //コントローラー
     let controller1, controller2;
     let controllerGrip1, controllerGrip2;
 
@@ -752,9 +752,9 @@
       }
     }
 
-    /* ----コントローラーー設定----- */
+    /* ----コントローラー設定----- */
 
-    // // コントローラーーイベントの設定
+    // // コントローラーイベントの設定
     function onSelectStart() {
       this.userData.isSelecting = true;
     }
@@ -773,7 +773,7 @@
     function onSqueezeEnd() {
       this.userData.isSelecting = false;
     }
-    //コントローラーー取得
+    //コントローラー取得
     controller1 = renderer.xr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
@@ -799,7 +799,7 @@
       }
     });
 
-    //コントローラーーモデルを取得
+    //コントローラーモデルを取得
     const controllerModelFactory = new XRControllerModelFactory();
     controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
@@ -807,10 +807,10 @@
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
 
-    // コントローラーーに userData プロパティを追加して id を設定する
+    // コントローラーに userData プロパティを追加して id を設定する
     controller1.userData.id = 1;
     controller2.userData.id = 0;
-    //コントローラーーから出る光線の作成				
+    //コントローラーから出る光線の作成				
     const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     const line1 = new THREE.Line(geo);
     const line2 = new THREE.Line(geo);
@@ -826,7 +826,7 @@
 
     // Raycasterを作成
     let raycaster = new THREE.Raycaster();
-    let tempMatrix = new THREE.Matrix4(); // コントローラーーの位置と向きを取得するための一時行列
+    let tempMatrix = new THREE.Matrix4(); // コントローラーの位置と向きを取得するための一時行列
     var groupsToIntersect = [cylinder];//レイと交差判定できるobjectを代入
     // レイと交差しているシェイプの取得
     function getIntersections(controller) {
@@ -1000,7 +1000,7 @@
     }
 
     function handleTriggerButton(controller, userData, intersections, intersections2) {
-      const line = userData.id === 0 ? line1 : line2;
+      const line = userData.id === 1 ? line1 : line2;
       line.material.color.set(0xff0000); // 赤色に設定
 
       const targetIntersections = userData.id === 0 ? intersections2 : intersections;
@@ -1032,7 +1032,7 @@
     }
 
     function handleSqueezeButton(userData) {
-      const line = userData.id === 0 ? line1 : line2;
+      const line = userData.id === 1 ? line1 : line2;
       line.material.color.set(0xff0000); // 赤色に設定
 
       if (userData.id === 0) {
@@ -1112,7 +1112,7 @@
     }
 
     function handleButtonRelease(controller, userData) {
-      const line = userData.id === 0 ? line1 : line2;
+      const line = userData.id === 1 ? line1 : line2;
       line.material.color.set(0xffffff);
       if (userData.id === 0) hasZoomed1 = true;
       else hasZoomed2 = true;
@@ -1191,7 +1191,7 @@
 
 
 
-    /* ----コントローラーー設定----- */
+    /* ----コントローラー設定----- */
 
     //毎フレーム実行される
     function render() {
@@ -1201,7 +1201,7 @@
       updateMovement1(controller1);
       updateMovement2(controller2);
 
-      // //前方後方コントローラーー切り替え
+      // //前方後方コントローラー切り替え
       if (isRearView) {
         cameraContainer.remove(controller1);
         cameraContainer.remove(controller2);
