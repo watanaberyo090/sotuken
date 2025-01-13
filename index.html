@@ -69,7 +69,7 @@
     scene.background = new THREE.Color(0xe0ffff);
 
     // カメラを作成
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 60);
     // カメラ用コンテナを作成
     const cameraContainer = new THREE.Object3D();
     cameraContainer.position.set(0, 1, 0);
@@ -77,10 +77,10 @@
     scene.add(cameraContainer);
 
     // 後方カメラを作成
-    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 60);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
-    cameraContainer2.position.set(0, 2, 210);
+    cameraContainer2.position.set(0, 2, 160);
     cameraContainer2.add(camera2);
     scene.add(cameraContainer2);
     // ミラーとして使用する後方カメラの映像を保存するためのターゲット
@@ -231,7 +231,7 @@
     const pg = new THREE.PlaneGeometry(120, 50);
     const pm = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(pg, pm); plane.rotation.x = -Math.PI / 2;
-    plane.position.set(-10, 0, 160);
+    plane.position.set(-10, 0, 110);
     scene.add(plane);
     //中心座標を表すobject
     const geometry2 = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
@@ -893,7 +893,7 @@
         position = {
           x: col * spacing + offsetX,  // 列方向の間隔
           y: 0,
-          z: 180,  // Z軸の固定位置（奥行き）
+          z: 130,  // Z軸の固定位置（奥行き）
         };
       }
 
