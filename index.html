@@ -1002,10 +1002,13 @@
     function handleTriggerButton(controller, userData, intersections, intersections2) {
       const line = userData.id === 1 ? line1 : line2;
       line.material.color.set(0xff0000); // 赤色に設定
-
-      const targetIntersections = userData.id === 0 ? intersections2 : intersections;
-      if (targetIntersections.length > 0) {
-        const object = targetIntersections[0].object;
+      console.log(userData.id)
+       if (userData.id === 1 && hasZoomed2) {     
+          copyData(group);
+        hasZoomed2 = false;
+      }
+      if (intersections2.length > 0) {
+        const object = intersections2[0].object;
         if (!controller.userData.selected) {
           handleObjectSelection(controller, userData, object, userData.id === 0 ? hasZoomed1 : hasZoomed2);
         }
@@ -1022,13 +1025,7 @@
           removeData(groupToCopy);
         }
         hasZoomed1 = false;
-      } else if (userData.id === 1 && hasZoomed2) {
-        const groupToCopy = findParentGroup(object);
-        if (groupToCopy) {
-          copyData(groupToCopy);
-        }
-        hasZoomed2 = false;
-      }
+      } 
     }
 
     function handleSqueezeButton(userData) {
