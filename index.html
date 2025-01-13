@@ -32,12 +32,12 @@
     import { VRButton } from "three/addons/webxr/VRButton.js";
     // WebXRのポリフィルを読み込み
     import WebXRPolyfill from "webxr-polyfill";
-    //コントローラ
+    //コントローラー
     import { XRControllerModelFactory } from 'https://unpkg.com/three@0.150.1/examples/jsm/webxr/XRControllerModelFactory.js';
     import { OrbitControls } from 'https://unpkg.com/three@0.150.1/examples/jsm/controls/OrbitControls.js';
     // カメラの向きを反転するフラグ
     let isRearView = false;
-    //コントローラー
+    //コントローラーー
     let controller1, controller2;
     let controllerGrip1, controllerGrip2;
 
@@ -752,9 +752,9 @@
       }
     }
 
-    /* ----コントローラー設定----- */
+    /* ----コントローラーー設定----- */
 
-    // // コントローラーイベントの設定
+    // // コントローラーーイベントの設定
     function onSelectStart() {
       this.userData.isSelecting = true;
     }
@@ -773,14 +773,14 @@
     function onSqueezeEnd() {
       this.userData.isSelecting = false;
     }
-    //コントローラー取得
+    //コントローラーー取得
     controller1 = renderer.xr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);//トリガー
     controller1.addEventListener('selectend', onSelectEnd);
     controller1.addEventListener('squeezestart', onSqueezeStart);//スクイーズ
     controller1.addEventListener('squeezeend', onSqueezeEnd);
     controller1.addEventListener('connected', (event) => {
-      if ('gamepad' in event.data) {//接続した際にコントローラの情報を渡す
+      if ('gamepad' in event.data) {//接続した際にコントローラーの情報を渡す
         if ('axes' in event.data.gamepad) {
           controller1.gamepad = event.data.gamepad;
         }
@@ -799,7 +799,7 @@
       }
     });
 
-    //コントローラーモデルを取得
+    //コントローラーーモデルを取得
     const controllerModelFactory = new XRControllerModelFactory();
     controllerGrip1 = renderer.xr.getControllerGrip(0);
     controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
@@ -807,10 +807,10 @@
     controllerGrip2 = renderer.xr.getControllerGrip(1);
     controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
 
-    // コントローラーに userData プロパティを追加して id を設定する
-    controller1.userData.id = 0;
-    controller2.userData.id = 1;
-    //コントローラーから出る光線の作成				
+    // コントローラーーに userData プロパティを追加して id を設定する
+    controller1.userData.id = 1;
+    controller2.userData.id = 0;
+    //コントローラーーから出る光線の作成				
     const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     const line1 = new THREE.Line(geo);
     const line2 = new THREE.Line(geo);
@@ -821,12 +821,12 @@
     controller1.add(line1.clone());
     controller2.add(line2.clone());
 
-    //コントローラ機能
+    //コントローラー機能
 
 
     // Raycasterを作成
     let raycaster = new THREE.Raycaster();
-    let tempMatrix = new THREE.Matrix4(); // コントローラーの位置と向きを取得するための一時行列
+    let tempMatrix = new THREE.Matrix4(); // コントローラーーの位置と向きを取得するための一時行列
     var groupsToIntersect = [cylinder];//レイと交差判定できるobjectを代入
     // レイと交差しているシェイプの取得
     function getIntersections(controller) {
@@ -1013,7 +1013,7 @@
     }
 
     function handleObjectSelection(controller, userData, object, hasZoomed) {
-      if (object.name === "cylinder") {
+      if (userData.id === 0&&object.name === "cylinder") {
         controller.attach(object);
         controller.userData.selected = object;
       } else if (userData.id === 0 && hasZoomed1) {
@@ -1131,7 +1131,7 @@
 
     // スティック入力に基づく移動
     function updateMovement1(controller) {
-      // コントローラのゲームパッドデータを取得
+      // コントローラーのゲームパッドデータを取得
       const controllerData = controller.gamepad;
 
       if (controllerData && controllerData.axes) {
@@ -1169,7 +1169,7 @@
     const speeded = 0.1;
     // スティック入力に基づく移動
     function updateMovement2(controller) {
-      // コントローラのゲームパッドデータを取得
+      // コントローラーのゲームパッドデータを取得
       const controllerData = controller.gamepad;
 
       if (controllerData && controllerData.axes) {
@@ -1191,7 +1191,7 @@
 
 
 
-    /* ----コントローラー設定----- */
+    /* ----コントローラーー設定----- */
 
     //毎フレーム実行される
     function render() {
@@ -1201,7 +1201,7 @@
       updateMovement1(controller1);
       updateMovement2(controller2);
 
-      // //前方後方コントローラ切り替え
+      // //前方後方コントローラーー切り替え
       if (isRearView) {
         cameraContainer.remove(controller1);
         cameraContainer.remove(controller2);
@@ -1223,7 +1223,7 @@
         cameraContainer.add(controllerGrip2);
 
       }
-      //コントローラ機能
+      //コントローラー機能
       handleController(controller1);
       handleController(controller2);
     }
