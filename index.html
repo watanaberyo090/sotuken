@@ -80,7 +80,7 @@
     const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     // 後方カメラ用コンテナを作成
     const cameraContainer2 = new THREE.Object3D();
-    cameraContainer2.position.set(0, 2, 105);
+    cameraContainer2.position.set(0, 2, 210);
     cameraContainer2.add(camera2);
     scene.add(cameraContainer2);
     // ミラーとして使用する後方カメラの映像を保存するためのターゲット
@@ -231,7 +231,7 @@
     const pg = new THREE.PlaneGeometry(120, 50);
     const pm = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(pg, pm); plane.rotation.x = -Math.PI / 2;
-    plane.position.set(-10, 0, 80);
+    plane.position.set(-10, 0, 160);
     scene.add(plane);
     //中心座標を表すobject
     const geometry2 = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
@@ -893,7 +893,7 @@
         position = {
           x: col * spacing + offsetX,  // 列方向の間隔
           y: 0,
-          z: 90,  // Z軸の固定位置（奥行き）
+          z: 180,  // Z軸の固定位置（奥行き）
         };
       }
 
@@ -1195,8 +1195,8 @@
       //カメラ切り替え
       tick();
       //スティック移動
-      updateMovement1(controller2);
-      updateMovement2(controller1);
+      updateMovement1(controller1);
+      updateMovement2(controller2);
 
       // //前方後方コントローラー切り替え
       if (isRearView) {
