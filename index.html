@@ -475,11 +475,11 @@
     function calculateRadius(zoom) {
       // zoomレベルに対応する半径を設定
       const radiusMapping = {
-        19: 0.05,
+        19: 0.01,
         16: 0.01,
         13: 0.01,
-        10: 0.01,
-        7: 0.001
+        10: 0.005,
+        7: 0.005
       };
       // zoomレベルに基づく半径を返す
       return radiusMapping[zoom] || 0.1;  // 対応する値がなければ最小の0.1を返す
@@ -499,7 +499,7 @@
           maxValue = Object.keys(propertyConfirmation).length - 2;//-2は同じ数値があるため
 
 
-          const radius = calculateRadius(zoom);
+          const radius = 0.008;
           const baseHeight = 0.00001;  // 基本の高さを設定
           const instancedGeometry = new THREE.CylinderGeometry(radius, radius, 1, 16); // 高さは後でスケーリング
           const instancedMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -1003,8 +1003,8 @@
       const line = userData.id === 1 ? line1 : line2;
       line.material.color.set(0xff0000); // 赤色に設定
       console.log(userData.id)
-       if (userData.id === 1 && hasZoomed2) {     
-          copyData(group);
+      if (userData.id === 1 && hasZoomed2) {
+        copyData(group);
         hasZoomed2 = false;
       }
       if (intersections2.length > 0) {
@@ -1016,7 +1016,7 @@
     }
 
     function handleObjectSelection(controller, userData, object, hasZoomed) {
-      if (userData.id === 0&&object.name === "cylinder") {
+      if (userData.id === 0 && object.name === "cylinder") {
         controller.attach(object);
         controller.userData.selected = object;
       } else if (userData.id === 0 && hasZoomed1) {
@@ -1025,7 +1025,7 @@
           removeData(groupToCopy);
         }
         hasZoomed1 = false;
-      } 
+      }
     }
 
     function handleSqueezeButton(userData) {
@@ -1187,33 +1187,33 @@
     }
     let previousIsRearView = null; // 前回の状態を保持する変数
 
-function updateControllerView(isRearView) {
-    // 前回の状態と現在の状態を比較
-    if (isRearView !== previousIsRearView) {
+    function updateControllerView(isRearView) {
+      // 前回の状態と現在の状態を比較
+      if (isRearView !== previousIsRearView) {
         if (isRearView) {
-            cameraContainer.remove(controller1);
-            cameraContainer.remove(controller2);
-            cameraContainer.remove(controllerGrip1);
-            cameraContainer.remove(controllerGrip2);
-            cameraContainer2.add(controller1);
-            cameraContainer2.add(controller2);
-            cameraContainer2.add(controllerGrip1);
-            cameraContainer2.add(controllerGrip2);
+          cameraContainer.remove(controller1);
+          cameraContainer.remove(controller2);
+          cameraContainer.remove(controllerGrip1);
+          cameraContainer.remove(controllerGrip2);
+          cameraContainer2.add(controller1);
+          cameraContainer2.add(controller2);
+          cameraContainer2.add(controllerGrip1);
+          cameraContainer2.add(controllerGrip2);
         } else {
-            cameraContainer2.remove(controller1);
-            cameraContainer2.remove(controller2);
-            cameraContainer2.remove(controllerGrip1);
-            cameraContainer2.remove(controllerGrip2);
-            cameraContainer.add(controller1);
-            cameraContainer.add(controller2);
-            cameraContainer.add(controllerGrip1);
-            cameraContainer.add(controllerGrip2);
+          cameraContainer2.remove(controller1);
+          cameraContainer2.remove(controller2);
+          cameraContainer2.remove(controllerGrip1);
+          cameraContainer2.remove(controllerGrip2);
+          cameraContainer.add(controller1);
+          cameraContainer.add(controller2);
+          cameraContainer.add(controllerGrip1);
+          cameraContainer.add(controllerGrip2);
         }
 
         // 状態が切り替わった後に前回の状態を更新
         previousIsRearView = isRearView;
+      }
     }
-}
 
 
 
